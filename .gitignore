@@ -1,0 +1,10 @@
+__pycache__
+.ipynb_checkpoints
+data/*
+*csv
+*7z
+*zip
+*raw
+*npy
+*pickle
+*.api
