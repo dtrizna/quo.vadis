@@ -1,6 +1,7 @@
 __pycache__
 .ipynb_checkpoints
 parameters
+testfiles
 data/*
 *csv
 *7z
