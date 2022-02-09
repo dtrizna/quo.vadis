@@ -2,8 +2,10 @@ __pycache__
 .ipynb_checkpoints
 parameters
 testfiles
-data/*
-*csv
+data/path.dataset/*csv
+data/path.dataset/*txt
+data/pe.dataset/PeX86Exe
+data/pe.dataset/PeX64Exe
 *7z
 *zip
 *raw
