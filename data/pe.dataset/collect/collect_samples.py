@@ -80,7 +80,7 @@ def dump_db(series, filepath):
 
 if __name__ == "__main__":
 
-    filetype = "PeX86Exe" # "Pex64exe"
+    filetype = "Pex64Exe" # "PeX86Exe" 
     os.makedirs(filetype, exist_ok=True)
     
     q = sys.argv[1]
@@ -93,15 +93,17 @@ if __name__ == "__main__":
 
     try:
         while True:
+            labio_query = f"srcprop.fileName: \"c:*\" and filetype: {filetype} and tagger.confidence: >= 50 and {q}" # severity:clean or type:ransomware
             query = {
                 "limit": query_size,
                 "offset": offset,
                 "cols": ["sources", "sha256", "tagger"],
 
                 # srcprop.fileName: \"c:*\" : this takes long reponse from back-end, ~ 1 min 40 sec
-                "query": f"srcprop.fileName: \"c:*\" and filetype: {filetype} and tagger.confidence: >= 50 and {q}" # severity:clean or type:ransomware
+                "query": labio_query
                 }
             print(f"\n[*] {time.ctime()}:\nmaking search request with offset {offset}...")
+            print("labio query: ", labio_query)
             offset += query_size # for next iteration
 
             time.sleep(300)
@@ -157,7 +159,6 @@ if __name__ == "__main__":
                         time.sleep(0.5)
             else:
                 print(response.status_code)
-                import pdb;pdb.set_trace()
                 if offset > 10000:
                     offset = 0
                 else:
