@@ -1,0 +1,302 @@
+916bc6fd4d12c7f53f81d4e3bdf21271ac70a928fab0c9622b61e0a4ac504c9d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+d473941e52b9c094b93045309228f6d4d3749c16ccbb88bcca9c7123b1a4de27  :  unsupported_api user32.GetKBCodePage
+	len of apis: 0
+bc61e33eedd1a5f70730fd7d7d54842b694522912bf5a0fa5dba900586d3816e  :  unsupported_api kernel32.GetSystemDefaultUILanguage
+	len of apis: 0
+eee2e1596b91c478c34ce46819a810033c517861348b99806def31ac81811f0d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+ed55da050e6765f5aa3026e1549706e2541e5744d4f8fd7fa073c9493603772d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+37f5efd1aed9594306f7d26841829d6f11d0e73efc68eeda0ebde9ee1f1cfe75  :  unsupported_api user32.GetMessageTime
+	len of apis: 1
+f562018b8ee371f1c2fe7b38263342e745d12558e83753bfb4967d3f64a0565f  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+b65b6de9346cf44fc9bfc34e3a51cd9a4ce6a8fdd710f6a10b9509385b1cf936  :  unsupported_api user32.GetClipboardViewer
+	len of apis: 0
+2185c0410d9d30969c20d937c73bd2ca742a25ef180256e1e5c92667d0d352f7  :  unsupported_api kernel32.GetUserDefaultLCID
+	len of apis: 0
+688e6e65cee40e4c39d617d36a0c55be74803dbdaa0fe90d44da936da61af72f  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+344daf740284388c5992c2362979465dea3f537c657e2376b9c26d304d103fc5  :  unsupported_api shlwapi.ordinal_437
+	len of apis: 55
+a07bc34f5f6c0ba39a9548e5d951f37d66b0f0678eab528474fb64fc4026eeb7  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+33debdd84a1ec5b36db8d4506b9c65096e4fdc3f6d88650441b18a20b1e6415b  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 184
+a172a366549af6825524b9916b8adb53f3b149f47598206cc5005856a3eb4f91  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 231
+4bac94fb2fdeca815aaf12667eec58157558e1b56810c6fbbc01059efe65bb36  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+6e67fd3ab838bc89763f887dd147f7e127e4e12a5d52d7efa78dc7536c93d4ec  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+7ebddf3d6d6e8cf129e5b678e924dfdba558f40de53210f37a578d8514ac172d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+e43b00522e3a14c238a93b193dffe8566161c4ababe86221e6148e1b36333597  :  unsupported_api user32.GetMenuCheckMarkDimensions
+	len of apis: 0
+7f8955c335492f7b6fecaf9857252235d45b132f68b481f08ecdc0ad18d9890a  :  unsupported_api KERNEL32.GetConsoleTitleW
+	len of apis: 565
+82cf2574cfd4f432d3345a06d99a6c67e9004935ddd520417b5bf7fc5256d551  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+d042606747e507e80bdee11f13d40c167a8ad2d8adfdef9114f0cfb1965aa2e0  :  unsupported_api user32.GetCaretBlinkTime
+	len of apis: 1
+582b529363991d0213d38825cc46245cd94e43aac86ae221280593413a2b35e3  :  unsupported_api user32.GetOpenClipboardWindow
+	len of apis: 1
+e8aa62ee56dbe1b2cad4674d592d3de2e3be45ee7abfc69ce700ae0ab6f36d40  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+1468b37e66937115773ff355b4003454029e186598b974863c61fd62e7d6885a  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+71910edd49efbbb4751179d0e366ba4f42dc9e68324d1bee907c5ada171ae316  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+a2d6949a5a0aeef96eeb2c18e4ac7f642b72f0741a0c86518c816a29dae98430  :  unsupported_api user32.GetFocus
+	len of apis: 0
+a4a1cd6a767049d95bc33a49564c14d3774212362855c9a4d39453c849718132  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+361d8eb253ad2dd8907a965a89f78e73e93b6d3f47265432e6a333609697547d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+962d370e1555fafc35f7901b0981bfdfd1263d6c47092101c137e5ec08956958  :  unsupported_api user32.GetClipboardOwner
+	len of apis: 0
+861a96dd84cedd7925e7be41acb53ecd5f53b75f4aafbab826045a36212c6020  :  unsupported_api user32.GetClipboardViewer
+	len of apis: 0
+0b524d756db4f616a742b63e807b20d3a018972979cab3a9109d913f9889e9a5  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+22949a1095a15083e62b862332411051b823ae680aa21705d2987cc531790837  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c5d8585df8604d1d69cf69f90e633d8f18197e578cf40bc27c23c8d4a88961e6  :  unsupported_api KERNEL32.GetConsoleProcessList
+	len of apis: 461
+cba83961ee4730be02fc68c1ced61ccf7cbbec6460b900c2ae73cd407cff7d82  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+7cdf3a3fc9bfc63c2f4141fdf6861d36709ae156bff807e2ad94abf885d0f323  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+46ecf048c3d68e0afb992689bccee2fe93e7653c4f21a5957f68fc7cbaf3780c  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+4af356d78b6b33ea56267ca30f98f72a1be11841fae3de1e793235000bd8b082  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+5eb740b63ccf3e40557dee3913a8feb4d915b382771e879010218b783ca4911c  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+2899bab6adf151ac2e8ce0f4ba88f1dcc5c0cd71b6af218a9305ca5859b4aa97  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+5b99f4f09f3d34249cce69f8a47ec876be892a51942f4a4152a688479b89c987  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+6cc7daf61650e1bec5c0d4e3747effaf29743908e7e41e79b143fb69028c0634  :  unsupported_api KERNEL32.GetConsoleProcessList
+	len of apis: 461
+2fb515bf378d81d3bdf9df694779e4d9d8ad587539e869bcc768a1bf01ae8fdb  :  unsupported_api user32.GetCaretBlinkTime
+	len of apis: 1
+9016aeb95893ab74eec1f161ab7a02698800aa562e53ba80103a79575fee92d4  :  unsupported_api user32.GetClipboardOwner
+	len of apis: 0
+76a2f3d6e3feab6ed20493213b65f9bf69316ad15c0f6a571b4812b5569125a5  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+b273a8cd6769f36350dfaca9ba22483858b79503580a5448fc406123e34ab877  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 231
+dbd119a77de6e08ecfd4df6912f0692ef32e1eb38dd28896314b6c0ecd6f8480  :  unsupported_api user32.GetOpenClipboardWindow
+	len of apis: 0
+560b6b60328a9d07493f5f9cbd99a277665ae63c4a842d931ad81f07a9baafa1  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+d4eb80aef7291292ed79259f0adad17841f593b0f5903c565be71c5918053377  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3075ba40052e6859f1ac38d753ac3c96bd6c87283cc6c188fe5734ff27d755cc  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+1744ace0379a8e68ff57534bd0fe13d04599f40bb04a64de739c1ce51a3b5ab5  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+1ce21783399530e90816230fe50556f41c45f731195ec2f264602d801737e0fc  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+7f65c19f06801b05e1016711f5866e0ca361a27dcf350f4790d77dd04b5805cf  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 231
+8b4c8865aa38ef8fbc3ff002643d59edfff7bc1de98b21a0de732025bdacc81d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+a366148df1ac25a91ddd73b77bbb23a614fbdc847cdc661a30fe045579b949a3  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+b889b8863c530be65c4de35a1360fb73c551c3683aa80fff1ed49fa92b5414f8  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+e76b579c0f7c849d3dcf910366e28e7943214f1f1fe9c26e51446520a959d841  :  unsupported_api user32.GetMessagePos
+	len of apis: 1
+97bdc7004bec2f8e4eaa9568c53258b15e2cf4d7d7d64f5fd799ad0abe59cc1d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c401ef57216c528833278a5c291e0a1fbc14955d865b8bd92dd85aa99c434f58  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+110e887adc921df46361a65f44e678fbf8ebaede9b893dc9ff35efac692a1430  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+cf6fab09fef29ea74f47ace8a661d5d0156dcb9f16ebb488a062e748cff72656  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+1fcad6d0656b0f7f4fe3defea85102f7bd87663b108a380a52c319ffee5c20ad  :  unsupported_api KERNEL32.GetCPInfoExW
+	len of apis: 306
+18295f4b1c1e95012fa9f8ca4eee3648b85beab57d246059f15a63b92d2f11d0  :  unsupported_api user32.GetKBCodePage
+	len of apis: 0
+c33cf6ea7cb9966cf38e1e55eb611a922a49835b340dcea017e6f0684a96e021  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3295c4a235862ad0a869f0bc67c216ac50f8c0c01ee642fcba661a0efdb9683a  :  unsupported_api kernel32.GetSystemDefaultUILanguage
+	len of apis: 0
+6c3426f0ce30a3edebe689b98071622ac98512788551782d29ef05cb1d1019fa  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 231
+a742ee81f18585a4da721718d3e2bf8becce23574dcd40c028163fa8de9bb937  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+6b2972a001baa0c804e57462e2b0f0cc0a5914ce32ac235764e0a1601b734c32  :  unsupported_api kernel32.GetUserDefaultLangID
+	len of apis: 0
+52d233d31409e02e6b5a4dac09acd579cd11702d40321c3527bfcf502c2f68c9  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+6c4e8fc4b3d1fa074023cdde3ad1906abfcc64d15e6cb819ab67527ebe594ee5  :  unsupported_api msvcrt.__p___initenv
+	len of apis: 8
+a6f6d5f625c70bf1a58982e715ba66c718762a28bfda1c9deb4f5395af0b7aaa  :  unsupported_api user32.GetCaretBlinkTime
+	len of apis: 0
+4411e251b5db24612fb26c52c00fa8148ce612002724dea0cce2849a170c8215  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+35a6bb135c223ef39f2ea82a2603034abbc7a57022c170a50bd8369acccb3c50  :  unsupported_api user32.GetOpenClipboardWindow
+	len of apis: 1
+99da39a14aa518c9993d982de2b53564c7fddae6feaefb537242e7c7c8eba0c1  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+40d1c4af90bc1afe23512eec3aeb065e4d9ba8dfa1819471c10ec2980f820dd7  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+f1b700a98d06b194ae252f75b728048a3fabd33bbfbcae37611bfc7a5000a4b7  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+dbf216e00305a73515fe993fd7f0a9330984380443bdb4529616a986ccd8d524  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+da77e99f5625a44b05a874901c0f581521c2cee0bd17e1f6838b8687640a0b30  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+f95383c5ea70b38a81d144c076b7d4b2aada6cae1e680c5f6de0945cc526144f  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+a011251a6075684ef3f99ccc86f344c0539a3e64c06d7c7ae6a6f9a8cfdfdcb1  :  unsupported_api kernel32.GetSystemDefaultLCID
+	len of apis: 0
+5c380f8f19582057ecc09cb958e8e379b1e7357f80ca6fb1ef013b3f3a9b6cdd  :  unsupported_api user32.GetClipboardViewer
+	len of apis: 0
+9135b790b19d437a3c8012c697e6e104607172e2ac8996330c5e313876fbb4b9  :  unsupported_api user32.GetDoubleClickTime
+	len of apis: 1
+9c52bb6f877d0439b6bd428ebac249588f8bda566fc6b3c5fb5ebd8cd0cfcaba  :  unsupported_api user32.GetCursor
+	len of apis: 0
+de2544f100c36a61032029deec726a94872ff60f25d89c434af512ed39fea790  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+30cee49cd440d8a429a6c29e6b808d74cb2f0a6b044e78120aeb1664af2bb3df  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+ec73e52e578e62f3fd2c99cd11391ee9772685c81389fb666d8317788e8c5125  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+bd0bc45c211c8dacd8f3a8ed041a381bfd1c36faafad158a5fe0cce07f19a1f7  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+9646d754149573bfc5740cd248f52d0cc6d1bcd1cca0d7f69c3de453b4e8f597  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c6bb1b7061c7629c6233d389164153498694d2fc499a1f315ba5bb925beb339c  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+736bc2cff9d28d0c92a18ef74b2b34d749bcfa4d238aa48b0ccf731c508d604b  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+97925dedbc4b89105368d3cb27ac3fcab5d3ad206ff920d9904cb4895f64b89d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+509e973ed51b0ce563c605ae77f65cb6e84949f58546578ef392db82bb092731  :  unsupported_api user32.GetMessageExtraInfo
+	len of apis: 0
+0c720a8769441fc623ff10f6f1a84c2766930a92aaf630f4a4772af26ed405fe  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+dbe58cd79cb7acc1a33081828d5c64ebf788e793bb834b33cab232827f6d861c  :  unsupported_api kernel32.GetSystemDefaultUILanguage
+	len of apis: 0
+f6496270c82eccad41a71d9be3871e9ef61c053d6e4bf6a65a4e2d7f0d1d7073  :  unsupported_api user32.GetCaretBlinkTime
+	len of apis: 0
+5b7bdf111359eb144c3d7e8cd9d51b130abe02c0866853726625a80b8a5609a4  :  unsupported_api user32.GetFocus
+	len of apis: 0
+9d59af8a38f085833b6686d7bb45be797b47465cab1d10aa223ccfc02e84034e  :  unsupported_api user32.GetFocus
+	len of apis: 0
+de8d6b669c76c0bb3e94daa510fedfbdc465c734b29584472ea2c4cfe8e7ddad  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+178baaa2867d1eee5d3b0214ba22822e1fa4f4148019e51be5e645a77a48b28c  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c620fbfab4a783e8ce408acab8aa1f21aa43f7b83c4cf20b2b81c05a061b8645  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+7d17bafe3b93164fcac7a1210d4c1243e555b719b380e20309b64bdddd5e7f51  :  unsupported_api user32.GetInputDesktop
+	len of apis: 1
+cf67a2f3ef6aab55409e000a6c61de9a12d6e1e55767bef381d323246a285b55  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+84703c636bf6bdad3417a43371bdf3adce10acc93bdcdbec97a49309e9d99712  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+d65958543378a3200f1ba42f626d231555cb256d360e754f19d59a4ceb1efc25  :  unsupported_api user32.GetInputState
+	len of apis: 0
+1cc673cd05cf77e055105e9339544585ba47059c88d0b23fc9c5248cfba0aeb1  :  unsupported_api user32.GetOpenClipboardWindow
+	len of apis: 1
+473ab83b4c0acba2dc9176ec9b309e7357a061c35c847f5047636e5c605f3175  :  unsupported_api KERNEL32.HeapValidate
+	len of apis: 111
+b63115e53b8c15cb3f30bfcd64d111cd6c3eff406cfd6648cee8c8fed5daca2a  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+ceb68d513bce017b7ecc904ae163d2bedb41326ac91cf7868cf80ae1bebeee11  :  unsupported_api KERNEL32.GetConsoleTitleA
+	len of apis: 226
+c5673e62c2858bcfe35778083117585230ab8f113036713bec22f153e5c4f9d2  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+def1219b5cb567590aaa7abca8b6fb5f6b5703c072270440feaf642ec3481f0d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+4feae1e5f3359e70f53c2505778c7b31b58e7c959d59da7c229c1715c697c974  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3514b96328011f2b3715115a399964ae5fc8172d21abe96d40a5a708fdcc6308  :  unsupported_api user32.GetInputDesktop
+	len of apis: 0
+f3ecf7af247ec8672207113ea19809ab07a4355f81a5a0cb967154f019f2207e  :  unsupported_api kernel32.GetUserDefaultLangID
+	len of apis: 1
+214c24b9c4fedc2f51fa6e4beaf388bdf294374b9edf726113195a4ebace806d  :  unsupported_api msvcrt.__p___initenv
+	len of apis: 8
+e33dbf9531639af9fb2ebf83eb813d4df71c7aff0651408c7083a750c7620ef8  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 328
+9b997393264f53f0b289689ab65e0ab585e2696b203e95d79bab8eab03d85ee7  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3cb727c04c3c1b45177c92453919d57bd8820cb5306a449040c0b55b1db9e9bc  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+4fd2b29a36d439451a3f88a57c03c1153f5892055ddceee98818eb365e8dfd56  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3fe43dbef0ae6747d572700a5e60b517090824fd1dc80350bb41d1fa19d92318  :  unsupported_api KERNEL32.GetNumberOfConsoleInputEvents
+	len of apis: 213
+42f2b744e424d335bfef42ed10882ba102037ab6e830d865cedcbeee3b672e04  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c656145500f94666a12b00ce29ab74171b42a52ad56e80449450207918fa7a7e  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3453eba226ecb56952a15d652b91e147d23b9d3a9b405f161201c89529fc8351  :  unsupported_api kernel32.GetSystemDefaultLCID
+	len of apis: 1
+55e1f9496fe9703242cff9bef118821f94d2c8a58cb1b3f67adc78808b4330ac  :  unsupported_api user32.GetMessagePos
+	len of apis: 0
+7c1b965b6cc870c8b89cd01b470a6a17068e6af97d70ba00903989a460e3cadd  :  unsupported_api user32.GetShellWindow
+	len of apis: 0
+5e28dc7af456b558a6409fefb015d30c2485912b3a1c12dbd4e31eff50a1e7ce  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+f60b21a8c4e813bbe8256380e94a5159ee888864059ef6a4e7f4fb100dd65253  :  unsupported_api USER32.SetMenuInfo
+	len of apis: 328
+fb591a8a8b89660be1acfeb25359dbe1b1152e1f57b9d09436d8ca560b5e16fd  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+72bfac0a986706417e2a3c4ff34d7cd7d32c6f34edd5c8fc271065f9cbe1f961  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+c74b8d91b62309c5227d5c8e95c479c1d930659eae9fc7d583511e885bf453d3  :  unsupported_api user32.GetMessageExtraInfo
+	len of apis: 1
+af5a871078bfa5407fca1a4ee72235023c32298135a5f6790dfb8ea04a75226e  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+32985b3df653ba1f86714deaf8ff0c5f0b1fd3fe98619fa58699f04e018df096  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+795abeff11f46ad683752687d12613ce72985a812195b11fc20203ec85570473  :  unsupported_api user32.GetMessageExtraInfo
+	len of apis: 1
+57368a2a278661e447cd92d23a32b181a211fc8eab9b66ad01928b03d33c9a26  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+a67e39d63cc506b4571ab61eb7710f411becc03c239be36b67df9d7de1c90e19  :  unsupported_api user32.GetOpenClipboardWindow
+	len of apis: 1
+dbee404257bfd8fc242dc9814499844b16466d392010f8d15c5db2cb189bba28  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3e5d49e04f5b6496f37b53fefc71b08f9daeb871b59635d5824903b736c36293  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+e1e694d317438a633e2892906d640b9c5150a4f0e2e362694d5d80b9aa48b6fd  :  unsupported_api ADVAPI32.CryptImportKey
+	len of apis: 17
+5559e3d3401dcbb83d462ff1fcfd338f88a8b8551d2cf62343b45b160d763a3c  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+9a668ef733bea175a38766830e1136247dcd8fe6d5f7c77bfae8882d213f4787  :  unsupported_api kernel32.GetSystemDefaultLCID
+	len of apis: 0
+a492a91bbf1b3d8ef091407536422a2a58a5942f6d0eef68bffa0b625753eedd  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+1abadc338a543155c52eb4a836f2f7db87c152a1f39e2829797119a4a70ad050  :  unsupported_api kernel32.GetUserDefaultLCID
+	len of apis: 0
+5400a03d3cb97254a55797544b3c81716a746ea1880541a19b39054c97d9a263  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+5ac48508540362fcc96ff0d29542fbdd494228fcd66e4a23336481d11ed2d9f4  :  unsupported_api user32.GetMessagePos
+	len of apis: 0
+596f7eb1a0b221b70fe055f0153f981bebeec7f10da44fe996435a79c017ef0a  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+072b77b8617548cf156dcbcf22a6d2ca0a5e4f81fef59550fae935e3224343c9  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+02ae28cb7530767947af8fbc7c67d9e7e7eecbae2c6400d7b7b23e95d1b4716f  :  unsupported_api user32.GetDoubleClickTime
+	len of apis: 0
+dd8313eea62dcabf3d97d87c9f20f77b0c04e21f6f56c901265a402e3c9f2e49  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+3dc8be1a4b6a991fe6de0deb765d80ed01216707cd7b6ed967609dc5a4a65be5  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+4bf4e0d53868917f12f5cc697cdd807653d1e7989b54d11083fd2afa8b5d3f2c  :  unsupported_api user32.GetMessageTime
+	len of apis: 0
+f3401c6d1faddf8c55ae97f451a8a1f36c4a3e2c42d63302635c410c7219a607  :  unsupported_api user32.GetMessageTime
+	len of apis: 0
+0c537f2906839bddb0f9fb692608a1996d4fc2f1dbe98ef8f5fc72f29855675d  :  unsupported_api advapi32.InitializeSecurityDescriptor
+	len of apis: 173
+9efdf89e558944a86ac3d23e4af60e9e0ce3a22492bb47ac5f5e4645b2f3fedd  :  unsupported_api user32.GetClipboardSequenceNumber
+	len of apis: 0
