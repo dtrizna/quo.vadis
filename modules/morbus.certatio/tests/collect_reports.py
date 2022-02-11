@@ -9,16 +9,16 @@ MALWARE_PATH = "../../../data/pe.dataset/"
 X86_PATH = MALWARE_PATH + "PeX86Exe/"
 X86_RANSOMWARE = X86_PATH + "ransomware/"
 X86_CLEAN = X86_PATH + "clean/"
+X86_TROJAN = X86_PATH + "trojan/"
+X86_DROPPER = X86_PATH + "dropper/"
 
-FOLDER = X86_CLEAN
-
-import pdb; pdb.set_trace()
+FOLDER = X86_DROPPER
 
 from pefile import PEFormatError
 from unicorn import UcError
 
-start_idx = 0
-end_idx = 50
+start_idx = 40
+end_idx = 500
 files = [x for x in os.listdir(FOLDER)[start_idx:end_idx]]
 reports = {}
 timedeltas = []
@@ -28,12 +28,16 @@ for i, file in enumerate(files):
     print(f"\n[*] {i}/{len(files)} : {FOLDER+file}")
     se = speakeasy.Speakeasy()
     try:
-        module = se.load_module(FOLDER+file)
-        se.run_module(module)
-        
-        report = se.get_report()
-        reports[file] = report
-        
+        try:
+            module = se.load_module(FOLDER+file)
+            se.run_module(module)
+            
+            report = se.get_report()
+            reports[file] = report
+        except Exception as ex:
+            print(f"!!! Caught exception: {ex}")
+            pass
+
         # reporting during execution
         aa = pd.json_normalize(report)
         entry_points = pd.json_normalize(aa["entry_points"].iloc[0])
@@ -62,5 +66,5 @@ for i, file in enumerate(files):
 
 print(f"\naverage analysis time per sample: {np.mean(timedeltas)}")
 
-with open(f"reports_{'_'.join(FOLDER.split('/')[-3:-1])}_{start_idx}_{end_idx}", "wb") as fhandle:
+with open(f"reports_{'_'.join(FOLDER.split('/')[-3:-1])}_{start_idx}_{end_idx}.pickle", "wb") as fhandle:
     pickle.dump(reports, fhandle, protocol=pickle.HIGHEST_PROTOCOL)
