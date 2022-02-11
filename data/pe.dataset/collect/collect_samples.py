@@ -80,7 +80,7 @@ def dump_db(series, filepath):
 
 if __name__ == "__main__":
 
-    filetype = "Pex64Exe" # "PeX86Exe" 
+    filetype = "PeX86Exe" # "Pex64Exe" # 
     os.makedirs(filetype, exist_ok=True)
     
     q = sys.argv[1]
