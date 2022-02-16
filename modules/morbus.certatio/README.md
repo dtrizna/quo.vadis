@@ -30,6 +30,12 @@ dropped_files            [{'path': 'C:\Users\speakeasy_user\dgwgkEwU\Ok...
 [{'event': 'create', 'pid': 1524, 'path': 'C:\\Users\\speakeasy_user\\dgwgkEwU\\OkIkcgIM.exe', 'cmdline': ''}]
 ```
 
+Type of `entry_points`, e.g. look at `a619c8e6e62fd6451f109396185aea692db1aba212671913aa3925a7383e0165`:
+```
+>>> [x["ep_type"] for x in report["entry_points"]]
+['tls_callback_0', 'tls_callback_1', 'module_entry']
+```
+
 ## Common errors:
 
 - unsupported API: `error.api_name` contains API that is unsupported
@@ -150,3 +156,50 @@ else:
         '''
         return 0 # MMSYSERR_NOERROR = 0
 ```
+
+### API processor to `speakeasy/winenv/api/usermode/msvcrt.py`:
+
+```
+    @apihook("strtok", argc=2)
+    def strtok(self, emu, argv, ctx={}):
+        '''
+        char *strtok(
+            char *strToken,
+            const char *strDelimit
+            );
+        '''
+        return 0
+```
+
+### Added 
+
+`speakeasy/winenv/api/usermode/msvbvm60.py` to support `msvbvm60.ordinal_100` (ThunRTMain) - Visual Basic 6.0 function. Old packers use it.
+
+`speakeasy/winenv/api/usermode/crtdll.py` to support `CRTDLL.__GetMainArgs`.
+`speakeasy/winenv/api/usermode/iphlpapi.py` to support `iphlpapi.GetAdaptersInfo`.
+
+### Modified default behaviour of unknown_api so handles unknown API calls and return 0 for those:
+Lines `1201-1228` at `speakeasy/windows/winemu.py`:
+```
+else:
+            # Make all API functions always exist and always return 0
+            #elif self.functions_always_exist:
+                imp_api = '%s.%s' % (dll, name)
+                conv = _arch.CALL_CONV_STDCALL
+                argc = 4
+                argv = self.get_func_argv(conv, argc)
+                rv = 0 #1
+                ret = self.get_ret_address()
+                self.log_api(ret, imp_api, rv, argv)
+                self.do_call_return(argc, ret, rv, conv=conv)
+                return
+
+            # run = self.get_current_run()
+            # error = self.get_error_info('unsupported_api', self.get_pc())
+            # self.log_error("Unsupported API: %s (ret: 0x%x)" % (imp_api, oret))
+            # error['api_name'] = imp_api
+            # self.curr_run.error = error
+            # self.on_run_complete()
+```
+
+While this often leads to memory operations later, this allows to continue execution for some cases and acquire the some additional behaviour in the list.
