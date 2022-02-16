@@ -1,5 +1,8 @@
 import re
+from typing import Type
+from .array import fix_length
 from pandas import read_csv, Series
+from numpy import array
 
 # good reference:
 # https://docs.microsoft.com/en-us/windows/deployment/usmt/usmt-recognized-environment-variables
@@ -42,44 +45,17 @@ VARIABLE_MAP.update({
     r"%cache%": VARIABLE_MAP[r"%userprofile%"] + r"\appdata\local\microsoft\windows\temporary internet files"
 })    
 
+def load_txt(filename, padding_length):
+    try:
+        txtdata = read_csv(filename, header=None, on_bad_lines='skip') # 0.5s
+    except TypeError:
+        txtdata = read_csv(filename, header=None, error_bad_lines=False) # 0.5s
 
-def load_csv(csv="", 
-             type_whitelist=["AvastHeurStreamback", "IdpFileExtractor", "Phoenix"]):
-    """Loads and cleans the filepath data (according to currently provided format).
-
-    Args:
-        csv (str, optional): CSV filename with filepaths. Defaults to "bohacek_20211022113102.csv".
-        type_whitelist (list, optional): List with type to preserve. Defaults to ["AvastHeurStreamback", "IdpFileExtractor", "Phoenix"]
-    Returns:
-        pd.Series(): Series object with only relevant filepaths.
-    """
-    if not csv:
-        return Series()
-
-    df = read_csv(csv, sep=";", 
-            usecols=["file_name", "Type", "Detections [avast9]"],
-            dtype={"file_name": "object", "Type": "category"})#, "Detections [avast9]": "category"})
-
-    # Type cleanup
-    df = df[df.Type.apply(lambda x: x in type_whitelist)]
-
-    # Rename and leave only relevant data
-    df = df[["file_name", "Detections [avast9]"]]
-    df.columns = ["x","y"]
-
-    # Content cleanup based on filepath
-    df = df.drop(df[df.x.isna()].index) # NaN
-    df = df.drop(df[df.x.str.contains("http[s]?", regex=True)].index) # URLs
-    df = df.drop(df[df.x.str.contains("pro/malicious_scripts")].index) # Avast TI proprietary, noise
-    df = df.drop(df[df.x.str.split("\\").apply(lambda x: len(x) <= 1)].index) # only filenames, no paths
-    df = df.drop(df[df.x.str.contains(r"idp\\[a-f0-9]", regex=True)].index) # Avast IDP memory scans
-    df = df.drop(df[df.x.str.contains(r"<subj[^>]+>", regex=True)].index) # E-mail data, no paths
-
-    # setting binary $y \in (0,1)$
-    df.y = df.y.fillna(0)
-    df.loc[df.y != 0, "y"] = 1
-
-    return df.reset_index(drop=True)
+    txtdata.columns = ["x"]
+    txtdata = txtdata.x.apply(normalize_path) # 2s
+    txtdata = txtdata.str.encode("utf-8", "ignore").apply(lambda x: array(list(x), dtype=int)) # 2s
+    txtdata = txtdata.apply(fix_length, args=(padding_length,)) # 2s
+    return txtdata
 
 
 def normalize_path(path, verbose=False):

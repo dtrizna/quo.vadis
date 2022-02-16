@@ -4,39 +4,30 @@ import argparse
 import logging
 import pickle 
 import sys
-
-import numpy as np
-import pandas as pd
+import os
 
 import torch
 from torch import nn, optim
 from torch.nn import functional as F
 
+import numpy as np
 from collections import Counter
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score#, recall_score, precision_score
+from sklearn.metrics import f1_score #, recall_score, precision_score
 
-from preprocessing.text import normalize_path, load_csv
-from preprocessing.array import fix_length, byte_filter, remap
+from preprocessing.text import load_txt
+from preprocessing.array import byte_filter, remap
 
 from models.classic import Modular
 
 
 def set_seed(seed_value=1763):
     """Set seed for reproducibility."""
+    logging.debug(f" [*] {time.ctime()}: Using random seed for all libraries: {seed_value}")
     random.seed(seed_value)
     np.random.seed(seed_value)
     torch.manual_seed(seed_value)
     torch.cuda.manual_seed_all(seed_value)
-
-
-def load_txt_data(filename, padding_length):
-    txtdata = pd.read_csv(filename, header=None)#, error_bad_lines=False) # 0.5s
-    txtdata.columns = ["x"]
-    txtdata = txtdata.x.apply(normalize_path) # 2s
-    txtdata = txtdata.str.encode("utf-8", "ignore").apply(lambda x: np.array(list(x), dtype=int)) # 2s
-    txtdata = txtdata.apply(fix_length, args=(padding_length,)) # 2s
-    return txtdata
 
 
 def train(model, device, train_loader, optimizer, loss_function, epoch_id, verbosity_batches=100):
@@ -135,15 +126,53 @@ def dump_results(model, train_losses, train_metrics, val_losses, val_metrics, du
     logging.warning(dumpstring)
 
 
+def read_txt_arguments(X, y, arg, prefix, benign):
+    how = "benign" if benign else "malicious"
+    
+
+    if not prefix:
+        filelist = arg
+    else:
+        filelist = []
+        for prefix in arg:
+            folder = "/".join(prefix.split("/")[:-1])
+            prefix = prefix.split("/")[-1]
+            files = [f"{folder}/{x}" for x in os.listdir(folder) if prefix in x]
+            filelist.extend(files)
+
+    for txt in filelist:
+        logging.debug(f" [*] {time.ctime()}: X shape: {X.shape}, y shape: {y.shape}")
+        logging.warning(f" [*] {time.ctime()}: Loading data from a TXT file as {how}: {txt}")
+        txtdata = load_txt(txt, padding_length=args.padding_length)
+        X_txtdata = np.stack(txtdata.values)
+
+        if benign:
+            # label == 0
+            y_txtdata = np.zeros(X_txtdata.shape[0])
+        else:
+            # label == 1
+            y_txtdata = np.ones(X_txtdata.shape[0])
+
+        X = np.vstack([X, X_txtdata])
+        y = np.vstack([y.reshape(-1,1), y_txtdata.reshape(-1,1)]).squeeze()
+    
+    return X, y
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Training filepath NeuralNetwork.")
 
     # data specifics
     group = parser.add_mutually_exclusive_group()
-    parser.add_argument("--txt", type=str, nargs="+", help="Path to TXT file with path data per line.")
-    group.add_argument("--csv", type=str, help="TI provided CSV files with 3 obligatory columns: 'file_name', 'Detections [avast9]', 'Type'")
-    group.add_argument("-x", type=str, help="Path to preprocessed input array")
+    group.add_argument("--malicious-txt", type=str, nargs="+", help="Path to TXT file with malicious path data per line (multiple files can be provided).")
+    group.add_argument("--malicious-prefix", type=str, nargs="+", help="Prefix of TXT files with malicious path data per line (multiple files can be provided).")
+    
+    group2 = parser.add_mutually_exclusive_group()
+    group2.add_argument("--benign-txt", type=str, nargs="+", help="Path to TXT file with benign path data per line (multiple files can be provided).")
+    group2.add_argument("--benign-prefix", type=str, nargs="+", help="Prefix of TXT files with benign path data per line (multiple files can be provided).")
+    
+    parser.add_argument("-x", type=str, help="Path to preprocessed input array")
     parser.add_argument("-y", type=str, help="Path to preprocessed input label array (provide only if X is given)")
     parser.add_argument("--bytes", type=str, help="Pickle serialized file with list of frequent bytes used for training")
 
@@ -175,7 +204,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--logfile", type=str, help="File to store logging messages")
     parser.add_argument("--verbosity-batches", type=int, default=100, help="Output stats based after number of batches")
-    parser.add_argument("--debug", help="Provide with DEBUG level information from packages")
+    parser.add_argument("--debug", action="store_true", help="Provide with DEBUG level information from packages")
     parser.add_argument("--save-xy", action="store_true", help="Whether to dump X and y arrays to disk")
 
     args = parser.parse_args()
@@ -193,71 +222,68 @@ if __name__ == "__main__":
     # ========== DATA =========
     # Threat Intel Data in CSV
     start_preprocessing = time.time()
-    if args.csv:
-        logging.warning(f" [*] {time.ctime()}: Loading data from a CSV file: {args.csv} ")
-        df = load_csv(args.csv) # ~7.5s
-        df.x = df.x.apply(normalize_path) # 5s
-        df.x = df.x.str.encode("utf-8", "ignore").apply(lambda x: np.array(list(x), dtype=int)) # 2s
-    # if already processed as numpy array
-    elif args.x:
-        logging.warning(f" [*] {time.ctime()}: Loading data from a NumPy array: {args.x}")
-        X = np.load(args.x)
+
+    if not args.x:
+        X = np.empty((0, args.padding_length), dtype=int)
+        y = np.empty((0,0), dtype=int)
+    else:
         if args.y:
+            logging.warning(f" [*] {time.ctime()}: Loading data from a NumPy array: {args.x}")
+            X = np.load(args.x)
             y = np.load(args.y)
         else:
             logging.warning(f" [-] {time.ctime()}: Please provide label array by -y <file>")
             sys.exit(1)
-        if args.padding_length:
+        if args.padding_length != 150:
             logging.warning(f" [!] {time.ctime()}: Ignored provided argument of padding length: {args.padding_length}, since preprocessed arrays were submitted!")
             args.padding_length = X.shape[1]
     
-    else:
-        logging.warning(f" [-] {time.ctime()}: Specify data either by --csv <file> or -x <file>")
-        sys.exit(1)
+    # TXT files
+    if args.malicious_txt:
+        X, y = read_txt_arguments(X, y, args.malicious_txt, prefix=False, benign=False)
+    elif args.malicious_prefix:
+        X, y = read_txt_arguments(X, y, args.malicious_prefix, prefix=True, benign=False)
+    
+    if args.benign_txt:
+        X, y = read_txt_arguments(X, y, args.benign_txt, prefix=False, benign=True)
+    elif args.benign_prefix:
+        X, y = read_txt_arguments(X, y, args.benign_prefix, prefix=True, benign=True)
+
+    logging.debug(f" [*] {time.ctime()}: X shape: {X.shape}, y shape: {y.shape}")
 
     if args.bytes:
         logging.warning(f" [*] {time.ctime()}: Loading frequent bytes from {args.bytes}")
         with open(args.bytes, "rb") as f:
             keep_bytes = pickle.load(f)
-        if args.keep_bytes:
+        if args.keep_bytes != 150:
                     logging.warning(f" [!] {time.ctime()}: Ignored provided argument of keep bytes length: {args.keep_bytes}, since file to load bytes was provided!")
                     args.keep_bytes = len(keep_bytes)
-        
     else:
-        if not args.csv:
-            logging.warning(f" [-] {time.ctime()}: Please provide frequent byte list by --bytes <file>")
-            sys.exit(1)
-
-        counter = Counter([x for y in df.x.values for x in y]) # 4s
-        keep_bytes = [x[0] for x in counter.most_common(args.keep_bytes)] # 0.5s
+        logging.warning(f" [*] {time.ctime()}: Initiating byte fequency analysis...")
+        byte_counter = Counter([byte for sample in X for byte in sample]) # 4s
+        # +1 since padding label was added within 'load_txt'
+        n_bytes_to_keep = args.keep_bytes + 1
+        keep_bytes = [x[0] for x in byte_counter.most_common(n_bytes_to_keep)] # 0.5s
         # saving bytes to later use
         with open(f"keep_bytes_{int(time.time())}.pickle", "wb") as f:
             pickle.dump(keep_bytes, f)
 
-    if not args.x:
-        df.x = df.x.apply(fix_length, args=(args.padding_length,)) # 7.5s
-        X_ti = np.stack(df.x.values)
-        X = byte_filter(X_ti, keep_bytes+[0]) # 3.5s
-        y = np.stack(df.y)
-
-    # TXT files
-    if args.txt:
-        for txt in args.txt:
-            logging.warning(f" [*] {time.ctime()}: Loading data from a TXT file: {txt}")
-            txtdata = load_txt_data(txt, padding_length=args.padding_length)
-            X_txtdata = np.stack(txtdata.values)
-            X_txtdata = byte_filter(X_txtdata, keep_bytes+[0]) # 3.5s
-            y_txtdata = np.zeros(X_txtdata.shape[0])
-
-            X = np.vstack([X, X_txtdata])
-            y = np.vstack([y.reshape(-1,1), y_txtdata.reshape(-1,1)]).squeeze()
+    # filtering only most common 'keep_bytes'
+    # replaces rare bytes with [1]
+    logging.warning(f" [*] {time.ctime()}: Initiating byte filter...")
+    X = byte_filter(X, keep_bytes) # 3.5s
 
     # remapping for embedding: ~5 s
-    orig_bytes = set([0,1]+sorted(keep_bytes))
-    mapping = dict(zip(orig_bytes, range(len(orig_bytes))))
-    # if you want map back, use:
-    # remap(X, {v:k for k,v in mapping.items()})
-    X = remap(X, mapping)
+    try:
+        logging.warning(f" [*] {time.ctime()}: Initiating byte remapping (needed for embeddings)...")
+        orig_bytes = set([0,1]+sorted(keep_bytes[1:]))
+        mapping = dict(zip(orig_bytes, range(len(orig_bytes))))
+        # if you want map back, use:
+        # remap(X, {v:k for k,v in mapping.items()})
+        X = remap(X, mapping)
+    except Exception as ex:
+        print(ex)
+        import pdb;pdb.set_trace()
 
     if args.save_xy:
         suffix = f"ed{args.embedding_dim}-pl{args.padding_length}-kb{args.keep_bytes}-{int(time.time())}"
@@ -266,7 +292,6 @@ if __name__ == "__main__":
         with open(f"keep_bytes-{suffix}.pickle", "wb") as f:
             pickle.dump(keep_bytes, f)
 
-    
     logging.warning(f" [!] {time.ctime()}: Dataset: benign {y[y==0].shape[0]*100/y.shape[0]:.2f} %, malicious {y[y==1].shape[0]*100/y.shape[0]:.2f} % | Preprocessing took: {time.time()-start_preprocessing:.2f}s")
 
     # ========= CREATING TRAINING AND VALIDAITON LOADERS ==========
