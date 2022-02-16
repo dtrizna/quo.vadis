@@ -366,7 +366,7 @@ if __name__ == "__main__":
             # Print performance over the entire training data
             time_elapsed = time.time() - epoch_start_time
             duration.append(time_elapsed)
-            logging.warning(f" [*] {time.ctime()}: {epoch + 1:^7} | {np.mean(train_loss):^12.6f} | {np.mean([x[0] for x in train_m]):^9.2f} | {np.mean(val_loss):^10.6f} | {np.mean([x[0] for x in val_m]):^9.2f} | {time_elapsed:^9.2f}")
+            logging.warning(f" [*] {time.ctime()}: {epoch + 1:^7} | Tr.loss: {np.mean(train_loss):^12.6f} | Tr.acc.: {np.mean([x[0] for x in train_m]):^9.2f} | Val.loss: {np.mean(val_loss):^10.6f} | Val.acc.: {np.mean([x[0] for x in val_m]):^9.2f} | {time_elapsed:^9.2f}")
         dump_results(model, train_losses, np.vstack(train_metrics), val_losses, np.vstack(val_metrics), duration, args, epoch)
     except KeyboardInterrupt as ex:
         dump_results(model, train_losses, train_metrics, val_losses, val_metrics, duration, args, epoch)
