@@ -177,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("--bytes", type=str, help="Pickle serialized file with list of frequent bytes used for training")
 
     # training specifics
-    parser.add_argument("--seed", type=int, help="Random seed to use (for reproducibility purposes)")
+    parser.add_argument("--seed", type=int, default=1763, help="Random seed to use (for reproducibility purposes)")
     parser.add_argument("--epochs", type=int, default=5, help="Epochs to train")
     parser.add_argument("--batch-size", type=int, default=1024, help="Batch Size to use during training")
     parser.add_argument("--optimizer", type=str, default="adam", choices=["adam", "adamw", "sgd", "rmsprop"])
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=level)
 
     # reproducibility
-    set_seed(args.seed) if args.seed else set_seed()
+    set_seed(args.seed)
 
     # ========== DATA =========
     # Threat Intel Data in CSV
