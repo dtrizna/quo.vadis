@@ -129,7 +129,6 @@ def dump_results(model, train_losses, train_metrics, val_losses, val_metrics, du
 def read_txt_arguments(X, y, arg, prefix, benign):
     how = "benign" if benign else "malicious"
     
-
     if not prefix:
         filelist = arg
     else:
@@ -137,7 +136,7 @@ def read_txt_arguments(X, y, arg, prefix, benign):
         for prefix in arg:
             folder = "/".join(prefix.split("/")[:-1])
             prefix = prefix.split("/")[-1]
-            files = [f"{folder}/{x}" for x in os.listdir(folder) if prefix in x]
+            files = [f"{folder}/{x}" for x in os.listdir(folder) if x.startswith(prefix)]
             filelist.extend(files)
 
     for txt in filelist:
