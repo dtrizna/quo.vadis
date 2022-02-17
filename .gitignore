@@ -12,3 +12,4 @@ data/pe.dataset/Pex64Exe
 *npy
 *pickle
 *.api
+report_*
