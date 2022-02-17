@@ -3,12 +3,12 @@
     "description": "Default emulation profile to use when not overridden by user",
     "emu_engine": "unicorn",
     "timeout": 60,
-    "max_api_count": 10001,
+    "max_api_count": 500,
     "system": "windows",
 
     "analysis": {
         "memory_tracing": false,
-        "strings": true
+        "strings": false
     },
 
     "keep_memory_on_free": false,
@@ -33,18 +33,18 @@
         "systemroot": "C:\\Windows",
         "windir": "C:\\Windows",
         "temp": "C:\\Windows\\temp\\",
-        "userprofile": "C:\\Users\\speakeasy_user",
+        "userprofile": "C:\\Users\\triznadm",
         "systemdrive": "C:",
         "allusersprofile": "C:\\ProgramData",
         "programfiles": "C:\\Program Files"
     },
 
-    "domain": "speakeasy_domain",
+    "domain": "helsinki.fi",
 
-    "hostname": "speakeasy_host",
+    "hostname": "work.helsinki.fi",
 
     "user": {
-        "name": "speakeasy_user",
+        "name": "triznadm",
         "is_admin": true
     },
 
@@ -169,7 +169,7 @@
 
         "dns": {
             "names":{
-                "speakeasy_host": "127.0.0.1",
+                "work.helsinki.fi": "127.0.0.1",
                 "default": "10.1.2.3",
                 "google.com": "8.8.8.8",
                 "localhost": "127.0.0.1"
