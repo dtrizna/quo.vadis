@@ -11,10 +11,10 @@ from hashlib import sha256
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-LABIO_API_ROOT = "https://labio-search.svc.int.avast.com/v1/"
-SAMPLE_API_ROOT = "https://samples.tlab.hcp-prod-01-prg5.int.avast.com/hs3/"
-KEYCLOAK_URL = "https://keycloak-tlabs.svc.int.avast.com/auth/realms/viruslab/protocol/openid-connect/token"
-TOKENFILE = "collect/.theHive.keycloak.secret.api"
+LABIO_API_ROOT = ""
+SAMPLE_API_ROOT = ""
+KEYCLOAK_URL = ""
+TOKENFILE = ""
 
 def get_oauth_token(keyfile):
     with open(keyfile) as f:
