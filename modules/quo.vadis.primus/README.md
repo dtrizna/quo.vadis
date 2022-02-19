@@ -6,8 +6,6 @@ Result can be seen under `tests/PROD_RUN_EXTENDED_DATASET/`, confusion matrix on
 
 <img src="tests/PROD_RUN_EXTENDED_DATASET/validation_confusion_matrix_deepFFNN.png" width="400" />
 
-Need more data to generalize better.
-
 ## Dataset formation
 
 - Clean:
