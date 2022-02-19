@@ -2,33 +2,26 @@
 
 ## Intermediate results
 
-Data used for training:
+Result can be seen under `tests/PROD_RUN_EXTENDED_DATASET/`, confusion matrix on validation set:
 
-- Threat Intelligence one-day data from AV telemetry (~160k entries)
-- default Windows 10 files (~80k entries)
-
-Result can be seen under `tests/PROD_RUN/`, confusion matrix on validation set:
-
-<img src="tests/PROD_RUN/confusion_matrix_ep100_validation.png" width="400" />
+<img src="tests/PROD_RUN_EXTENDED_DATASET/validation_confusion_matrix_deepFFNN.png" width="400" />
 
 Need more data to generalize better.
 
-## Further Dataset formation
+## Dataset formation
 
 - Clean:
-    - ~~default Windows files~~
+    - default Windows files
     - default files in `sysvol`  
-    - ~~corporate `[net]` shares~~: `../data/path.dataset/smbmap*`  
+    - corporate `[net]` shares
 
 - Threat Intelligence:
-    - more days of Threat Intelligence filepath data
-    - ITW malware PE: `../data/pe.dataset/`
-
+    - in-the-wild (ITW) malware paths during execution
 
 - Synthetic data:
-    - `system32` binaries outside of `C:\windows\system32\` as malware?
-    - `report.docx`, etc. under downloads/desktop as benign (usual office stuff) 
-        - collect from somewhere (coleagues?) ask to execute: `gci -path $env:userprofile -recurse`
+    - `system32` binaries outside of `C:\windows\system32\` - DLL sideloading, exe tampering
+    - non usual `exe` and `dll` files in world writable directories like `c:\windows\tasks`
+    - `invoice.docm`, etc. under downloads/desktop
 
 
 ## Actions for error correction:
