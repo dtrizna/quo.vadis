@@ -84,17 +84,28 @@ if __name__ == "__main__":
             logging.warning(f" [!] Exists, skipping analysis: {reportfile}\n")
             continue
         try:
-            se = speakeasy.Speakeasy(config=json.load(open("./config.json")))
+            se = speakeasy.Speakeasy(config=json.load(open("./speakeasy_config.json")))
             module = se.load_module(file)
             se.run_module(module)
             report = se.get_report()
 
             took = report["emulation_total_runtime"]
             api_seq_len = sum([len(x["apis"]) for x in report["entry_points"]])
-            logging.debug(f" [+] Finished emulation, took: {took:.2f}s, API calls acquired: {api_seq_len}\n")
             
-            with open(f"{reportfile}", "w") as f:
-                json.dump(report["entry_points"], f, indent=4)
+            if api_seq_len > 1:
+                # 2 API calls are sometimes already enough
+                with open(f"{reportfile}", "w") as f:
+                    json.dump(report["entry_points"], f, indent=4)
+            elif api_seq_len == 1 or api_seq_len == 0:
+                # some uninformative failures with 0 or 1 API calls - e.g. ordinal_100
+                api = [x['apis'] for x in report['entry_points']][0] if api_seq_len ==1 else ''
+                err = [x['error']['type'] for x in report['entry_points']]
+                if "unsupported_api" in err:
+                    err.extend([x['error']['api']['name'] for x in report['entry_points']])
+                logging.debug(f" [DBG]: API nr.: {api_seq_len}; Err: {err}; APIs: {api}")
+
+            logging.debug(f" [+] Finished emulation, took: {took:.2f}s, API calls acquired: {api_seq_len}\n")
+
 
         except PEFormatError as ex:
             logging.error(f" [-] Failed emulation, PEFormatError: {file}\n{ex}\n")
