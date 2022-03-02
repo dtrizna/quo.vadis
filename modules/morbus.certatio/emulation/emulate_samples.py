@@ -73,7 +73,7 @@ if __name__ == "__main__":
     #timestamp = int(time.time())
     report_folder = f"{args.output}"
     os.makedirs(report_folder, exist_ok=True)
-    
+
     l = len(filelist)
     for i,file in enumerate(filelist):    
         logging.debug(f" [*] {i}/{l}: emulating {file} ...")
@@ -92,14 +92,14 @@ if __name__ == "__main__":
             took = report["emulation_total_runtime"]
             api_seq_len = sum([len(x["apis"]) for x in report["entry_points"]])
             
-            if api_seq_len > 1:
-                # 2 API calls are sometimes already enough
+            if api_seq_len >= 1:
+                # 1 API call is sometimes already enough
                 with open(f"{reportfile}", "w") as f:
                     json.dump(report["entry_points"], f, indent=4)
-            elif api_seq_len == 1 or api_seq_len == 0:
+            if api_seq_len == 1 or api_seq_len == 0:
                 # some uninformative failures with 0 or 1 API calls - e.g. ordinal_100
                 api = [x['apis'] for x in report['entry_points']][0] if api_seq_len ==1 else ''
-                err = [x['error']['type'] for x in report['entry_points']]
+                err = [x['error']['type'] if "error" in x.keys() and "type" in x["error"].keys() else "" for x in report['entry_points']]
                 if "unsupported_api" in err:
                     err.extend([x['error']['api']['name'] for x in report['entry_points']])
                 logging.debug(f" [DBG]: API nr.: {api_seq_len}; Err: {err}; APIs: {api}")
@@ -113,3 +113,9 @@ if __name__ == "__main__":
             logging.error(f" [-] Failed emulation, UcError: {file}\n{ex}\n")
         except IndexError as ex:
             logging.error(f" [-] Failed emulation, IndexError: {file}\n{ex}\n")
+        except speakeasy.errors.NotSupportedError as ex:
+            logging.error(f" [-] Failed emulation, NotSupportedError: {file}\n{ex}\n")
+        except speakeasy.errors.SpeakeasyError as ex:
+            logging.error(f" [-] Failed emulation, SpeakEasyError: {file}\n{ex}\n")
+        except Exception as ex:
+            logging.error(f" [-] Failed emulation, general Exception: {file}\n{ex}\n")
