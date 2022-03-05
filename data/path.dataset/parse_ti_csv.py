@@ -45,7 +45,7 @@ def load_ti_csv(csv="",
 if __name__ == "__main__":
     
     path_dataset_folder = "/data/quo.vadis/data/path.dataset/"
-    ti_csv = path_dataset_folder + "bohacek_20211022113102.csv"
+    ti_csv = path_dataset_folder + "*_20211022113102.csv"
 
     labio_csv_folder = path_dataset_folder + "labio_csv/"
 
