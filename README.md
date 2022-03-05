@@ -8,7 +8,7 @@
 
 `modules/quo.vadis.primus/` - original filepath prediction pipeline based on 1D-convolutional neural network  
 
-<center><img src="img/potential_scheme.png" width=600></center><br>
+<p align="center"><img src="img/potential_scheme.png" width=600><br>
 
 <!--Performance of final model: <center><img src="img/confusion_matrix_on_validation_set_quo.vadis.primus.png" width=350></center><br>-->
 
