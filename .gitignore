@@ -1,14 +1,12 @@
 __pycache__
 .ipynb_checkpoints
 parameters
-testfiles
 data/path.dataset/*csv
 data/path.dataset/*labio.txt
 data/path.dataset/*smbmap.txt
 data/path.dataset/dataset_labio*
 data/path.dataset/*ti.txt
 data/pe.dataset/PeX86Exe
-*zip
 *raw
 *npy
 *pickle
