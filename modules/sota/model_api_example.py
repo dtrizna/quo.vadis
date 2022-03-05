@@ -4,7 +4,8 @@ from sota import MalConvModel, EmberModel_2019
 
 MALCONV_MODEL_PATH = 'malconv/parameters/malconv.checkpoint'
 EMBER_2019_MODEL_PATH = 'ember/parameters/ember_model.txt'
-MALWARE_PATH = '../data/pe.dataset/ransomware/'
+#MALWARE_PATH = '../data/pe.dataset/ransomware/'
+MALWARE_PATH = "./tests/samples/"
 
 for i,malware_example in enumerate(os.listdir(MALWARE_PATH)):
     malware_example = os.path.join(MALWARE_PATH, malware_example)
