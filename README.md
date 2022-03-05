@@ -10,8 +10,7 @@
 
 <center><img src="img/potential_scheme.png" width=600></center><br>
 
-Performance of final model:
-<center><img src="img/confusion_matrix_on_validation_set_quo.vadis.primus.png" width=350></center><br>
+<!--Performance of final model: <center><img src="img/confusion_matrix_on_validation_set_quo.vadis.primus.png" width=350></center><br>-->
 
 `modules/morbus.certatio/` -  pipeline based on Windows Kernel emulation based on Speakeasy [emulator](https://github.com/mandiant/speakeasy) from Mandiant  
 
