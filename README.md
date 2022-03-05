@@ -1,4 +1,4 @@
-# Quo Vadi
+# Quo Vadis
 
 `data/` - datasets and related code
 - [PE emulation dataset](data/emulation.dataset/emulation.dataset.7z)
@@ -16,5 +16,4 @@
 
 
 `modules/sota/` - static PE classification state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember)
-
 
