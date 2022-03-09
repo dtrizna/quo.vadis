@@ -11,4 +11,5 @@ data/pe.dataset/PeX86Exe
 *npy
 *pickle
 *.api
+*torch
 data/emulation.dataset/report_*
