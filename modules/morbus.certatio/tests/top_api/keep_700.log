@@ -1,0 +1,165 @@
+2022-03-06 17:42:05,964 root  WARNING  [!] Starting emulation model training.
+2022-03-06 17:42:05,965 root  WARNING  [*] Parsing benign emulation reports...
+2022-03-06 17:43:36,585 root  WARNING  [*] Parsing malicious emulation reports...
+2022-03-06 17:48:25,181 root  WARNING  [*] Encoding API sequences...
+2022-03-06 17:48:45,625 root  WARNING  [!] Preprocessing finished! Took: 399.66s
+2022-03-06 17:48:45,625 root  WARNING  [!] Dataset: benign 27.84 %, malicious 72.16 %
+2022-03-06 17:48:45,768 root  WARNING   [*] Model training for 50 epochs...
+2022-03-06 17:48:45,769 root  WARNING   [*] Started epoch: 1
+2022-03-06 17:48:46,015 root  WARNING   [*] Sun Mar  6 17:48:46 2022: Train Epoch: 1 [0/72684 (0%)]	Loss: 0.780325	Accuracy: 48.54 | Elapsed: 0.25s
+2022-03-06 17:49:05,764 root  WARNING   [*] Sun Mar  6 17:49:05 2022:    2    | Tr.loss:   0.241083   | Tr.acc.:   90.39   | Val.loss:  0.174387  | Val.acc.:   93.60   | Took:   19.99  s
+2022-03-06 17:49:05,764 root  WARNING   [*] Started epoch: 2
+2022-03-06 17:49:05,997 root  WARNING   [*] Sun Mar  6 17:49:05 2022: Train Epoch: 2 [0/72684 (0%)]	Loss: 0.127099	Accuracy: 95.31 | Elapsed: 0.23s
+2022-03-06 17:49:28,158 root  WARNING   [*] Sun Mar  6 17:49:28 2022:    3    | Tr.loss:   0.133028   | Tr.acc.:   95.37   | Val.loss:  0.125512  | Val.acc.:   95.39   | Took:   22.39  s
+2022-03-06 17:49:28,158 root  WARNING   [*] Started epoch: 3
+2022-03-06 17:49:28,384 root  WARNING   [*] Sun Mar  6 17:49:28 2022: Train Epoch: 3 [0/72684 (0%)]	Loss: 0.128275	Accuracy: 94.82 | Elapsed: 0.23s
+2022-03-06 17:49:47,339 root  WARNING   [*] Sun Mar  6 17:49:47 2022:    4    | Tr.loss:   0.115577   | Tr.acc.:   95.87   | Val.loss:  0.141276  | Val.acc.:   94.76   | Took:   19.18  s
+2022-03-06 17:49:47,339 root  WARNING   [*] Started epoch: 4
+2022-03-06 17:49:47,655 root  WARNING   [*] Sun Mar  6 17:49:47 2022: Train Epoch: 4 [0/72684 (0%)]	Loss: 0.125072	Accuracy: 95.41 | Elapsed: 0.32s
+2022-03-06 17:50:06,736 root  WARNING   [*] Sun Mar  6 17:50:06 2022:    5    | Tr.loss:   0.108281   | Tr.acc.:   96.08   | Val.loss:  0.112507  | Val.acc.:   95.79   | Took:   19.40  s
+2022-03-06 17:50:06,736 root  WARNING   [*] Started epoch: 5
+2022-03-06 17:50:06,973 root  WARNING   [*] Sun Mar  6 17:50:06 2022: Train Epoch: 5 [0/72684 (0%)]	Loss: 0.099316	Accuracy: 96.68 | Elapsed: 0.24s
+2022-03-06 17:50:26,404 root  WARNING   [*] Sun Mar  6 17:50:26 2022:    6    | Tr.loss:   0.102925   | Tr.acc.:   96.22   | Val.loss:  0.147216  | Val.acc.:   94.69   | Took:   19.67  s
+2022-03-06 17:50:26,404 root  WARNING   [*] Started epoch: 6
+2022-03-06 17:50:26,665 root  WARNING   [*] Sun Mar  6 17:50:26 2022: Train Epoch: 6 [0/72684 (0%)]	Loss: 0.090488	Accuracy: 96.19 | Elapsed: 0.26s
+2022-03-06 17:50:45,644 root  WARNING   [*] Sun Mar  6 17:50:45 2022:    7    | Tr.loss:   0.099929   | Tr.acc.:   96.32   | Val.loss:  0.111662  | Val.acc.:   95.99   | Took:   19.24  s
+2022-03-06 17:50:45,644 root  WARNING   [*] Started epoch: 7
+2022-03-06 17:50:45,867 root  WARNING   [*] Sun Mar  6 17:50:45 2022: Train Epoch: 7 [0/72684 (0%)]	Loss: 0.100236	Accuracy: 96.48 | Elapsed: 0.22s
+2022-03-06 17:51:04,899 root  WARNING   [*] Sun Mar  6 17:51:04 2022:    8    | Tr.loss:   0.097057   | Tr.acc.:   96.40   | Val.loss:  0.106601  | Val.acc.:   96.26   | Took:   19.26  s
+2022-03-06 17:51:04,899 root  WARNING   [*] Started epoch: 8
+2022-03-06 17:51:05,130 root  WARNING   [*] Sun Mar  6 17:51:05 2022: Train Epoch: 8 [0/72684 (0%)]	Loss: 0.090335	Accuracy: 96.58 | Elapsed: 0.23s
+2022-03-06 17:51:24,387 root  WARNING   [*] Sun Mar  6 17:51:24 2022:    9    | Tr.loss:   0.095312   | Tr.acc.:   96.48   | Val.loss:  0.114807  | Val.acc.:   96.12   | Took:   19.49  s
+2022-03-06 17:51:24,387 root  WARNING   [*] Started epoch: 9
+2022-03-06 17:51:24,618 root  WARNING   [*] Sun Mar  6 17:51:24 2022: Train Epoch: 9 [0/72684 (0%)]	Loss: 0.083608	Accuracy: 96.68 | Elapsed: 0.23s
+2022-03-06 17:51:43,660 root  WARNING   [*] Sun Mar  6 17:51:43 2022:   10    | Tr.loss:   0.096338   | Tr.acc.:   96.47   | Val.loss:  0.113704  | Val.acc.:   96.25   | Took:   19.27  s
+2022-03-06 17:51:43,660 root  WARNING   [*] Started epoch: 10
+2022-03-06 17:51:43,954 root  WARNING   [*] Sun Mar  6 17:51:43 2022: Train Epoch: 10 [0/72684 (0%)]	Loss: 0.105484	Accuracy: 96.00 | Elapsed: 0.29s
+2022-03-06 17:52:02,951 root  WARNING   [*] Sun Mar  6 17:52:02 2022:   11    | Tr.loss:   0.093658   | Tr.acc.:   96.46   | Val.loss:  0.109545  | Val.acc.:   96.15   | Took:   19.29  s
+2022-03-06 17:52:02,952 root  WARNING   [*] Started epoch: 11
+2022-03-06 17:52:03,194 root  WARNING   [*] Sun Mar  6 17:52:03 2022: Train Epoch: 11 [0/72684 (0%)]	Loss: 0.105531	Accuracy: 96.00 | Elapsed: 0.24s
+2022-03-06 17:52:23,130 root  WARNING   [*] Sun Mar  6 17:52:23 2022:   12    | Tr.loss:   0.092075   | Tr.acc.:   96.60   | Val.loss:  0.113922  | Val.acc.:   96.03   | Took:   20.18  s
+2022-03-06 17:52:23,131 root  WARNING   [*] Started epoch: 12
+2022-03-06 17:52:23,359 root  WARNING   [*] Sun Mar  6 17:52:23 2022: Train Epoch: 12 [0/72684 (0%)]	Loss: 0.087553	Accuracy: 96.68 | Elapsed: 0.23s
+2022-03-06 17:52:43,208 root  WARNING   [*] Sun Mar  6 17:52:43 2022:   13    | Tr.loss:   0.091130   | Tr.acc.:   96.57   | Val.loss:  0.104985  | Val.acc.:   96.32   | Took:   20.08  s
+2022-03-06 17:52:43,208 root  WARNING   [*] Started epoch: 13
+2022-03-06 17:52:43,455 root  WARNING   [*] Sun Mar  6 17:52:43 2022: Train Epoch: 13 [0/72684 (0%)]	Loss: 0.093197	Accuracy: 96.09 | Elapsed: 0.25s
+2022-03-06 17:53:03,399 root  WARNING   [*] Sun Mar  6 17:53:03 2022:   14    | Tr.loss:   0.091363   | Tr.acc.:   96.50   | Val.loss:  0.106281  | Val.acc.:   96.20   | Took:   20.19  s
+2022-03-06 17:53:03,399 root  WARNING   [*] Started epoch: 14
+2022-03-06 17:53:03,642 root  WARNING   [*] Sun Mar  6 17:53:03 2022: Train Epoch: 14 [0/72684 (0%)]	Loss: 0.091777	Accuracy: 96.97 | Elapsed: 0.24s
+2022-03-06 17:53:24,442 root  WARNING   [*] Sun Mar  6 17:53:24 2022:   15    | Tr.loss:   0.090235   | Tr.acc.:   96.67   | Val.loss:  0.108215  | Val.acc.:   96.26   | Took:   21.04  s
+2022-03-06 17:53:24,442 root  WARNING   [*] Started epoch: 15
+2022-03-06 17:53:24,765 root  WARNING   [*] Sun Mar  6 17:53:24 2022: Train Epoch: 15 [0/72684 (0%)]	Loss: 0.116564	Accuracy: 95.80 | Elapsed: 0.32s
+2022-03-06 17:53:44,745 root  WARNING   [*] Sun Mar  6 17:53:44 2022:   16    | Tr.loss:   0.091333   | Tr.acc.:   96.61   | Val.loss:  0.110350  | Val.acc.:   96.24   | Took:   20.30  s
+2022-03-06 17:53:44,745 root  WARNING   [*] Started epoch: 16
+2022-03-06 17:53:44,972 root  WARNING   [*] Sun Mar  6 17:53:44 2022: Train Epoch: 16 [0/72684 (0%)]	Loss: 0.090473	Accuracy: 96.29 | Elapsed: 0.23s
+2022-03-06 17:54:03,852 root  WARNING   [*] Sun Mar  6 17:54:03 2022:   17    | Tr.loss:   0.090467   | Tr.acc.:   96.58   | Val.loss:  0.109189  | Val.acc.:   96.22   | Took:   19.11  s
+2022-03-06 17:54:03,852 root  WARNING   [*] Started epoch: 17
+2022-03-06 17:54:04,092 root  WARNING   [*] Sun Mar  6 17:54:04 2022: Train Epoch: 17 [0/72684 (0%)]	Loss: 0.087979	Accuracy: 96.29 | Elapsed: 0.24s
+2022-03-06 17:54:24,873 root  WARNING   [*] Sun Mar  6 17:54:24 2022:   18    | Tr.loss:   0.088491   | Tr.acc.:   96.68   | Val.loss:  0.101631  | Val.acc.:   96.40   | Took:   21.02  s
+2022-03-06 17:54:24,873 root  WARNING   [*] Started epoch: 18
+2022-03-06 17:54:25,102 root  WARNING   [*] Sun Mar  6 17:54:25 2022: Train Epoch: 18 [0/72684 (0%)]	Loss: 0.085201	Accuracy: 96.78 | Elapsed: 0.23s
+2022-03-06 17:54:43,594 root  WARNING   [*] Sun Mar  6 17:54:43 2022:   19    | Tr.loss:   0.088321   | Tr.acc.:   96.68   | Val.loss:  0.101100  | Val.acc.:   96.40   | Took:   18.72  s
+2022-03-06 17:54:43,594 root  WARNING   [*] Started epoch: 19
+2022-03-06 17:54:43,814 root  WARNING   [*] Sun Mar  6 17:54:43 2022: Train Epoch: 19 [0/72684 (0%)]	Loss: 0.088056	Accuracy: 96.68 | Elapsed: 0.22s
+2022-03-06 17:55:02,399 root  WARNING   [*] Sun Mar  6 17:55:02 2022:   20    | Tr.loss:   0.089205   | Tr.acc.:   96.69   | Val.loss:  0.108606  | Val.acc.:   96.07   | Took:   18.80  s
+2022-03-06 17:55:02,399 root  WARNING   [*] Started epoch: 20
+2022-03-06 17:55:02,631 root  WARNING   [*] Sun Mar  6 17:55:02 2022: Train Epoch: 20 [0/72684 (0%)]	Loss: 0.089884	Accuracy: 96.19 | Elapsed: 0.23s
+2022-03-06 17:55:21,885 root  WARNING   [*] Sun Mar  6 17:55:21 2022:   21    | Tr.loss:   0.090185   | Tr.acc.:   96.63   | Val.loss:  0.107721  | Val.acc.:   96.27   | Took:   19.49  s
+2022-03-06 17:55:21,886 root  WARNING   [*] Started epoch: 21
+2022-03-06 17:55:22,110 root  WARNING   [*] Sun Mar  6 17:55:22 2022: Train Epoch: 21 [0/72684 (0%)]	Loss: 0.098956	Accuracy: 96.48 | Elapsed: 0.22s
+2022-03-06 17:55:40,787 root  WARNING   [*] Sun Mar  6 17:55:40 2022:   22    | Tr.loss:   0.088516   | Tr.acc.:   96.66   | Val.loss:  0.103460  | Val.acc.:   96.46   | Took:   18.90  s
+2022-03-06 17:55:40,787 root  WARNING   [*] Started epoch: 22
+2022-03-06 17:55:41,014 root  WARNING   [*] Sun Mar  6 17:55:41 2022: Train Epoch: 22 [0/72684 (0%)]	Loss: 0.092024	Accuracy: 96.00 | Elapsed: 0.23s
+2022-03-06 17:55:59,356 root  WARNING   [*] Sun Mar  6 17:55:59 2022:   23    | Tr.loss:   0.088161   | Tr.acc.:   96.72   | Val.loss:  0.106265  | Val.acc.:   96.32   | Took:   18.57  s
+2022-03-06 17:55:59,357 root  WARNING   [*] Started epoch: 23
+2022-03-06 17:55:59,583 root  WARNING   [*] Sun Mar  6 17:55:59 2022: Train Epoch: 23 [0/72684 (0%)]	Loss: 0.081233	Accuracy: 96.88 | Elapsed: 0.23s
+2022-03-06 17:56:18,530 root  WARNING   [*] Sun Mar  6 17:56:18 2022:   24    | Tr.loss:   0.087349   | Tr.acc.:   96.76   | Val.loss:  0.110447  | Val.acc.:   96.23   | Took:   19.17  s
+2022-03-06 17:56:18,531 root  WARNING   [*] Started epoch: 24
+2022-03-06 17:56:18,751 root  WARNING   [*] Sun Mar  6 17:56:18 2022: Train Epoch: 24 [0/72684 (0%)]	Loss: 0.098759	Accuracy: 96.19 | Elapsed: 0.22s
+2022-03-06 17:56:37,505 root  WARNING   [*] Sun Mar  6 17:56:37 2022:   25    | Tr.loss:   0.085754   | Tr.acc.:   96.80   | Val.loss:  0.106925  | Val.acc.:   96.42   | Took:   18.97  s
+2022-03-06 17:56:37,505 root  WARNING   [*] Started epoch: 25
+2022-03-06 17:56:37,736 root  WARNING   [*] Sun Mar  6 17:56:37 2022: Train Epoch: 25 [0/72684 (0%)]	Loss: 0.079593	Accuracy: 96.68 | Elapsed: 0.23s
+2022-03-06 17:56:57,212 root  WARNING   [*] Sun Mar  6 17:56:57 2022:   26    | Tr.loss:   0.086775   | Tr.acc.:   96.74   | Val.loss:  0.102664  | Val.acc.:   96.45   | Took:   19.71  s
+2022-03-06 17:56:57,212 root  WARNING   [*] Started epoch: 26
+2022-03-06 17:56:57,425 root  WARNING   [*] Sun Mar  6 17:56:57 2022: Train Epoch: 26 [0/72684 (0%)]	Loss: 0.086168	Accuracy: 96.78 | Elapsed: 0.21s
+2022-03-06 17:57:17,690 root  WARNING   [*] Sun Mar  6 17:57:17 2022:   27    | Tr.loss:   0.086670   | Tr.acc.:   96.78   | Val.loss:  0.109012  | Val.acc.:   96.30   | Took:   20.48  s
+2022-03-06 17:57:17,690 root  WARNING   [*] Started epoch: 27
+2022-03-06 17:57:17,958 root  WARNING   [*] Sun Mar  6 17:57:17 2022: Train Epoch: 27 [0/72684 (0%)]	Loss: 0.074745	Accuracy: 97.46 | Elapsed: 0.27s
+2022-03-06 17:57:37,205 root  WARNING   [*] Sun Mar  6 17:57:37 2022:   28    | Tr.loss:   0.086557   | Tr.acc.:   96.80   | Val.loss:  0.105180  | Val.acc.:   96.47   | Took:   19.52  s
+2022-03-06 17:57:37,205 root  WARNING   [*] Started epoch: 28
+2022-03-06 17:57:37,433 root  WARNING   [*] Sun Mar  6 17:57:37 2022: Train Epoch: 28 [0/72684 (0%)]	Loss: 0.069773	Accuracy: 97.66 | Elapsed: 0.23s
+2022-03-06 17:57:55,526 root  WARNING   [*] Sun Mar  6 17:57:55 2022:   29    | Tr.loss:   0.090536   | Tr.acc.:   96.67   | Val.loss:  0.109881  | Val.acc.:   96.21   | Took:   18.32  s
+2022-03-06 17:57:55,527 root  WARNING   [*] Started epoch: 29
+2022-03-06 17:57:55,743 root  WARNING   [*] Sun Mar  6 17:57:55 2022: Train Epoch: 29 [0/72684 (0%)]	Loss: 0.087652	Accuracy: 96.88 | Elapsed: 0.22s
+2022-03-06 17:58:14,831 root  WARNING   [*] Sun Mar  6 17:58:14 2022:   30    | Tr.loss:   0.087121   | Tr.acc.:   96.70   | Val.loss:  0.105190  | Val.acc.:   96.41   | Took:   19.30  s
+2022-03-06 17:58:14,831 root  WARNING   [*] Started epoch: 30
+2022-03-06 17:58:15,139 root  WARNING   [*] Sun Mar  6 17:58:15 2022: Train Epoch: 30 [0/72684 (0%)]	Loss: 0.098121	Accuracy: 96.09 | Elapsed: 0.31s
+2022-03-06 17:58:34,155 root  WARNING   [*] Sun Mar  6 17:58:34 2022:   31    | Tr.loss:   0.086171   | Tr.acc.:   96.78   | Val.loss:  0.113345  | Val.acc.:   96.23   | Took:   19.32  s
+2022-03-06 17:58:34,155 root  WARNING   [*] Started epoch: 31
+2022-03-06 17:58:34,376 root  WARNING   [*] Sun Mar  6 17:58:34 2022: Train Epoch: 31 [0/72684 (0%)]	Loss: 0.117842	Accuracy: 95.41 | Elapsed: 0.22s
+2022-03-06 17:58:52,793 root  WARNING   [*] Sun Mar  6 17:58:52 2022:   32    | Tr.loss:   0.086011   | Tr.acc.:   96.77   | Val.loss:  0.119768  | Val.acc.:   96.16   | Took:   18.64  s
+2022-03-06 17:58:52,793 root  WARNING   [*] Started epoch: 32
+2022-03-06 17:58:53,024 root  WARNING   [*] Sun Mar  6 17:58:53 2022: Train Epoch: 32 [0/72684 (0%)]	Loss: 0.071315	Accuracy: 97.36 | Elapsed: 0.23s
+2022-03-06 17:59:12,053 root  WARNING   [*] Sun Mar  6 17:59:12 2022:   33    | Tr.loss:   0.085268   | Tr.acc.:   96.78   | Val.loss:  0.108828  | Val.acc.:   96.38   | Took:   19.26  s
+2022-03-06 17:59:12,053 root  WARNING   [*] Started epoch: 33
+2022-03-06 17:59:12,296 root  WARNING   [*] Sun Mar  6 17:59:12 2022: Train Epoch: 33 [0/72684 (0%)]	Loss: 0.093217	Accuracy: 95.70 | Elapsed: 0.24s
+2022-03-06 17:59:32,376 root  WARNING   [*] Sun Mar  6 17:59:32 2022:   34    | Tr.loss:   0.084636   | Tr.acc.:   96.78   | Val.loss:  0.103271  | Val.acc.:   96.43   | Took:   20.32  s
+2022-03-06 17:59:32,376 root  WARNING   [*] Started epoch: 34
+2022-03-06 17:59:32,592 root  WARNING   [*] Sun Mar  6 17:59:32 2022: Train Epoch: 34 [0/72684 (0%)]	Loss: 0.092893	Accuracy: 95.51 | Elapsed: 0.22s
+2022-03-06 17:59:51,194 root  WARNING   [*] Sun Mar  6 17:59:51 2022:   35    | Tr.loss:   0.084542   | Tr.acc.:   96.84   | Val.loss:  0.108870  | Val.acc.:   96.31   | Took:   18.82  s
+2022-03-06 17:59:51,194 root  WARNING   [*] Started epoch: 35
+2022-03-06 17:59:51,420 root  WARNING   [*] Sun Mar  6 17:59:51 2022: Train Epoch: 35 [0/72684 (0%)]	Loss: 0.070764	Accuracy: 97.46 | Elapsed: 0.23s
+2022-03-06 18:00:10,297 root  WARNING   [*] Sun Mar  6 18:00:10 2022:   36    | Tr.loss:   0.085287   | Tr.acc.:   96.84   | Val.loss:  0.113494  | Val.acc.:   96.44   | Took:   19.10  s
+2022-03-06 18:00:10,297 root  WARNING   [*] Started epoch: 36
+2022-03-06 18:00:10,600 root  WARNING   [*] Sun Mar  6 18:00:10 2022: Train Epoch: 36 [0/72684 (0%)]	Loss: 0.074118	Accuracy: 97.17 | Elapsed: 0.30s
+2022-03-06 18:00:29,770 root  WARNING   [*] Sun Mar  6 18:00:29 2022:   37    | Tr.loss:   0.086227   | Tr.acc.:   96.83   | Val.loss:  0.108462  | Val.acc.:   96.27   | Took:   19.47  s
+2022-03-06 18:00:29,770 root  WARNING   [*] Started epoch: 37
+2022-03-06 18:00:29,993 root  WARNING   [*] Sun Mar  6 18:00:29 2022: Train Epoch: 37 [0/72684 (0%)]	Loss: 0.051908	Accuracy: 98.54 | Elapsed: 0.22s
+2022-03-06 18:00:48,706 root  WARNING   [*] Sun Mar  6 18:00:48 2022:   38    | Tr.loss:   0.085177   | Tr.acc.:   96.82   | Val.loss:  0.110193  | Val.acc.:   96.39   | Took:   18.94  s
+2022-03-06 18:00:48,706 root  WARNING   [*] Started epoch: 38
+2022-03-06 18:00:48,946 root  WARNING   [*] Sun Mar  6 18:00:48 2022: Train Epoch: 38 [0/72684 (0%)]	Loss: 0.087274	Accuracy: 96.39 | Elapsed: 0.24s
+2022-03-06 18:01:07,655 root  WARNING   [*] Sun Mar  6 18:01:07 2022:   39    | Tr.loss:   0.084762   | Tr.acc.:   96.83   | Val.loss:  0.108316  | Val.acc.:   96.45   | Took:   18.95  s
+2022-03-06 18:01:07,656 root  WARNING   [*] Started epoch: 39
+2022-03-06 18:01:07,872 root  WARNING   [*] Sun Mar  6 18:01:07 2022: Train Epoch: 39 [0/72684 (0%)]	Loss: 0.064333	Accuracy: 97.36 | Elapsed: 0.22s
+2022-03-06 18:01:26,695 root  WARNING   [*] Sun Mar  6 18:01:26 2022:   40    | Tr.loss:   0.084686   | Tr.acc.:   96.84   | Val.loss:  0.106559  | Val.acc.:   96.43   | Took:   19.04  s
+2022-03-06 18:01:26,695 root  WARNING   [*] Started epoch: 40
+2022-03-06 18:01:26,913 root  WARNING   [*] Sun Mar  6 18:01:26 2022: Train Epoch: 40 [0/72684 (0%)]	Loss: 0.084892	Accuracy: 97.36 | Elapsed: 0.22s
+2022-03-06 18:01:45,373 root  WARNING   [*] Sun Mar  6 18:01:45 2022:   41    | Tr.loss:   0.084986   | Tr.acc.:   96.80   | Val.loss:  0.107525  | Val.acc.:   96.45   | Took:   18.68  s
+2022-03-06 18:01:45,373 root  WARNING   [*] Started epoch: 41
+2022-03-06 18:01:45,603 root  WARNING   [*] Sun Mar  6 18:01:45 2022: Train Epoch: 41 [0/72684 (0%)]	Loss: 0.077282	Accuracy: 96.97 | Elapsed: 0.23s
+2022-03-06 18:02:04,198 root  WARNING   [*] Sun Mar  6 18:02:04 2022:   42    | Tr.loss:   0.084209   | Tr.acc.:   96.82   | Val.loss:  0.105921  | Val.acc.:   96.41   | Took:   18.82  s
+2022-03-06 18:02:04,198 root  WARNING   [*] Started epoch: 42
+2022-03-06 18:02:04,414 root  WARNING   [*] Sun Mar  6 18:02:04 2022: Train Epoch: 42 [0/72684 (0%)]	Loss: 0.072106	Accuracy: 97.56 | Elapsed: 0.22s
+2022-03-06 18:02:24,103 root  WARNING   [*] Sun Mar  6 18:02:24 2022:   43    | Tr.loss:   0.085041   | Tr.acc.:   96.80   | Val.loss:  0.108372  | Val.acc.:   96.44   | Took:   19.90  s
+2022-03-06 18:02:24,103 root  WARNING   [*] Started epoch: 43
+2022-03-06 18:02:24,352 root  WARNING   [*] Sun Mar  6 18:02:24 2022: Train Epoch: 43 [0/72684 (0%)]	Loss: 0.073269	Accuracy: 97.46 | Elapsed: 0.25s
+2022-03-06 18:02:44,145 root  WARNING   [*] Sun Mar  6 18:02:44 2022:   44    | Tr.loss:   0.084235   | Tr.acc.:   96.88   | Val.loss:  0.105009  | Val.acc.:   96.49   | Took:   20.04  s
+2022-03-06 18:02:44,145 root  WARNING   [*] Started epoch: 44
+2022-03-06 18:02:44,418 root  WARNING   [*] Sun Mar  6 18:02:44 2022: Train Epoch: 44 [0/72684 (0%)]	Loss: 0.083614	Accuracy: 96.39 | Elapsed: 0.27s
+2022-03-06 18:03:02,902 root  WARNING   [*] Sun Mar  6 18:03:02 2022:   45    | Tr.loss:   0.084521   | Tr.acc.:   96.83   | Val.loss:  0.110494  | Val.acc.:   96.23   | Took:   18.76  s
+2022-03-06 18:03:02,902 root  WARNING   [*] Started epoch: 45
+2022-03-06 18:03:03,116 root  WARNING   [*] Sun Mar  6 18:03:03 2022: Train Epoch: 45 [0/72684 (0%)]	Loss: 0.100576	Accuracy: 96.09 | Elapsed: 0.21s
+2022-03-06 18:03:22,320 root  WARNING   [*] Sun Mar  6 18:03:22 2022:   46    | Tr.loss:   0.086512   | Tr.acc.:   96.78   | Val.loss:  0.120555  | Val.acc.:   96.13   | Took:   19.42  s
+2022-03-06 18:03:22,320 root  WARNING   [*] Started epoch: 46
+2022-03-06 18:03:22,587 root  WARNING   [*] Sun Mar  6 18:03:22 2022: Train Epoch: 46 [0/72684 (0%)]	Loss: 0.092219	Accuracy: 96.48 | Elapsed: 0.27s
+2022-03-06 18:03:41,362 root  WARNING   [*] Sun Mar  6 18:03:41 2022:   47    | Tr.loss:   0.084249   | Tr.acc.:   96.87   | Val.loss:  0.108956  | Val.acc.:   96.44   | Took:   19.04  s
+2022-03-06 18:03:41,362 root  WARNING   [*] Started epoch: 47
+2022-03-06 18:03:41,582 root  WARNING   [*] Sun Mar  6 18:03:41 2022: Train Epoch: 47 [0/72684 (0%)]	Loss: 0.063875	Accuracy: 97.75 | Elapsed: 0.22s
+2022-03-06 18:04:00,402 root  WARNING   [*] Sun Mar  6 18:04:00 2022:   48    | Tr.loss:   0.083921   | Tr.acc.:   96.85   | Val.loss:  0.110945  | Val.acc.:   96.42   | Took:   19.04  s
+2022-03-06 18:04:00,402 root  WARNING   [*] Started epoch: 48
+2022-03-06 18:04:00,644 root  WARNING   [*] Sun Mar  6 18:04:00 2022: Train Epoch: 48 [0/72684 (0%)]	Loss: 0.092302	Accuracy: 96.58 | Elapsed: 0.24s
+2022-03-06 18:04:21,736 root  WARNING   [*] Sun Mar  6 18:04:21 2022:   49    | Tr.loss:   0.084020   | Tr.acc.:   96.86   | Val.loss:  0.107150  | Val.acc.:   96.46   | Took:   21.33  s
+2022-03-06 18:04:21,736 root  WARNING   [*] Started epoch: 49
+2022-03-06 18:04:22,113 root  WARNING   [*] Sun Mar  6 18:04:22 2022: Train Epoch: 49 [0/72684 (0%)]	Loss: 0.078567	Accuracy: 97.17 | Elapsed: 0.38s
+2022-03-06 18:04:41,989 root  WARNING   [*] Sun Mar  6 18:04:41 2022:   50    | Tr.loss:   0.084471   | Tr.acc.:   96.86   | Val.loss:  0.104926  | Val.acc.:   96.56   | Took:   20.25  s
+2022-03-06 18:04:41,989 root  WARNING   [*] Started epoch: 50
+2022-03-06 18:04:42,222 root  WARNING   [*] Sun Mar  6 18:04:42 2022: Train Epoch: 50 [0/72684 (0%)]	Loss: 0.084749	Accuracy: 96.58 | Elapsed: 0.23s
+2022-03-06 18:05:02,189 root  WARNING   [*] Sun Mar  6 18:05:02 2022:   51    | Tr.loss:   0.083880   | Tr.acc.:   96.84   | Val.loss:  0.106867  | Val.acc.:   96.38   | Took:   20.20  s
+2022-03-06 18:05:02,198 root  WARNING  
+     [!] Dumped results:
+            model: ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-model.torch
+            train loss list: ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-train_losses.pickle
+            validation loss list: ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-val_losses.pickle
+            train metrics : ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-train_metrics.npy
+            validation metrics : ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-train_metrics.npy
+            duration: ep50-optim_adam-lr0.001-l2reg0-dr0.5_arr-ed32-kb700-pl150_model-conv128-bn_cFalse_fTrue-ffnn1024_512_256_128-duration.pickle

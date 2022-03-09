@@ -27,7 +27,7 @@ def report_to_apiseq(reportfile_fullpath):
 
 
     # for now only hash and API sequence
-    apiseq = list(flatten(report_fulldf["apis"].apply(lambda x: [y["api_name"] for y in x]).values))
+    apiseq = list(flatten(report_fulldf["apis"].apply(lambda x: [y["api_name"].lower() for y in x]).values))
     data = {"sha256": filehash, "api.seq": apiseq, "api.seq.len": len(apiseq)}
 
     return data
