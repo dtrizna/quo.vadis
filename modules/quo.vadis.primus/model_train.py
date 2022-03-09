@@ -126,7 +126,7 @@ def dump_results(model, train_losses, train_metrics, val_losses, val_metrics, du
     logging.warning(dumpstring)
 
 
-def read_txt_arguments(X, y, arg, prefix, benign):
+def read_txt_arguments(X, y, arg, prefix, benign, padding_length=150):
     how = "benign" if benign else "malicious"
     
     if not prefix:
@@ -142,7 +142,7 @@ def read_txt_arguments(X, y, arg, prefix, benign):
     for txt in filelist:
         logging.debug(f" [*] {time.ctime()}: X shape: {X.shape}, y shape: {y.shape}")
         logging.warning(f" [*] {time.ctime()}: Loading data from a TXT file as {how}: {txt}")
-        txtdata = load_txt(txt, padding_length=args.padding_length)
+        txtdata = load_txt(txt, padding_length=padding_length)
         X_txtdata = np.stack(txtdata.values)
 
         if benign:
@@ -239,14 +239,14 @@ if __name__ == "__main__":
     
     # TXT files
     if args.malicious_txt:
-        X, y = read_txt_arguments(X, y, args.malicious_txt, prefix=False, benign=False)
+        X, y = read_txt_arguments(X, y, args.malicious_txt, prefix=False, benign=False, padding_length=args.padding_length)
     elif args.malicious_prefix:
-        X, y = read_txt_arguments(X, y, args.malicious_prefix, prefix=True, benign=False)
+        X, y = read_txt_arguments(X, y, args.malicious_prefix, prefix=True, benign=False, padding_length=args.padding_length)
     
     if args.benign_txt:
-        X, y = read_txt_arguments(X, y, args.benign_txt, prefix=False, benign=True)
+        X, y = read_txt_arguments(X, y, args.benign_txt, prefix=False, benign=True, padding_length=args.padding_length)
     elif args.benign_prefix:
-        X, y = read_txt_arguments(X, y, args.benign_prefix, prefix=True, benign=True)
+        X, y = read_txt_arguments(X, y, args.benign_prefix, prefix=True, benign=True, padding_length=args.padding_length)
 
     logging.debug(f" [*] {time.ctime()}: X shape: {X.shape}, y shape: {y.shape}")
 
@@ -282,7 +282,6 @@ if __name__ == "__main__":
         X = remap(X, mapping)
     except Exception as ex:
         print(ex)
-        import pdb;pdb.set_trace()
 
     if args.save_xy:
         suffix = f"ed{args.embedding_dim}-pl{args.padding_length}-kb{args.keep_bytes}-{int(time.time())}"
