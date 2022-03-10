@@ -10,9 +10,11 @@ from collections import Counter
 import torch
 from torch import nn, optim
 
-sys.path.append("/data/quo.vadis/modules/morbus.certatio")
-from models.final import MorbusCertatio
+sys.path.append("../../../")
+from models import Emulation
 from utils.functions import flatten
+from preprocessing.array import rawseq2array
+from preprocessing.reports import report_to_apiseq
 
 if __name__ == "__main__":
 
@@ -116,7 +118,7 @@ if __name__ == "__main__":
         batch_size = 1024, shuffle=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    morbus_certatio = MorbusCertatio(apimap, device)
+    morbus_certatio = Emulation(apimap, device)
     optimizer = optim.Adam(morbus_certatio.model.parameters(), lr=1e-3, weight_decay=0)
     loss_function = nn.CrossEntropyLoss()    
     morbus_certatio.fit(args.epochs, optimizer, loss_function, train_loader)

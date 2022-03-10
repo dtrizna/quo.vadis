@@ -9,16 +9,14 @@ from collections import Counter
 import torch
 from torch import nn, optim
 
-sys.path.append("..")
-from composite.composite import QuoVadis
-
-sys.path.append("/data/quo.vadis/composite/dataset")
-from hashpath import get_hashpath_db, get_path_from_hash
-
-sys.path.append("/data/quo.vadis/modules/quo.vadis.primus")
-from model_train import read_txt_arguments
+sys.path.append("../../..")
+from models import Filepath
+from utils.hashpath import get_hashpath_db, get_path_from_hash
+from preprocessing.array import pad_array, byte_filter, remap
 from preprocessing.text import normalize_path
-from preprocessing.array import fix_length, byte_filter, remap
+
+sys.path.append("..")
+from model_train import read_txt_arguments
 
 
 if __name__ == "__main__":
@@ -80,7 +78,7 @@ if __name__ == "__main__":
             path = get_path_from_hash(h, hashpath_db)
             normalized_path_as_bytes = normalize_path(path).encode("utf-8", "ignore")
             vector = np.array(list(normalized_path_as_bytes), dtype=int)
-            fixed_vectors.append(fix_length(vector, PADDING_LENGTH))
+            fixed_vectors.append(pad_array(vector, PADDING_LENGTH))
         
         X = np.vstack(fixed_vectors)
         y = np.load("/data/quo.vadis/composite/dataset/y_train.npy")
@@ -157,7 +155,7 @@ if __name__ == "__main__":
         batch_size = 1024, shuffle=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    quovadis = QuoVadis(keep_bytes, device)
+    quovadis = Filepath(keep_bytes, device)
     optimizer = optim.Adam(quovadis.model.parameters(), lr=1e-3, weight_decay=0)
     loss_function = nn.CrossEntropyLoss()
     quovadis.fit(args.epochs, optimizer, loss_function, train_loader)
