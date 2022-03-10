@@ -1,14 +1,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import logging
-import time
 import torch
 import pickle
 
 import sys
 sys.path.append("..")
-sys.path.append(".")
-
-from models.classic import Net, Modular
+from models import Modular
 from utils.evaluation import evaluate_list
 
 
