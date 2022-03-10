@@ -9,37 +9,16 @@ from collections import Counter
 import torch
 from torch import nn, optim
 
+sys.path.append("..")
+from composite.composite import QuoVadis
+
 sys.path.append("/data/quo.vadis/composite/dataset")
 from hashpath import get_hashpath_db, get_path_from_hash
 
 sys.path.append("/data/quo.vadis/modules/quo.vadis.primus")
-from model_train import read_txt_arguments, train
+from model_train import read_txt_arguments
 from preprocessing.text import normalize_path
 from preprocessing.array import fix_length, byte_filter, remap
-from models.classic import Modular
-
-
-def dump_results(model, train_losses, train_metrics, duration):
-    prefix = f"{int(time.time())}"
-    model_file = f"{prefix}-model.torch"
-    torch.save(model.state_dict(), model_file)
-    
-    with open(f"{prefix}-train_losses.pickle", "wb") as f:
-        pickle.dump(train_losses, f)
-    
-    # in form [train_acc, train_f1]
-    np.save(f"{prefix}-train_metrics.pickle", train_metrics)
-    
-    with open(f"{prefix}-duration.pickle", "wb") as f:
-        pickle.dump(duration, f)
-
-    dumpstring = f"""
-     [!] {time.ctime()}: Dumped results:
-            model: {model_file}
-            train loss list: {prefix}-train_losses.pickle
-            train metrics : {prefix}-train_metrics.pickle
-            duration: {prefix}-duration.pickle"""
-    logging.warning(dumpstring)
 
 
 if __name__ == "__main__":
@@ -61,7 +40,7 @@ if __name__ == "__main__":
 
     # embedding params
     parser.add_argument("--keep-bytes", type=int, default=150, help="Specify number of TOP N bytes to keep during preprocessing.")
-    parser.add_argument("--embedding-dim", type=int, default=96, help="Size of embedding dimension.")
+    parser.add_argument("--embedding-dim", type=int, default=64, help="Size of embedding dimension.")
     parser.add_argument("--padding-length", type=int, default=150, help="Length of array representing a single flepath.")
 
     # auxiliary
@@ -170,50 +149,15 @@ if __name__ == "__main__":
         import pdb;pdb.set_trace()
 
     logging.warning(f" [!] {time.ctime()}: Dataset: benign {y[y==0].shape[0]*100/y.shape[0]:.2f} %, malicious {y[y==1].shape[0]*100/y.shape[0]:.2f} % | Preprocessing took: {time.time()-start_preprocessing:.2f}s")
-
     # ========= TRAINING =========
+    logging.warning(f" [*] {time.ctime()}: Model training for {args.epochs} epochs...")
+
     train_loader = torch.utils.data.DataLoader(
         torch.utils.data.TensorDataset(torch.LongTensor(X), torch.LongTensor(y)),
         batch_size = 1024, shuffle=True)
 
-    model = Modular(
-        vocab_size = len(keep_bytes) + 1,
-        embedding_dim = args.embedding_dim,
-        # conv params
-        filter_sizes = [2,3,4,5],
-        num_filters = [128, 128, 128, 128],
-        batch_norm_conv = False,
-
-        # ffnn params
-        hidden_neurons = [1024, 512, 256, 128],
-        batch_norm_ffnn = True,
-        dropout=0.5,
-        num_classes=2,
-    )
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+    quovadis = QuoVadis(keep_bytes, device)
+    optimizer = optim.Adam(quovadis.model.parameters(), lr=1e-3, weight_decay=0)
     loss_function = nn.CrossEntropyLoss()
-
-    logging.warning(f" [*] {time.ctime()}: Model training for {args.epochs} epochs...")
-    
-    train_losses = []
-    train_metrics = []
-    duration = []
-    try:
-        for epoch in range(1, args.epochs + 1):
-            epoch_start_time = time.time()
-            logging.warning(f" [*] {time.ctime()}: Started epoch: {epoch}")
-
-            train_loss, train_m = train(model, device, train_loader, optimizer, loss_function, epoch, args.verbosity_batches)
-            train_losses.extend(train_loss)
-            train_metrics.append(train_m)
-
-            time_elapsed = time.time() - epoch_start_time
-            duration.append(time_elapsed)
-            logging.warning(f" [*] {time.ctime()}: {epoch + 1:^7} | Tr.loss: {np.mean(train_loss):^12.6f} | Tr.acc.: {np.mean([x[0] for x in train_m]):^9.2f} | {time_elapsed:^9.2f}")
-        dump_results(model, train_losses, np.vstack(train_metrics), duration)
-
-    except KeyboardInterrupt as ex:
-        dump_results(model, train_losses, train_metrics, duration)
+    quovadis.fit(args.epochs, optimizer, loss_function, train_loader)

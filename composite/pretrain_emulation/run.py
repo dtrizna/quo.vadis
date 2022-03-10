@@ -10,35 +10,13 @@ from collections import Counter
 import torch
 from torch import nn, optim
 
+sys.path.append("..")
+from composite.composite import MorbusCertatio
+
 sys.path.append("/data/quo.vadis/modules/morbus.certatio")
-from model_train import rawseq2array, train
+from model_train import rawseq2array
 from preprocessing.reports import report_to_apiseq
 from utils.functions import flatten
-from models.classic import Modular
-
-
-def dump_results(model, train_losses, train_metrics, duration):
-    prefix = f"{int(time.time())}"
-    model_file = f"{prefix}-model.torch"
-    torch.save(model.state_dict(), model_file)
-    
-    with open(f"{prefix}-train_losses.pickle", "wb") as f:
-        pickle.dump(train_losses, f)
-    
-    # in form [train_acc, train_f1]
-    np.save(f"{prefix}-train_metrics.pickle", train_metrics)
-    
-    with open(f"{prefix}-duration.pickle", "wb") as f:
-        pickle.dump(duration, f)
-
-    dumpstring = f"""
-     [!] {time.ctime()}: Dumped results:
-            model: {model_file}
-            train loss list: {prefix}-train_losses.pickle
-            train metrics : {prefix}-train_metrics.pickle
-            duration: {prefix}-duration.pickle"""
-    logging.warning(dumpstring)
-
 
 if __name__ == "__main__":
 
@@ -72,6 +50,14 @@ if __name__ == "__main__":
 
     # ========= PREPROCESSING =========
     start_preprocessing = time.time()
+    
+    if args.apis:
+        logging.warning(f" [*] Loading preserved API calls from {args.apis}")
+        with open(args.apis, "rb") as f:
+            api_calls_preserved = pickle.load(f)
+        apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
+    else:
+        apimap = None
 
     if args.x:
         if args.y:
@@ -102,17 +88,12 @@ if __name__ == "__main__":
             
             X_raw.append(report_to_apiseq(report_fullpath)["api.seq"])
 
-        if args.apis:
-            logging.warning(f" [*] Loading preserved API calls from {args.apis}")
-            with open(args.apis, "rb") as f:
-                api_calls_preserved = pickle.load(f)
-        else:
+        if not apimap:
             logging.warning(f" [*] Initiating API call analysis, preserving {args.keep_apis} most common calls")
             api_counter = Counter(flatten(X_raw))
             api_calls_preserved = [x[0] for x in api_counter.most_common(args.keep_apis)]
-        
-        # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
-        apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
+            # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
+            apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
 
         nowseq2arr = time.time()
         X = np.vstack([rawseq2array(x, apimap, args.padding_length) for x in X_raw])
@@ -132,50 +113,14 @@ if __name__ == "__main__":
             pickle.dump(api_calls_preserved, f)
         
     # ========== TRAINING ===========
+    logging.warning(f" [*] Model training for {args.epochs} epochs...")
+
     train_loader = torch.utils.data.DataLoader(
         torch.utils.data.TensorDataset(torch.LongTensor(X),torch.LongTensor(y)),
         batch_size = 1024, shuffle=True)
 
-    model = Modular(
-        vocab_size = args.keep_apis + 2,
-        embedding_dim = args.embedding_dim,
-        # conv params
-        filter_sizes = [2,3,4,5],
-        num_filters = [128, 128, 128, 128],
-        batch_norm_conv = False,
-
-        # ffnn params
-        hidden_neurons = [1024, 512, 256, 128],
-        batch_norm_ffnn = True,
-        dropout=0.5,
-        num_classes=2,
-    )
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
-    loss_function = nn.CrossEntropyLoss()
-
-    # ========== MODEL TRAINING =============
-    logging.warning(f" [*] Model training for {args.epochs} epochs...")
-    
-    train_losses = []
-    train_metrics = []
-    duration = []
-    try:
-        for epoch in range(1, args.epochs + 1):
-            epoch_start_time = time.time()
-
-            logging.warning(f" [*] Started epoch: {epoch}")
-
-            train_loss, train_m = train(model, device, train_loader, optimizer, loss_function, epoch, args.verbosity_batches)
-            train_losses.extend(train_loss)
-            train_metrics.append(train_m)
-
-            # Print performance over the entire training data
-            time_elapsed = time.time() - epoch_start_time
-            duration.append(time_elapsed)
-            logging.warning(f" [*] {time.ctime()}: {epoch + 1:^7} | Tr.loss: {np.mean(train_loss):^12.6f} | Tr.acc.: {np.mean([x[0] for x in train_m]):^9.2f} | Took: {time_elapsed:^9.2f}s")
-        dump_results(model, train_losses, np.vstack(train_metrics), duration)
-    except KeyboardInterrupt as ex:
-        dump_results(model, train_losses, train_metrics, duration)
+    morbus_certatio = MorbusCertatio(apimap, device)
+    optimizer = optim.Adam(morbus_certatio.model.parameters(), lr=1e-3, weight_decay=0)
+    loss_function = nn.CrossEntropyLoss()    
+    morbus_certatio.fit(args.epochs, optimizer, loss_function, train_loader)

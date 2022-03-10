@@ -8,22 +8,17 @@ import pickle
 from pathlib import Path
 
 import torch
-from torch import nn, optim
+
+from composite import MorbusCertatio, QuoVadis
 
 sys.path.append("/data/quo.vadis/modules/morbus.certatio")
-from models.classic import Modular
 from model_train import rawseq2array, evaluate # evaluate(model, device, val_loader, loss_function)
 from emulation.emulate_samples import emulate
 from preprocessing.reports import report_to_apiseq
 sys.path.remove("/data/quo.vadis/modules/morbus.certatio")
 
-sys.path.append("/data/quo.vadis/modules/quo.vadis.primus")
-# TBD
-sys.path.remove("/data/quo.vadis/modules/quo.vadis.primus")
-
 PADDING_LENGTH = 150
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 
 def evalute_apiseq(apiseq, apimap, model):
     x = rawseq2array(apiseq, apimap, PADDING_LENGTH)
@@ -85,25 +80,9 @@ if __name__ == "__main__":
             logging.warning(f" [*] You need to provide preserved bytes pickle object to evaluate path")
             sys.exit(1)
 
-        path_model = Modular(
-            vocab_size = len(keep_bytes) + 1, # 'pad' already included
-            embedding_dim = 96,
-            # conv params
-            filter_sizes = [2,3,4,5],
-            num_filters = [128,128,128,128],
-            batch_norm_conv = False,
-
-            # ffnn params
-            hidden_neurons = [1024,512,256,128],
-            batch_norm_ffnn = True,
-            dropout=0.5,
-            num_classes=2,
-            )
-        path_model.to(DEVICE)
-        logging.warning(f" [*] Loading PyTorch model state from {args.path_model} as FilePath model")
-        path_model.load_state_dict(torch.load(args.path_model))
-
-        # TBD path evaluate functions
+        quovadis = QuoVadis(keep_bytes, "cpu", state_dict=args.path_model)
+        print(quovadis.model)
+        # TBD        
     
     if args.emulation_model:
         if args.apis:
@@ -119,27 +98,8 @@ if __name__ == "__main__":
         example_hash = "0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
         example_pe = "/data/quo.vadis/data/pe.dataset/PeX86Exe/backdoor/0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
 
-        emu_model = Modular(
-            vocab_size = len(apimap) + 2,
-            embedding_dim = 96,
-            # conv params
-            filter_sizes = [2,3,4,5],
-            num_filters = [128, 128, 128, 128],
-            batch_norm_conv = False,
-
-            # ffnn params
-            hidden_neurons = [1024, 512, 256, 128],
-            batch_norm_ffnn = True,
-            dropout=0.5,
-            num_classes=2,
-            )
-        emu_model.to(DEVICE)
-        logging.warning(f" [*] Loading PyTorch model state from {args.emulation_model} as Emulation model")
-        emu_model.load_state_dict(torch.load(args.emulation_model))
-    
-        a,c = evaluate_hash(example_hash, apimap, emu_model)
+        morbus_certatio = MorbusCertatio(apimap, "cpu", args.emulation_model)    
+        a,c = evaluate_hash(example_hash, apimap, morbus_certatio.model)
         print(example_hash, a, c)
-        b,d = evaluate_rawpe(example_pe, apimap, emu_model)
+        b,d = evaluate_rawpe(example_pe, apimap, morbus_certatio.model)
         print(example_pe, b, d)
-    
-
