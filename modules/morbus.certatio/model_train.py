@@ -9,17 +9,16 @@ import os
 import torch
 from torch import nn, optim
 
-from models.classic import Modular
-
 import numpy as np
 from collections import Counter
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score #, recall_score, precision_score
+from sklearn.metrics import f1_score
 
+sys.path.append("../../") # repo root
+from models import Modular
 from preprocessing.reports import report_to_apiseq
 from preprocessing.array import rawseq2array
-from utils.functions import flatten
-
+from preprocessing.utils import flatten
 
 def set_seed(seed_value=1763):
     """Set seed for reproducibility."""
