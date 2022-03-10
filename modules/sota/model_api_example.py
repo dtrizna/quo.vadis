@@ -1,5 +1,5 @@
 import os
-from sota import MalConvModel, EmberModel_2019
+from models import MalConvModel, EmberModel_2019
 
 
 MALCONV_MODEL_PATH = 'malconv/parameters/malconv.checkpoint'
