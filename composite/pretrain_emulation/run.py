@@ -10,12 +10,8 @@ from collections import Counter
 import torch
 from torch import nn, optim
 
-sys.path.append("..")
-from composite.composite import MorbusCertatio
-
 sys.path.append("/data/quo.vadis/modules/morbus.certatio")
-from model_train import rawseq2array
-from preprocessing.reports import report_to_apiseq
+from models.final import MorbusCertatio
 from utils.functions import flatten
 
 if __name__ == "__main__":

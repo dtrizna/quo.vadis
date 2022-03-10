@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score #, recall_score, precision_score
 
 from preprocessing.reports import report_to_apiseq
-from preprocessing.array import pad_array, api_filter
+from preprocessing.array import rawseq2array
 from utils.functions import flatten
 
 
@@ -47,12 +47,6 @@ def read_prefix_files(prefixlist):
             logging.error(f"[-] Please verify that provided prefix is correct: {prefix}. Skipping it...")
     
     return filelist
-
-
-def rawseq2array(rawseq, apimap, padding_length):
-    filtered_seq = api_filter(rawseq, apimap)
-    v = pad_array(filtered_seq, padding_length, drop="middle")
-    return v
 
 
 def train(model, device, train_loader, optimizer, loss_function, epoch_id, verbosity_batches=100):

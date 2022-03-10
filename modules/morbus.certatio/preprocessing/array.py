@@ -39,3 +39,9 @@ def api_filter(rawseq, apimap):
     """
     seq = [apimap[x] if x in apimap.keys() else 1 for x in rawseq]
     return np.array(seq, dtype=int)
+
+
+def rawseq2array(rawseq, apimap, padding_length):
+    filtered_seq = api_filter(rawseq, apimap)
+    v = pad_array(filtered_seq, padding_length, drop="middle")
+    return v
