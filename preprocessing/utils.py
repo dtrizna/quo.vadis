@@ -1,5 +1,10 @@
-
 from collections.abc import Iterable
+from numpy import exp
+
+
+def sigmoid(X):
+   return 1/(1+exp(-X))
+
 
 def flatten(l):
     for el in l:

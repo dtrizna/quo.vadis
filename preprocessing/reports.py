@@ -1,9 +1,7 @@
 from pandas import json_normalize
 import json
-import sys
 
-sys.path.append("..")
-from utils.functions import flatten
+from utils import flatten
 
 def report_to_apiseq(reportfile_fullpath):
     """Functiona parses JSON reports provided by emulaton/emulate_samples.py
@@ -31,5 +29,3 @@ def report_to_apiseq(reportfile_fullpath):
     data = {"sha256": filehash, "api.seq": apiseq, "api.seq.len": len(apiseq)}
 
     return data
-
-

@@ -1,7 +1,6 @@
 import re
-from typing import Type
-from .array import fix_length
-from pandas import read_csv, Series
+from .array import pad_array
+from pandas import read_csv
 from numpy import array
 
 # good reference:
@@ -54,7 +53,7 @@ def load_txt(filename, padding_length):
     txtdata.columns = ["x"]
     txtdata = txtdata.x.apply(normalize_path) # 2s
     txtdata = txtdata.str.encode("utf-8", "ignore").apply(lambda x: array(list(x), dtype=int)) # 2s
-    txtdata = txtdata.apply(fix_length, args=(padding_length,)) # 2s
+    txtdata = txtdata.apply(pad_array, args=(padding_length,)) # 2s
     return txtdata
 
 
