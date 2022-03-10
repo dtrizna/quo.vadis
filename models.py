@@ -31,8 +31,7 @@ class Modular(nn.Module):
                 hidden_neurons = [128],
                 batch_norm_ffnn = False,
                 dropout = 0.5,
-                num_classes = 2
-                ):
+                num_classes = 2):
         super().__init__()
         
         # embdding
@@ -98,15 +97,15 @@ class Modular(nn.Module):
 
 class Module:
     def __init__(self, device,
+                    embedding_dim,
+                    vocab_size,
                     state_dict=None, 
                     padding_length=150):
         self.device = device
-
         self.padding_length = padding_length
-        
         self.model = Modular(
-            vocab_size = len(self.apimap) + 2,
-            embedding_dim = 96,
+            vocab_size = vocab_size,
+            embedding_dim = embedding_dim,
             # conv params
             filter_sizes = [2,3,4,5],
             num_filters = [128, 128, 128, 128],
@@ -228,8 +227,8 @@ class Module:
 
 
 class Filepath(Module):
-    def __init__(self, bytes, device, state_dict=None):
-        super().__init__(device, state_dict)
+    def __init__(self, bytes, device, embedding_dim=64, state_dict=None):
+        super().__init__(device, embedding_dim, len(bytes)+1, state_dict)
         self.bytes = bytes
 
     def evaluate_path(self, path):
@@ -251,8 +250,8 @@ class Filepath(Module):
 
 
 class Emulation(Module):
-    def __init__(self, apimap, device, state_dict=None):
-        super().__init__(device, state_dict)
+    def __init__(self, apimap, device, embedding_dim=96, state_dict=None):
+        super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
         self.apimap = apimap
 
     def forwardpass_apiseq(self, apiseq):
@@ -269,7 +268,7 @@ class Emulation(Module):
         temp_report_folder = f"temp_reports"
         os.makedirs(temp_report_folder, exist_ok=True)
         
-        success = emulate(path, i, l, temp_report_folder)
+        success = emulate(path, temp_report_folder)
         if not success:
             logging.error(f" [-] Failed emulation of {path}")
         else:
