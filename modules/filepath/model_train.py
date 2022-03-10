@@ -18,7 +18,8 @@ from sklearn.metrics import f1_score #, recall_score, precision_score
 from preprocessing.text import load_txt
 from preprocessing.array import byte_filter, remap
 
-from models.classic import Modular
+sys.path.append("../../..")
+from models import Modular
 
 
 def set_seed(seed_value=1763):

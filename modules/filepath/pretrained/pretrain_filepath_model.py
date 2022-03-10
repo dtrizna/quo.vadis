@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("--verbosity-batches", type=int, default=100, help="Output stats based after number of batches")
     parser.add_argument("--save-xy", action="store_true", help="Whether to dump X and y arrays to disk")
 
-    parser.add_argument("--epochs", type=int, default=5, help="Epochs to train")
+    parser.add_argument("--epochs", type=int, default=50, help="Epochs to train")
 
     args = parser.parse_args()
     
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # X,y
     if not args.x:
         # getting from splitted data
-        with open("/data/quo.vadis/composite/dataset/X_train.pickle", "rb") as f:
+        with open("/data/quo.vadis/data/train_test_sets/X_train.pickle", "rb") as f:
             X_train_hashes = pickle.load(f)
         l = len(X_train_hashes)
         hashpath_db = get_hashpath_db()
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             fixed_vectors.append(pad_array(vector, PADDING_LENGTH))
         
         X = np.vstack(fixed_vectors)
-        y = np.load("/data/quo.vadis/composite/dataset/y_train.npy")
+        y = np.load("/data/quo.vadis/data/train_test_sets/y_train.npy")
         logging.warning(f" [!] Train set loaded, took: {time.time() - now:.2f}s")
 
     else:
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         batch_size = 1024, shuffle=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    quovadis = Filepath(keep_bytes, device)
+    quovadis = Filepath(keep_bytes, device, embedding_dim=args.embedding_dim)
     optimizer = optim.Adam(quovadis.model.parameters(), lr=1e-3, weight_decay=0)
     loss_function = nn.CrossEntropyLoss()
     quovadis.fit(args.epochs, optimizer, loss_function, train_loader)

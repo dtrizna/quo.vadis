@@ -18,7 +18,7 @@ sys.path.append("../../") # repo root
 from models import Modular
 from preprocessing.reports import report_to_apiseq
 from preprocessing.array import rawseq2array
-from preprocessing.utils import flatten
+from utils.functions import flatten
 
 def set_seed(seed_value=1763):
     """Set seed for reproducibility."""

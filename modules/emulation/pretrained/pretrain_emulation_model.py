@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", help="Provide with DEBUG level information from packages")
     parser.add_argument("--save-xy", action="store_true", help="Whether to dump X and y arrays to disk")
 
-    parser.add_argument("--epochs", type=int, default=5, help="Epochs to train")
+    parser.add_argument("--epochs", type=int, default=50, help="Epochs to train")
 
     args = parser.parse_args()
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
             args.padding_length = X.shape[1]
     else:
         # getting from splitted data
-        with open("/data/quo.vadis/composite/dataset/X_train.pickle", "rb") as f:
+        with open("/data/quo.vadis/data/train_test_sets/X_train.pickle", "rb") as f:
             X_train_hashes = pickle.load(f)
         
         l = len(X_train_hashes)
@@ -96,9 +96,7 @@ if __name__ == "__main__":
         nowseq2arr = time.time()
         X = np.vstack([rawseq2array(x, apimap, args.padding_length) for x in X_raw])
         print(f" [!] Encoded raw API call sequences to vectors. Encoding took: {time.time() - nowseq2arr:.2f}s")
-        y = np.load("/data/quo.vadis/composite/dataset/y_train.npy")
-        
-    print(X.shape, y.shape)
+        y = np.load("/data/quo.vadis/data/train_test_sets/y_train.npy")
 
     logging.warning(f"[!] Preprocessing finished! Took: {time.time()-start_preprocessing:.2f}s")
     logging.warning(f"[!] Dataset: benign {y[y==0].shape[0]*100/y.shape[0]:.2f} %, malicious {y[y==1].shape[0]*100/y.shape[0]:.2f} %")
@@ -118,7 +116,7 @@ if __name__ == "__main__":
         batch_size = 1024, shuffle=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    morbus_certatio = Emulation(apimap, device)
+    morbus_certatio = Emulation(apimap, device, embedding_dim=args.embedding_dim)
     optimizer = optim.Adam(morbus_certatio.model.parameters(), lr=1e-3, weight_decay=0)
-    loss_function = nn.CrossEntropyLoss()    
+    loss_function = nn.CrossEntropyLoss()
     morbus_certatio.fit(args.epochs, optimizer, loss_function, train_loader)
