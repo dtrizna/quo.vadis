@@ -15,21 +15,6 @@ sys.path.append(".")
 from utils.hashpath import get_filepath_db, get_rawpe_db
 from models import Composite
 
-from models import Emulation, Filepath
-from modules.sota.models import MalConvModel, EmberModel_2019
-
-MALCONV_MODEL_PATH = '../modules/sota/malconv/parameters/malconv.checkpoint'
-EMBER_2019_MODEL_PATH = '../modules/sota/ember/parameters/ember_model.txt'
-
-FILEPATH_MODEL_PATH = '../modules/filepath/pretrained/1646930331-model.torch'
-FILEPATH_BYTES = '../modules/filepath/pretrained/keep_bytes-ed64-pl150-kb150-1646917941.pickle'
-
-EMULATION_MODEL_PATH = '../modules/emulation/pretrained/1646990611-model.torch'
-EMULATION_APICALLS = '../modules/emulation/pretrained/api_calls_preserved-ed96-pl150-kb600-1646926097.pickle'
-
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-PADDING_LENGTH = 150
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training filepath NeuralNetwork.")
     parser.add_argument("--how", type=str, nargs="+", default=["malconv", "paths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
@@ -63,9 +48,6 @@ if __name__ == "__main__":
 
     
     # === PARSING PE TO VECTORS ===
-    rawpe_db = get_rawpe_db()
-    filepath_db = get_filepath_db()
-    
     if args.train and not args.pe_hashlist:
         args.pe_hashlist = "/data/quo.vadis/data/train_test_sets/X_train.pickle"
         args.y = "/data/quo.vadis/data/train_test_sets/y_train.npy"
@@ -73,7 +55,6 @@ if __name__ == "__main__":
         args.pe_hashlist = "/data/quo.vadis/data/train_test_sets/X_test.pickle"
         args.y = "/data/quo.vadis/data/train_test_sets/y_test.npy"
 
-    rawpe_db_hashlist = {}
     if args.pe:
         h = args.pe.split("/")[-1]
         hashlist = [args.pe]
@@ -92,8 +73,10 @@ if __name__ == "__main__":
 
     if args.train:
         composite.fit_hashlist(hashlist, y, dump_xy=args.save_xy)
+        print()
         _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
 
     preds = composite.predict_proba(hashlist)
-    print(preds, y)
+    pmal = [x[1] for x in preds]
+    _ = [print(f"p(mal): {pmal[i]:.4f}, ground truth label: {y[i]}") for i in range(len(pmal))]
         
