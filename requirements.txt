@@ -2,5 +2,6 @@ pandas
 numpy
 sklearn
 torch
+xgboost
 lightgbm
 speakeasy

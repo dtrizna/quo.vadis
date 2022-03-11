@@ -1,10 +1,8 @@
-import sys
 import os
 import time
 import pickle
 import logging
 import shutil
-from pathlib import Path
 import numpy as np
 from sklearn.metrics import f1_score
 
@@ -16,6 +14,13 @@ from preprocessing.array import rawseq2array, pad_array, byte_filter, remap
 from preprocessing.text import normalize_path
 from preprocessing.emulation import emulate
 from preprocessing.reports import report_to_apiseq
+from utils.hashpath import get_report_db, get_rawpe_db, get_filepath_db, get_filepath_from_hash
+from utils.functions import sigmoid
+from modules.sota.models import MalConvModel, EmberModel_2019
+
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+from sklearn.neural_network import MLPClassifier
 
 
 class Modular(nn.Module):
@@ -95,7 +100,7 @@ class Modular(nn.Module):
         return out
 
 
-class Module:
+class Module(object):
     def __init__(self, device,
                     embedding_dim,
                     vocab_size,
@@ -253,6 +258,7 @@ class Emulation(Module):
     def __init__(self, apimap, device, embedding_dim=96, state_dict=None):
         super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
         self.apimap = apimap
+        self.report_db = get_report_db()
 
     def forwardpass_apiseq(self, apiseq):
         x = rawseq2array(apiseq, self.apimap, self.padding_length)
@@ -282,13 +288,139 @@ class Emulation(Module):
         return logits, prediction
 
     def evaluate_report(self, h):
-        emulation_reports = "/data/quo.vadis/data/emulation.dataset"
-        try:
-            report_fullpath = str([x for x in Path(emulation_reports).rglob(h+".json")][0])
-        except KeyError as ex:
-            logging.error(f" [-] Cannot find report for: {h}... {ex}")
-
+        report_fullpath = self.report_db[h]
         apiseq = report_to_apiseq(report_fullpath)["api.seq"]
         logits, preds = self.forwardpass_apiseq(apiseq)
-
         return logits, preds
+
+
+class Composite(object):
+    def __init__(self, modules=["malconv", "paths", "emulation", "ember"],
+                    malconv_model_path = '../modules/sota/malconv/parameters/malconv.checkpoint',
+                    ember_2019_model_path = '../modules/sota/ember/parameters/ember_model.txt',
+
+                    filepath_model_path = '../modules/filepath/pretrained/1646930331-model.torch',
+                    filepath_bytes = '../modules/filepath/pretrained/keep_bytes-ed64-pl150-kb150-1646917941.pickle',
+
+                    emulation_model_path = '../modules/emulation/pretrained/1646990611-model.torch',
+                    emulation_apicalls = '../modules/emulation/pretrained/api_calls_preserved-ed96-pl150-kb600-1646926097.pickle',
+                    
+                    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                    padding_length = 150,
+
+                    late_fusion_model = "MLP"
+                ):
+        self.device = device
+        self.padding_length = padding_length
+
+        self.malconv_model_path = malconv_model_path
+        self.ember_2019_model_path = ember_2019_model_path
+
+        self.filepath_model_path = filepath_model_path
+        self.emulation_model_path = emulation_model_path
+
+        self.apis = emulation_apicalls
+        self.bytes = filepath_bytes
+
+        self.modules = {}
+
+        if "malconv" in modules:
+            self.modules["malconv"] = MalConvModel(self.malconv_model_path)
+            
+        if "ember" in modules:
+            self.modules["ember"] = EmberModel_2019(self.ember_2019_model_path)
+        
+        if "paths" in modules:
+            with open(self.bytes, "rb") as f:
+                bytes = pickle.load(f)
+            self.modules["paths"] = Filepath(bytes, self.device, state_dict=self.filepath_model_path)
+
+        if "emulation" in modules:
+            with open(self.apis, "rb") as f:
+                api_calls_preserved = pickle.load(f)
+            # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
+            self.apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
+            self.modules["emulation"] = Emulation(self.apimap, self.device, state_dict=self.emulation_model_path)
+        
+        self.module_timers = [] # np.vstack(self.module_timers).mean(axis=0))
+
+        self.rawpe_db = get_rawpe_db()
+        self.filepath_db = get_filepath_db()
+
+        if late_fusion_model == "LogisticRegression":
+            self.model = LogisticRegression()
+        elif late_fusion_model == "XGBClassifier":
+            self.model = XGBClassifier(n_estimators=100, 
+                                        objective='binary:logistic',
+                                        eval_metric="logloss",
+                                        use_label_encoder=False)
+        elif late_fusion_model == "MLP":
+            self.model = MLPClassifier() # just with default for now
+        else:
+            raise NotImplementedError
+
+
+    def get_processing_time(self):
+        return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
+
+    def early_fusion_pass(self, h):
+        vector = []
+        checkpoint = []
+        for model in self.modules:
+            if model == "emulation":
+                checkpoint.append(time.time())
+
+                emul_logits, _ = self.modules["emulation"].evaluate_report(h)
+                emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
+                vector.append(emul_prob)
+            
+            if model == "paths":
+                checkpoint.append(time.time())
+            
+                filepath = get_filepath_from_hash(h, self.filepath_db)
+                path_logits, _ = self.modules["paths"].evaluate_path(filepath)
+                path_prob = sigmoid(path_logits.detach().numpy())[0,1]
+                vector.append(path_prob)
+            
+            if model == "ember":
+                checkpoint.append(time.time())
+            
+                ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
+                vector.append(ember_prob)
+            
+            if model == "malconv":
+                checkpoint.append(time.time())
+            
+                malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
+                vector.append(malconv_prob)
+        
+        checkpoint.append(time.time())
+        self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
+        
+        return np.array(vector).reshape(1,-1)
+    
+    def fit_hashlist(self, hashlist, labels, dump_xy=False):
+        x = []
+        
+        for i,h in enumerate(hashlist):
+            print(f" [*] Scoring: {i+1}/{len(hashlist)}", end="\r")
+            x.append(self.early_fusion_pass(h))
+        
+        self.x = np.vstack(x)
+        self.y = labels
+
+        if dump_xy:
+            timestamp = int(time.time())
+            np.save(f"./X-{timestamp}.npy", self.x)
+            np.save(f"./y-{timestamp}.npy", self.y)
+        
+        self.model.fit(self.x, self.y)
+    
+    def predict_proba(self, hashlist):
+        probs = []
+        for h in hashlist:
+            x = self.early_fusion_pass(h)
+            probs.append(self.model.predict_proba(x))
+        return np.vstack(probs)
+
+    

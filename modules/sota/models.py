@@ -3,6 +3,8 @@ import torch.nn.functional as F
 import lightgbm as lgb
 import numpy as np
 import subprocess
+import sys
+sys.path.append("/data/quo.vadis/modules/sota")
 from ember import predict_sample
 from malconv import MalConv
 
@@ -18,7 +20,7 @@ class MalConvModel(object):
         try:
             with open(file_path, 'rb') as fp:
                 bytez = fp.read(2000000)        # read the first 2000000 bytes
-                _inp = torch.from_numpy( np.frombuffer(bytez,dtype=np.uint8)[np.newaxis,:] )
+                _inp = torch.from_numpy( np.frombuffer(bytez, dtype=np.uint8)[np.newaxis,:].copy() )
                 with torch.no_grad():
                     outputs = F.softmax( self.model(_inp), dim=-1)
                 return outputs.detach().numpy()[0,1]
