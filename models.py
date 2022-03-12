@@ -100,7 +100,7 @@ class Modular(nn.Module):
         return out
 
 
-class Module(object):
+class localModule(object):
     def __init__(self, device,
                     embedding_dim,
                     vocab_size,
@@ -150,7 +150,6 @@ class Module(object):
                 duration: {prefix}-duration.pickle"""
         logging.warning(dumpstring)
 
-    @staticmethod
     def train(self, train_loader, optimizer, loss_function, epoch_id, verbosity_batches):
         self.model.train()
 
@@ -183,7 +182,6 @@ class Module(object):
         
         return train_loss, np.array(train_metrics).mean(axis=0).reshape(-1,2)
 
-
     def fit(self, epochs, optimizer, loss_function, train_loader, verbosity_batches=100):
         train_losses = []
         train_metrics = []
@@ -194,7 +192,7 @@ class Module(object):
                 epoch_start_time = time.time()
                 logging.warning(f" [*] Started epoch: {epoch}")
 
-                train_loss, train_m = self.train(self, train_loader, optimizer, loss_function, epoch, verbosity_batches)
+                train_loss, train_m = self.train(train_loader, optimizer, loss_function, epoch, verbosity_batches)
                 train_losses.extend(train_loss)
                 train_metrics.append(train_m)
 
@@ -205,7 +203,6 @@ class Module(object):
         
         except KeyboardInterrupt:
             self.dump_results(self.model, train_losses, train_metrics, duration)
-
 
     def evaluate(self, val_loader, loss_function):
         self.model.eval()
@@ -231,12 +228,12 @@ class Module(object):
         return val_loss, np.array(val_metrics).mean(axis=0).reshape(-1,2)
 
 
-class Filepath(Module):
+class Filepath(localModule):
     def __init__(self, bytes, device, embedding_dim=64, state_dict=None):
         super().__init__(device, embedding_dim, len(bytes)+1, state_dict)
         self.bytes = bytes
 
-    def evaluate_path(self, path):
+    def predict_path(self, path):
         x = normalize_path(path).encode("utf-8", "ignore")
         x = np.array(list(x), dtype=int)
         x = pad_array(x, length=self.padding_length)
@@ -253,8 +250,10 @@ class Filepath(Module):
         
         return logits, prediction
 
+    def predict(self, path):
+        self.predict_path(path)
 
-class Emulation(Module):
+class Emulation(localModule):
     def __init__(self, apimap, device, embedding_dim=96, state_dict=None):
         super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
         self.apimap = apimap
@@ -270,7 +269,7 @@ class Emulation(Module):
 
         return logits, prediction
 
-    def evaluate_rawpe(self, path, i=0, l=0):
+    def predict_rawpe(self, path, i=0, l=0):
         temp_report_folder = f"temp_reports"
         os.makedirs(temp_report_folder, exist_ok=True)
         
@@ -287,11 +286,20 @@ class Emulation(Module):
         shutil.rmtree(temp_report_folder)
         return logits, prediction
 
-    def evaluate_report(self, h):
+    def predict_report(self, h):
         report_fullpath = self.report_db[h]
         apiseq = report_to_apiseq(report_fullpath)["api.seq"]
         logits, preds = self.forwardpass_apiseq(apiseq)
         return logits, preds
+    
+    def predict(self, h):
+        if h in self.report_db:
+            return self.predict_report(h)
+        else:
+            if os.path.exists(h):
+                return self.predict_rawpe(h)
+            else:
+                raise FileNotFoundError(f"Failed to acquire '{h}'. Is hash or PE path specified correctly?")
 
 
 class Composite(object):
@@ -308,7 +316,7 @@ class Composite(object):
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150,
 
-                    late_fusion_model = "MLP"
+                    late_fusion_model = "MultiLayerPerceptron"
                 ):
         self.device = device
         self.padding_length = padding_length
@@ -354,14 +362,14 @@ class Composite(object):
                                         objective='binary:logistic',
                                         eval_metric="logloss",
                                         use_label_encoder=False)
-        elif late_fusion_model == "MLP":
+        elif late_fusion_model == "MultiLayerPerceptron":
             self.model = MLPClassifier() # just with default for now
         else:
             raise NotImplementedError
-
+    
     def get_processing_time(self):
         return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
-
+    
     def early_fusion_pass(self, h):
         vector = []
         checkpoint = []
@@ -382,14 +390,14 @@ class Composite(object):
                 checkpoint.append(time.time())
             
                 filepath = get_filepath_from_hash(h, self.filepath_db)
-                path_logits, _ = self.modules["filepaths"].evaluate_path(filepath)
+                path_logits, _ = self.modules["filepaths"].predict(filepath)
                 path_prob = sigmoid(path_logits.detach().numpy())[0,1]
                 vector.append(path_prob)
             
             elif model == "emulation":
                 checkpoint.append(time.time())
 
-                emul_logits, _ = self.modules["emulation"].evaluate_report(h)
+                emul_logits, _ = self.modules["emulation"].predict(h)
                 emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
                 vector.append(emul_prob)
             
@@ -411,7 +419,6 @@ class Composite(object):
         
         x_crop = np.delete(x, module_indexes, axis=1)
         return x_crop
-
 
     def preprocess_hashlist(self, hashlist, dump_xy=False):
         x = []
