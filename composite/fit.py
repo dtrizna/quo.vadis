@@ -37,7 +37,7 @@ if __name__ == "__main__":
     elif args.model == "xgb":
         composite = Composite(modules=args.how, late_fusion_model="XGBClassifier")
     elif args.model == "mlp":
-        composite = Composite(modules=args.how, late_fusion_model="MLP")
+        composite = Composite(modules=args.how, late_fusion_model="MultiLayerPerceptron")
     else:
         print("wrong late fusion model")
         sys.exit(1)

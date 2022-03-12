@@ -1,0 +1,4 @@
+[Mean Sample Time]    malconv: 0.0600s
+[Mean Sample Time]      ember: 0.3906s
+[Mean Sample Time]  filepaths: 0.0202s
+[Mean Sample Time]  emulation: 0.0295s
