@@ -295,7 +295,7 @@ class Emulation(Module):
 
 
 class Composite(object):
-    def __init__(self, modules=["malconv", "paths", "emulation", "ember"],
+    def __init__(self, modules=["malconv", "ember", "filepaths", "emulation"],
                     malconv_model_path = '../modules/sota/malconv/parameters/malconv.checkpoint',
                     ember_2019_model_path = '../modules/sota/ember/parameters/ember_model.txt',
 
@@ -330,10 +330,10 @@ class Composite(object):
         if "ember" in modules:
             self.modules["ember"] = EmberModel_2019(self.ember_2019_model_path)
         
-        if "paths" in modules:
+        if "filepaths" in modules:
             with open(self.bytes, "rb") as f:
                 bytes = pickle.load(f)
-            self.modules["paths"] = Filepath(bytes, self.device, state_dict=self.filepath_model_path)
+            self.modules["filepaths"] = Filepath(bytes, self.device, state_dict=self.filepath_model_path)
 
         if "emulation" in modules:
             with open(self.apis, "rb") as f:
@@ -367,32 +367,35 @@ class Composite(object):
         vector = []
         checkpoint = []
         for model in self.modules:
-            if model == "emulation":
+            if model == "malconv":
+                checkpoint.append(time.time())
+            
+                malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
+                vector.append(malconv_prob)
+            
+            elif model == "ember":
+                checkpoint.append(time.time())
+            
+                ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
+                vector.append(ember_prob)
+            
+            elif model == "filepaths":
+                checkpoint.append(time.time())
+            
+                filepath = get_filepath_from_hash(h, self.filepath_db)
+                path_logits, _ = self.modules["filepaths"].evaluate_path(filepath)
+                path_prob = sigmoid(path_logits.detach().numpy())[0,1]
+                vector.append(path_prob)
+            
+            elif model == "emulation":
                 checkpoint.append(time.time())
 
                 emul_logits, _ = self.modules["emulation"].evaluate_report(h)
                 emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
                 vector.append(emul_prob)
             
-            if model == "paths":
-                checkpoint.append(time.time())
-            
-                filepath = get_filepath_from_hash(h, self.filepath_db)
-                path_logits, _ = self.modules["paths"].evaluate_path(filepath)
-                path_prob = sigmoid(path_logits.detach().numpy())[0,1]
-                vector.append(path_prob)
-            
-            if model == "ember":
-                checkpoint.append(time.time())
-            
-                ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
-                vector.append(ember_prob)
-            
-            if model == "malconv":
-                checkpoint.append(time.time())
-            
-                malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
-                vector.append(malconv_prob)
+            else:
+                raise NotImplementedError            
         
         checkpoint.append(time.time())
         self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
@@ -404,6 +407,7 @@ class Composite(object):
         
         for i,h in enumerate(hashlist):
             print(f" [*] Scoring: {i+1}/{len(hashlist)}", end="\r")
+            import pdb;pdb.set_trace()
             x.append(self.early_fusion_pass(h))
         
         self.x = np.vstack(x)

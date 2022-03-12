@@ -1,18 +1,12 @@
 import sys
-import time
 import argparse
 import logging
 
 import pickle
 import numpy as np
 
-import torch
-
-from sklearn.linear_model import LogisticRegression
-
 sys.path.append("..") # repository root
 sys.path.append(".")
-from utils.hashpath import get_filepath_db, get_rawpe_db
 from models import Composite
 
 if __name__ == "__main__":
@@ -33,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit", default=None, type=int, help="whether to limit parsing to some index (for testing)")
 
     args = parser.parse_args()
-    
+
 
     # === LOADING MODEL ===
     if args.model == "lr":
@@ -43,7 +37,7 @@ if __name__ == "__main__":
     elif args.model == "mlp":
         composite = Composite(modules=args.how, late_fusion_model="MLP")
     else:
-        print("wrong model")
+        print("wrong late fusion model")
         sys.exit(1)
 
     
@@ -75,7 +69,7 @@ if __name__ == "__main__":
         composite.fit_hashlist(hashlist, y, dump_xy=args.save_xy)
         print()
         _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
-
+    
     preds = composite.predict_proba(hashlist)
     pmal = [x[1] for x in preds]
     _ = [print(f"p(mal): {pmal[i]:.4f}, ground truth label: {y[i]}") for i in range(len(pmal))]
