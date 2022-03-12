@@ -323,7 +323,7 @@ class Composite(object):
         self.bytes = filepath_bytes
 
         self.modules = {}
-
+        
         if "malconv" in modules:
             self.modules["malconv"] = MalConvModel(self.malconv_model_path)
             
@@ -358,7 +358,6 @@ class Composite(object):
             self.model = MLPClassifier() # just with default for now
         else:
             raise NotImplementedError
-
 
     def get_processing_time(self):
         return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
@@ -402,29 +401,50 @@ class Composite(object):
         
         return np.array(vector).reshape(1,-1)
     
-    def fit_hashlist(self, hashlist, labels, dump_xy=False):
+    def get_cropped_x(self, modules, x):
+        modules_all = ["malconv", "ember", "filepaths", "emulation"]
+        missing = set(modules_all) - set(modules)
+        
+        module_indexes = []
+        for miss in missing:
+            module_indexes.append(modules_all.index(miss))
+        
+        x_crop = np.delete(x, module_indexes, axis=1)
+        return x_crop
+
+
+    def preprocess_hashlist(self, hashlist, dump_xy=False):
         x = []
         
         for i,h in enumerate(hashlist):
             print(f" [*] Scoring: {i+1}/{len(hashlist)}", end="\r")
-            import pdb;pdb.set_trace()
             x.append(self.early_fusion_pass(h))
         
-        self.x = np.vstack(x)
-        self.y = labels
-
         if dump_xy:
             timestamp = int(time.time())
             np.save(f"./X-{timestamp}.npy", self.x)
             np.save(f"./y-{timestamp}.npy", self.y)
-        
+
+        return np.vstack(x)
+
+    def fit_hashlist(self, hashlist, y, dump_xy=False):
+        self.x = self.preprocess_hashlist(hashlist, dump_xy=dump_xy)
+        self.y = y
         self.model.fit(self.x, self.y)
     
-    def predict_proba(self, hashlist):
+    def predict_proba_hashlist(self, hashlist):
         probs = []
         for h in hashlist:
             x = self.early_fusion_pass(h)
             probs.append(self.model.predict_proba(x))
         return np.vstack(probs)
+    
+    def fit(self, x, y):        
+        self.x = x
+        self.y = y
+        self.model.fit(self.x, self.y)
+    
+    def predict_proba(self, x):
+        return self.model.predict_proba(x)
 
     

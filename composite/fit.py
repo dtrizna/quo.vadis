@@ -5,13 +5,15 @@ import logging
 import pickle
 import numpy as np
 
+from sklearn.metrics import accuracy_score, f1_score
+
 sys.path.append("..") # repository root
 sys.path.append(".")
 from models import Composite
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training filepath NeuralNetwork.")
-    parser.add_argument("--how", type=str, nargs="+", default=["malconv", "paths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
+    parser.add_argument("--how", type=str, nargs="+", default=["malconv", "filepaths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
     parser.add_argument("--model", type=str, default="mlp")
 
     group1 = parser.add_mutually_exclusive_group()
@@ -69,8 +71,11 @@ if __name__ == "__main__":
         composite.fit_hashlist(hashlist, y, dump_xy=args.save_xy)
         print()
         _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
+        print("done")
+
+    if args.test:
+        composite.fit_hashlist(hashlist, y, dump_xy=args.save_xy)
+        print()
+        _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
+        print("done")
     
-    preds = composite.predict_proba(hashlist)
-    pmal = [x[1] for x in preds]
-    _ = [print(f"p(mal): {pmal[i]:.4f}, ground truth label: {y[i]}") for i in range(len(pmal))]
-        

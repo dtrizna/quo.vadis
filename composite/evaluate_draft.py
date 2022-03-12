@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--path-model", type=str, help="Path to .toch file with pretrained FilePath model weights")
     parser.add_argument("--apis", type=str, help="Pickle serialized file with list of preserved API calls used for training")
     parser.add_argument("--emu-model", type=str, help="Path to .toch file with pretrained Emulation model weights")
-
+    
     args = parser.parse_args()
     
     if args.path_model:
