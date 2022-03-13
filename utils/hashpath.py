@@ -8,7 +8,7 @@ def get_filepath_db(PE_DB_PATH="/data/quo.vadis/data/pe.dataset/PeX86Exe"):
             fullpath = os.path.join(root, name)
             csvdb = os.path.join(fullpath, [x for x in os.listdir(fullpath) if x.endswith(".csv")][0])
             df = pd.read_csv(csvdb, header=None, names=["hash", "path"])
-            hashpath_DB = hashpath_DB.append(df)
+            hashpath_DB = pd.concat([hashpath_DB,df])
     return hashpath_DB
 
 
