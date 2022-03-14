@@ -1,11 +1,11 @@
 # Quo Vadis
 
 `data/` - datasets and related code
+
 - [PE emulation dataset](data/emulation.dataset/emulation.dataset.7z)
 - Filepath dataset (from open sources only because of Privacy Policy: 
   - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
   - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
-
 
 `modules/filepaths/` - original filepath prediction pipeline based on 1D-convolutional neural network  
 
@@ -15,6 +15,11 @@
 
 `modules/emulation/` -  pipeline based on Windows Kernel emulation based on Speakeasy [emulator](https://github.com/mandiant/speakeasy) from Mandiant
 
-
 `modules/sota/` - static PE classification state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember)
 
+TODO:
+
+- make conventient `Composite` (or better `CompositeClassifier`) API interface:
+  - `.update()` to overtrain network with own examples that were previously flagged incorrectly
+  - work without submitted `filepath` (only PE mode)
+  - include (a) Autoruns checks (see Sysinternals book for full list of registries analyzed) (b) network connection information
