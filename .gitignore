@@ -13,3 +13,6 @@ data/pe.dataset/PeX86Exe
 *.api
 *torch
 data/emulation.dataset/report_*
+adversarial/samples_adversarial_testset
+adversarial/samples_testset
+adversarial/MAB-malware
