@@ -44,10 +44,13 @@ def emulate(file, report_folder, i=0, l=0,
         
             if api_seq_len == 1 or api_seq_len == 0:
                 # some uninformative failures with 0 or 1 API calls - e.g. ordinal_100
-                api = [x['apis'] for x in report['entry_points']][0] if api_seq_len ==1 else ''
+                api = [x['apis'] for x in report['entry_points']][0] if api_seq_len == 1 else ''
                 err = [x['error']['type'] if "error" in x.keys() and "type" in x["error"].keys() else "" for x in report['entry_points']]
                 if "unsupported_api" in err:
-                    err.extend([x['error']['api']['name'] for x in report['entry_points']])
+                    try:
+                        err.extend([x['error']['api']['name'] for x in report['entry_points']])
+                    except KeyError:
+                        err.extend([x['error']['api_name'] for x in report['entry_points']])
                 logging.debug(f" [D] {i}/{l} API nr.: {api_seq_len}; Err: {err}; APIs: {api}")
                 if api_seq_len == 0:
                     write_error(errfile)

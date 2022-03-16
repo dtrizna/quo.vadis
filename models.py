@@ -238,7 +238,6 @@ class Filepath(localModule):
         x = np.array(list(x), dtype=int)
         x = pad_array(x, length=self.padding_length)
         x = byte_filter(x, [0,1] + self.bytes)
-
         orig_bytes = set([0,1]+sorted(self.bytes))
         mapping = dict(zip(orig_bytes, range(len(orig_bytes))))
         x = torch.LongTensor(remap(x, mapping)).reshape(1,-1)
@@ -251,7 +250,7 @@ class Filepath(localModule):
         return logits, prediction
 
     def predict(self, path):
-        self.predict_path(path)
+        return self.predict_path(path)
 
 class Emulation(localModule):
     def __init__(self, apimap, device, embedding_dim=96, state_dict=None):
@@ -276,6 +275,7 @@ class Emulation(localModule):
         success = emulate(path, temp_report_folder)
         if not success:
             logging.error(f" [-] Failed emulation of {path}")
+            return None, success
         else:
             samplename = path.split("/")[-1]
             reportfile = f"{temp_report_folder}/{samplename}.json"
@@ -302,16 +302,16 @@ class Emulation(localModule):
                 raise FileNotFoundError(f"Failed to acquire '{h}'. Is hash or PE path specified correctly?")
 
 
-class Composite(object):
+class CompositeClassifier(object):
     def __init__(self, modules=["malconv", "ember", "filepaths", "emulation"],
-                    malconv_model_path = '../modules/sota/malconv/parameters/malconv.checkpoint',
-                    ember_2019_model_path = '../modules/sota/ember/parameters/ember_model.txt',
+                    malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
+                    ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
 
-                    filepath_model_path = '../modules/filepath/pretrained/1646930331-model.torch',
-                    filepath_bytes = '../modules/filepath/pretrained/keep_bytes-ed64-pl150-kb150-1646917941.pickle',
+                    filepath_model_path = 'modules/filepath/pretrained/1646930331-model.torch',
+                    filepath_bytes = 'modules/filepath/pretrained/keep_bytes-ed64-pl150-kb150-1646917941.pickle',
 
-                    emulation_model_path = '../modules/emulation/pretrained/1646990611-model.torch',
-                    emulation_apicalls = '../modules/emulation/pretrained/api_calls_preserved-ed96-pl150-kb600-1646926097.pickle',
+                    emulation_model_path = 'modules/emulation/pretrained/1646990611-model.torch',
+                    emulation_apicalls = 'modules/emulation/pretrained/api_calls_preserved-ed96-pl150-kb600-1646926097.pickle',
                     
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150,
@@ -354,7 +354,8 @@ class Composite(object):
 
         self.rawpe_db = get_rawpe_db()
         self.filepath_db = get_filepath_db()
-
+        
+        self.late_fusion_model = late_fusion_model
         if late_fusion_model == "LogisticRegression":
             self.model = LogisticRegression()
         elif late_fusion_model == "XGBClassifier":
@@ -366,6 +367,9 @@ class Composite(object):
             self.model = MLPClassifier() # just with default for now
         else:
             raise NotImplementedError
+        
+        self.x = None
+        self.y = None
     
     def get_processing_time(self):
         return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
@@ -376,29 +380,44 @@ class Composite(object):
         for model in self.modules:
             if model == "malconv":
                 checkpoint.append(time.time())
-            
-                malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
+                if os.path.exists(h):
+                    malconv_prob = self.modules["malconv"].get_score(h)
+                elif h in self.rawpe_db:
+                    malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
+                else:
+                    raise FileNotFoundError(f"Cannot find {h}, please provide valid path or known hash")
                 vector.append(malconv_prob)
             
             elif model == "ember":
                 checkpoint.append(time.time())
-            
-                ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
+                if os.path.exists(h):
+                    ember_prob = self.modules["ember"].get_score(h)
+                elif h in self.rawpe_db:
+                    ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
+                else:
+                    raise FileNotFoundError(f"Cannot find {h}, please provide valid path or known hash")
                 vector.append(ember_prob)
             
             elif model == "filepaths":
                 checkpoint.append(time.time())
-            
-                filepath = get_filepath_from_hash(h, self.filepath_db)
+                if "/" in h:
+                    hhash = h.split("/")[-1]
+                else:
+                    hhash = h
+                filepath = get_filepath_from_hash(hhash, self.filepath_db)
                 path_logits, _ = self.modules["filepaths"].predict(filepath)
                 path_prob = sigmoid(path_logits.detach().numpy())[0,1]
                 vector.append(path_prob)
             
             elif model == "emulation":
                 checkpoint.append(time.time())
-
-                emul_logits, _ = self.modules["emulation"].predict(h)
-                emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
+                
+                emul_logits, success = self.modules["emulation"].predict(h)
+                if success:
+                    emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
+                else:
+                    # TBD - what to do if evluation fails????
+                    emul_prob = np.mean(vector)
                 vector.append(emul_prob)
             
             else:
@@ -427,12 +446,15 @@ class Composite(object):
             print(f" [*] Scoring: {i+1}/{len(hashlist)}", end="\r")
             x.append(self.early_fusion_pass(h))
         
+        self.x = np.vstack(x)
+
         if dump_xy:
             timestamp = int(time.time())
             np.save(f"./X-{timestamp}.npy", self.x)
-            np.save(f"./y-{timestamp}.npy", self.y)
+            if self.y:
+                np.save(f"./y-{timestamp}.npy", self.y)
 
-        return np.vstack(x)
+        return self.x
 
     def fit_hashlist(self, hashlist, y, dump_xy=False):
         self.x = self.preprocess_hashlist(hashlist, dump_xy=dump_xy)
@@ -454,4 +476,10 @@ class Composite(object):
     def predict_proba(self, x):
         return self.model.predict_proba(x)
 
+    def save_late_fusion_model(self, filename=""):
+        filename = filename+f"_{int(time.time())}_"+self.late_fusion_model+".model"
+        pickle.dump(self.model, open(filename, 'wb'))
+        return filename
     
+    def load_late_fusion_model(self, filename=""):
+        self.model = pickle.load(open(filename, 'rb'))
