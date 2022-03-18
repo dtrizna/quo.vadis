@@ -20,6 +20,9 @@ def get_report_db(REPORT_PATH="/data/quo.vadis/data/emulation.dataset"):
     db = {}
     for root, dirs, _ in os.walk(REPORT_PATH):
         dirs = [x for x in dirs if "report_" in x]
+        # if no any "report_" subfolders, take JSON files from REPORT_PATH
+        if not any(dirs): 
+            dirs = [""]
         for name in dirs:
             fullpath = os.path.join(root, name)
             reportlist = [x for x in os.listdir(fullpath) if x.endswith(".json")]

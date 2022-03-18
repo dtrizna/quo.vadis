@@ -253,10 +253,13 @@ class Filepath(localModule):
         return self.predict_path(path)
 
 class Emulation(localModule):
-    def __init__(self, apimap, device, embedding_dim=96, state_dict=None):
+    def __init__(self, apimap, device, 
+                        embedding_dim=96, 
+                        state_dict=None, 
+                        emulation_report_path="data/emulation.dataset"):
         super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
         self.apimap = apimap
-        self.report_db = get_report_db()
+        self.report_db = get_report_db(REPORT_PATH=emulation_report_path)
 
     def forwardpass_apiseq(self, apiseq):
         x = rawseq2array(apiseq, self.apimap, self.padding_length)
@@ -275,16 +278,16 @@ class Emulation(localModule):
         success = emulate(path, temp_report_folder)
         if not success:
             logging.error(f" [-] Failed emulation of {path}")
-            return None, success
+            logits = None
         else:
             samplename = path.split("/")[-1]
             reportfile = f"{temp_report_folder}/{samplename}.json"
             apiseq = report_to_apiseq(reportfile)["api.seq"]
-            logits, prediction = self.forwardpass_apiseq(apiseq)
-
+            logits, _ = self.forwardpass_apiseq(apiseq)
+        
         # cleanup
         shutil.rmtree(temp_report_folder)
-        return logits, prediction
+        return logits, success
 
     def predict_report(self, h):
         report_fullpath = self.report_db[h]
@@ -293,8 +296,12 @@ class Emulation(localModule):
         return logits, preds
     
     def predict(self, h):
-        if h in self.report_db:
-            return self.predict_report(h)
+        if "/" in h:
+            hhash = h.split("/")[-1]
+        else:
+            hhash = h
+        if hhash in self.report_db:
+            return self.predict_report(hhash)
         else:
             if os.path.exists(h):
                 return self.predict_rawpe(h)
@@ -316,7 +323,8 @@ class CompositeClassifier(object):
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150,
 
-                    late_fusion_model = "MultiLayerPerceptron"
+                    late_fusion_model = "MultiLayerPerceptron",
+                    emulation_report_path = "data/emulation.dataset"
                 ):
         self.device = device
         self.padding_length = padding_length
@@ -348,7 +356,7 @@ class CompositeClassifier(object):
                 api_calls_preserved = pickle.load(f)
             # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
             self.apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
-            self.modules["emulation"] = Emulation(self.apimap, self.device, state_dict=self.emulation_model_path)
+            self.modules["emulation"] = Emulation(self.apimap, self.device, state_dict=self.emulation_model_path, emulation_report_path=emulation_report_path)
         
         self.module_timers = [] # np.vstack(self.module_timers).mean(axis=0))
 
