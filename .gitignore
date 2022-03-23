@@ -7,12 +7,13 @@ data/path.dataset/*smbmap.txt
 data/path.dataset/dataset_labio*
 data/path.dataset/*ti.txt
 data/pe.dataset/PeX86Exe
+data/adversarial.emulation.dataset/reports_*
+data/emulation.dataset/report_*
 *raw
 *npy
 *pickle
 *.api
 *torch
-data/emulation.dataset/report_*
 adversarial/samples_adversarial_testset*
 adversarial/samples_testset
 adversarial/mab_malware
