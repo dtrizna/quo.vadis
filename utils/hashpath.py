@@ -34,8 +34,13 @@ def get_report_db(REPORT_PATH="/data/quo.vadis/data/emulation.dataset"):
 def get_rawpe_db(PE_DB_PATH="/data/quo.vadis/data/pe.dataset/PeX86Exe"):
     db = {}
     for root, dirs, _ in os.walk(PE_DB_PATH):
-        for name in dirs:
-            fullpath = os.path.join(root, name)
-            for pehash in os.listdir(fullpath):
+        for name in dirs+[root]:
+            if name != root:
+                fullpath = os.path.join(root, name)
+                files = os.listdir(fullpath)
+            else:
+                fullpath = root
+                files = set(os.listdir(root)) - set(dirs)
+            for pehash in files:
                 db[pehash] = os.path.join(fullpath, pehash)
     return db

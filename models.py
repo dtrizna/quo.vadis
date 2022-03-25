@@ -314,29 +314,34 @@ class CompositeClassifier(object):
                     malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
                     ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
 
-                    filepath_model_path = 'modules/filepath/pretrained/1646930331-model.torch',
-                    filepath_bytes = 'modules/filepath/pretrained/keep_bytes-ed64-pl150-kb150-1646917941.pickle',
+                    filepath_model_path = 'modules/filepath/pretrained/torch.model',
+                    filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
 
-                    emulation_model_path = 'modules/emulation/pretrained/1646990611-model.torch',
-                    emulation_apicalls = 'modules/emulation/pretrained/api_calls_preserved-ed96-pl150-kb600-1646926097.pickle',
+                    emulation_model_path = 'modules/emulation/pretrained/torch.model',
+                    emulation_apicalls = 'modules/emulation/pretrained/pickle.apicalls',
                     
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150,
 
                     late_fusion_model = "MultiLayerPerceptron",
-                    emulation_report_path = "data/emulation.dataset"
+                    
+                    emulation_report_path = "data/emulation.dataset",
+                    rawpe_db_path = "data/pe.dataset/PeX86Exe",
+                    
+                    repo_root = "./"
                 ):
+        
         self.device = device
         self.padding_length = padding_length
 
-        self.malconv_model_path = malconv_model_path
-        self.ember_2019_model_path = ember_2019_model_path
+        self.malconv_model_path = repo_root + malconv_model_path
+        self.ember_2019_model_path = repo_root + ember_2019_model_path
 
-        self.filepath_model_path = filepath_model_path
-        self.emulation_model_path = emulation_model_path
+        self.filepath_model_path = repo_root + filepath_model_path
+        self.emulation_model_path = repo_root + emulation_model_path
 
-        self.apis = emulation_apicalls
-        self.bytes = filepath_bytes
+        self.apis = repo_root + emulation_apicalls
+        self.bytes = repo_root + filepath_bytes
 
         self.modules = {}
         
@@ -356,11 +361,13 @@ class CompositeClassifier(object):
                 api_calls_preserved = pickle.load(f)
             # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
             self.apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
-            self.modules["emulation"] = Emulation(self.apimap, self.device, state_dict=self.emulation_model_path, emulation_report_path=emulation_report_path)
+            self.modules["emulation"] = Emulation(self.apimap, self.device, 
+                                            state_dict=self.emulation_model_path, 
+                                            emulation_report_path=repo_root+emulation_report_path)
         
         self.module_timers = [] # np.vstack(self.module_timers).mean(axis=0))
-
-        self.rawpe_db = get_rawpe_db()
+        
+        self.rawpe_db = get_rawpe_db(PE_DB_PATH=repo_root+rawpe_db_path)
         self.filepath_db = get_filepath_db()
         
         self.late_fusion_model = late_fusion_model
@@ -459,8 +466,10 @@ class CompositeClassifier(object):
         if dump_xy:
             timestamp = int(time.time())
             np.save(f"./X-{timestamp}.npy", self.x)
+            logging.warning(f" [!] Dumped early fusion pass to './X-{timestamp}.npy'")
             if self.y:
                 np.save(f"./y-{timestamp}.npy", self.y)
+                logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
 
         return self.x
 
@@ -471,9 +480,12 @@ class CompositeClassifier(object):
     
     def predict_proba_hashlist(self, hashlist):
         probs = []
+        X = []
         for h in hashlist:
             x = self.early_fusion_pass(h)
+            X.append(x)
             probs.append(self.model.predict_proba(x))
+        self.x = np.vstack(X)
         return np.vstack(probs)
     
     def fit(self, x, y):        
