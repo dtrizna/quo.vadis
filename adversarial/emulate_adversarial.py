@@ -10,7 +10,8 @@ sys.path.append(repo_root)
 from preprocessing.emulation import emulate
 import threading
 
-adversarial_testset_path = repo_root + "adversarial/samples_adversarial_testset_gamma_malconv/"
+#adversarial_testset_path = repo_root + "adversarial/samples_adversarial_testset_gamma_malconv/"
+adversarial_testset_path = repo_root + "adversarial/samples_adversarial_testset_gamma_ember/"
 testset_files = os.listdir(adversarial_testset_path)
 
 adversarial_fullpaths = []
@@ -35,11 +36,12 @@ for i, file in enumerate(testset_files):
 #y_test_adv = np.array(y_test_adv, dtype=int)
 #x_test_adv = classifier.preprocess_hashlist(x_test_adv_paths, dump_xy=True)
 
-adversarial_emulation_folder = repo_root + "data/adversarial.emulation.dataset/reports_malconv/"
+l = len(adversarial_fullpaths)
+print(f" [!] found {l} adversarial samples, proceeding with emulation ...")
+
+adversarial_emulation_folder = repo_root + "data/adversarial.emulation.dataset/reports_ember/"
 os.makedirs(adversarial_emulation_folder, exist_ok=True)
 
-l = len(adversarial_fullpaths)
-print(f" [!] Total size of adversarial samples to emulate: {l}")
 for i, path in enumerate(adversarial_fullpaths):
     #emulate(path, adversarial_emulation_folder, i, l)
     thread = threading.Thread(target=emulate, args=(path, adversarial_emulation_folder, i, l))
