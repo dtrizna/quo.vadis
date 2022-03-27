@@ -2,7 +2,7 @@
 
 Composite, modular structure for **malware classification**. Main API interface under: `./models.py`. Current architecture:
 
-<p align="center"><img src="img/composite_scheme.png" width=600><br>
+<p align="center"><img src="img/composite_scheme.png" width=800><br>
 
 More detailed information about modules and individual tests:
 
