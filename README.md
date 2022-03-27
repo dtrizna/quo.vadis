@@ -3,23 +3,33 @@
 `data/` - datasets and related code
 
 - [PE emulation dataset](data/emulation.dataset/emulation.dataset.7z)
-- Filepath dataset (from open sources only because of Privacy Policy: 
+- Filepath dataset (from open sources only because of Privacy Policy):
   - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
   - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
 
-`modules/filepaths/` - original filepath prediction pipeline based on 1D-convolutional neural network  
+`./models.py` - composite model with following architecture:
 
-<p align="center"><img src="img/potential_scheme.png" width=600><br>
+<p align="center"><img src="img/composite_scheme.png" width=600><br>
 
-<!--Performance of final model: <center><img src="img/confusion_matrix_on_validation_set_quo.vadis.primus.png" width=350></center><br>-->
+Performance of this model on proprietary dataset - 90k PE samples with filepaths from real-world systems:
 
-`modules/emulation/` -  pipeline based on Windows Kernel emulation based on Speakeasy [emulator](https://github.com/mandiant/speakeasy) from Mandiant
+<center><img src="composite/composite_validation_confusionmatrix.png" width=350></center><br>
 
-`modules/sota/` - static PE classification state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember)
+Detailed information about modules:
+
+- `./modules/emulation/` -  pipeline based on Windows Kernel emulation based on Speakeasy [emulator](https://github.com/mandiant/speakeasy) from Mandiant
+- `./modules/filepaths/` - 1D convolution pipeline for file path classification
+- `./modules/sota/` - static PE classification state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember)
 
 TODO:
 
-- make conventient `Composite` (or better `CompositeClassifier`) API interface:
+- try experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
+- try run GAMMA against composite solution (not just ember/malconv modules) - looks like attacks are highly targeted, interesting if it will be able to generate evasive samples against complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
+- work on `CompositeClassifier()` API interface:
+  - make easy to take a PE sample(s) & document additional options (providing PE directory, predefined emuluation report directory, etc.)
   - `.update()` to overtrain network with own examples that were previously flagged incorrectly
-  - work without submitted `filepath` (only PE mode)
-  - include (a) Autoruns checks (see Sysinternals book for full list of registries analyzed) (b) network connection information
+  - work without submitted `filepath` (only PE mode) - provide paths as separate argument to `.fit()`?
+  - additional modules:
+    - (a) Autoruns checks (see Sysinternals book for full list of registries analyzed) 
+    - (b) network connection information
+    - etc.
