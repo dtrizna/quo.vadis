@@ -1,6 +1,6 @@
 # Quo Vadis
 
-Composite, modular structure for **malware classification**. Main API interface under: `./models.py`. Status quo architecture:
+Composite, modular structure for **malware classification**. Main API interface under: `./models.py`. Current architecture:
 
 <p align="center"><img src="img/composite_scheme.png" width=600><br>
 
@@ -33,7 +33,7 @@ ROC curves:
   - make easy to take a PE sample(s) & document additional options (providing PE directory, predefined emuluation report directory, etc.)
   - `.update()` to overtrain network with own examples that were previously flagged incorrectly
   - work without submitted `filepath` (only PE mode) - provide paths as separate argument to `.fit()`?
-  - additional modules:
-    - (a) Autoruns checks (see Sysinternals book for full list of registries analyzed)
-    - (b) network connection information
-    - etc.
+- Additional modules:
+  - (a) Autoruns checks (see Sysinternals book for full list of registries analyzed)
+  - (b) network connection information
+  - etc.
