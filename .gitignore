@@ -14,6 +14,6 @@ data/emulation.dataset/report_*
 *pickle
 *.api
 *torch
-adversarial/samples_adversarial_testset*
-adversarial/samples_testset
-adversarial/mab_malware
+evaluation/adversarial/samples_adversarial_testset*
+evaluation/adversarial/samples_testset
+evaluation/adversarial/mab_malware
