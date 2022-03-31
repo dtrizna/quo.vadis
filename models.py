@@ -14,7 +14,7 @@ from preprocessing.array import rawseq2array, pad_array, byte_filter, remap
 from preprocessing.text import normalize_path
 from preprocessing.emulation import emulate
 from preprocessing.reports import report_to_apiseq
-from utils.hashpath import get_report_db, get_rawpe_db, get_filepath_db, get_filepath_from_hash
+from utils.structures import report_db, rawpe_db, filepath_db
 from utils.functions import sigmoid
 from modules.sota.models import MalConvModel, EmberModel_2019
 
@@ -259,7 +259,7 @@ class Emulation(localModule):
                         emulation_report_path="data/emulation.dataset"):
         super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
         self.apimap = apimap
-        self.report_db = get_report_db(REPORT_PATH=emulation_report_path)
+        self.report_db = report_db(REPORT_PATH=emulation_report_path)
 
     def forwardpass_apiseq(self, apiseq):
         x = rawseq2array(apiseq, self.apimap, self.padding_length)
@@ -327,7 +327,7 @@ class CompositeClassifier(object):
                     
                     emulation_report_path = "data/emulation.dataset",
                     rawpe_db_path = "data/pe.dataset/PeX86Exe",
-                    
+                    fielpath_csvs = "data/pe.dataset/PeX86Exe",
                     repo_root = "./"
                 ):
         
@@ -365,10 +365,8 @@ class CompositeClassifier(object):
                                             state_dict=self.emulation_model_path, 
                                             emulation_report_path=repo_root+emulation_report_path)
         
-        self.module_timers = [] # np.vstack(self.module_timers).mean(axis=0))
-        
-        self.rawpe_db = get_rawpe_db(PE_DB_PATH=repo_root+rawpe_db_path)
-        self.filepath_db = get_filepath_db()
+        self.rawpe_db = rawpe_db(PE_DB_PATH=repo_root+rawpe_db_path)
+        self.filepath_db = filepath_db(FILEPATH_CSV_LOCATION=repo_root+fielpath_csvs)
         
         self.late_fusion_model = late_fusion_model
         if late_fusion_model == "LogisticRegression":
@@ -379,71 +377,16 @@ class CompositeClassifier(object):
                                         eval_metric="logloss",
                                         use_label_encoder=False)
         elif late_fusion_model == "MultiLayerPerceptron":
-            self.model = MLPClassifier() # just with default for now
+            self.model = MLPClassifier(hidden_layer_sizes=(50,))
         else:
             raise NotImplementedError
         
+        self.module_timers = []
         self.x = None
         self.y = None
     
-    def get_processing_time(self):
-        return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
-    
-    def early_fusion_pass(self, h):
-        vector = []
-        checkpoint = []
-        for model in self.modules:
-            if model == "malconv":
-                checkpoint.append(time.time())
-                if os.path.exists(h):
-                    malconv_prob = self.modules["malconv"].get_score(h)
-                elif h in self.rawpe_db:
-                    malconv_prob = self.modules["malconv"].get_score(self.rawpe_db[h])
-                else:
-                    raise FileNotFoundError(f"Cannot find {h}, please provide valid path or known hash")
-                vector.append(malconv_prob)
-            
-            elif model == "ember":
-                checkpoint.append(time.time())
-                if os.path.exists(h):
-                    ember_prob = self.modules["ember"].get_score(h)
-                elif h in self.rawpe_db:
-                    ember_prob = self.modules["ember"].get_score(self.rawpe_db[h])
-                else:
-                    raise FileNotFoundError(f"Cannot find {h}, please provide valid path or known hash")
-                vector.append(ember_prob)
-            
-            elif model == "filepaths":
-                checkpoint.append(time.time())
-                if "/" in h:
-                    hhash = h.split("/")[-1]
-                else:
-                    hhash = h
-                filepath = get_filepath_from_hash(hhash, self.filepath_db)
-                path_logits, _ = self.modules["filepaths"].predict(filepath)
-                path_prob = sigmoid(path_logits.detach().numpy())[0,1]
-                vector.append(path_prob)
-            
-            elif model == "emulation":
-                checkpoint.append(time.time())
-                
-                emul_logits, success = self.modules["emulation"].predict(h)
-                if success:
-                    emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
-                else:
-                    # TBD - what to do if evluation fails????
-                    emul_prob = np.mean(vector)
-                vector.append(emul_prob)
-            
-            else:
-                raise NotImplementedError            
-        
-        checkpoint.append(time.time())
-        self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
-        
-        return np.array(vector).reshape(1,-1)
-    
-    def get_cropped_x(self, modules, x):
+    # auxiliary
+    def get_modular_x(self, modules, x=None):
         modules_all = ["malconv", "ember", "filepaths", "emulation"]
         missing = set(modules_all) - set(modules)
         
@@ -454,13 +397,84 @@ class CompositeClassifier(object):
         x_crop = np.delete(x, module_indexes, axis=1)
         return x_crop
 
-    def preprocess_hashlist(self, hashlist, dump_xy=False):
+    def get_processing_time(self):
+        return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
+    
+    # array actions        
+    def fit(self, x, y):
+        self.x = x
+        self.y = y
+        self.model.fit(self.x, self.y)
+    
+    def predict_proba(self, x):
+        return self.model.predict_proba(x)
+
+    # PE processing actions
+    def _early_fusion_pass(self, pe, filepath=None):
+        vector = []
+        checkpoint = []
+
+        if not filepath and "filepaths" in self.modules:
+            if "/" in pe:
+                pe = pe.split("/")[-1]    
+            # get path from identifier
+            filepath = self.filepath_db[pe]
+            if not filepath:
+                raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually using \
+                                'filepath' argument or remove 'filepaths' from modules.")
+
+        if pe in self.rawpe_db:
+            pe = self.rawpe_db[pe]
+
+        elif not os.path.exists(pe):
+            raise FileNotFoundError(f"Cannot find {pe}, please provide valid path or known hash")
+        
+
+        for model in self.modules:
+            # PE modules
+            if model == "malconv":
+                checkpoint.append(time.time())
+                malconv_prob = self.modules["malconv"].get_score(pe)    
+                vector.append(malconv_prob)
+            
+            elif model == "ember":
+                checkpoint.append(time.time())
+                ember_prob = self.modules["ember"].get_score(pe)
+                vector.append(ember_prob)
+            
+            elif model == "emulation":
+                checkpoint.append(time.time())
+                emul_logits, success = self.modules["emulation"].predict(pe)
+                if success:
+                    emul_prob = sigmoid(emul_logits.detach().numpy())[0,1]
+                else:
+                    # TODO: what to do if emulation fails????
+                    emul_prob = 0.5 # np.mean(vector)
+                vector.append(emul_prob)
+            
+            # path module
+            elif model == "filepaths":
+                checkpoint.append(time.time())
+                path_logits, _ = self.modules["filepaths"].predict(filepath)
+                path_prob = sigmoid(path_logits.detach().numpy())[0,1]
+                vector.append(path_prob)
+            
+            else:
+                raise NotImplementedError            
+        
+        checkpoint.append(time.time())
+        self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
+        
+        return np.array(vector).reshape(1,-1)
+    
+    def preprocess_pelist(self, pelist, pathlist=None, dump_xy=False):
+        # TODO: 
+        # process pathlist as alternative way to define paths, 
+        # _early_fusion_pass() takes filepath= as argument
         x = []
-        
-        for i,h in enumerate(hashlist):
-            print(f" [*] Scoring: {i+1}/{len(hashlist)}", end="\r")
-            x.append(self.early_fusion_pass(h))
-        
+        for i,pe in enumerate(pelist):
+            print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
+            x.append(self._early_fusion_pass(pe))
         self.x = np.vstack(x)
 
         if dump_xy:
@@ -470,32 +484,19 @@ class CompositeClassifier(object):
             if self.y:
                 np.save(f"./y-{timestamp}.npy", self.y)
                 logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
-
         return self.x
 
-    def fit_hashlist(self, hashlist, y, dump_xy=False):
-        self.x = self.preprocess_hashlist(hashlist, dump_xy=dump_xy)
+    def fit_pelist(self, pelist, y, dump_xy=False):
+        self.x = self.preprocess_pelist(pelist, dump_xy=dump_xy)
         self.y = y
         self.model.fit(self.x, self.y)
     
-    def predict_proba_hashlist(self, hashlist):
-        probs = []
-        X = []
-        for h in hashlist:
-            x = self.early_fusion_pass(h)
-            X.append(x)
-            probs.append(self.model.predict_proba(x))
-        self.x = np.vstack(X)
-        return np.vstack(probs)
-    
-    def fit(self, x, y):        
-        self.x = x
-        self.y = y
-        self.model.fit(self.x, self.y)
-    
-    def predict_proba(self, x):
-        return self.model.predict_proba(x)
+    def predict_proba_pelist(self, pelist, dump_xy=False):
+        self.x = self.preprocess_pelist(pelist, dump_xy=dump_xy)
+        probs = self.model.predict_proba(self.x)
+        return probs
 
+    # late fusion model state actions
     def save_late_fusion_model(self, filename=""):
         filename = filename+f"_{int(time.time())}_"+self.late_fusion_model+".model"
         pickle.dump(self.model, open(filename, 'wb'))
