@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-
+    hashlist = None
     # === LOADING MODEL ===
     classifier = CompositeClassifier(modules=args.how, late_fusion_model=args.model, root=repo_root)
     

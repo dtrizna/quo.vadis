@@ -441,15 +441,18 @@ class CompositeClassifier(object):
             if self.x is not None:
                 x = self.x
             else:
-                raise Exception("Please define input 'x'")
-        if y is None:
-            y = self.y
+                logging.error(f"[-] Input array is not defined...")
+                return None
+
+        probs = self.predict_proba(x)[:,1]
+        x = np.hstack([x, probs.reshape(-1,1)])
+        cols = list(self.modules.keys()) + ["Pr(malw.)"]
+        
+        y = self.y if y is None else y
         if y is not None:
             values = np.hstack([x,y.reshape(-1,1)])
-            cols = list(self.modules.keys())+["y"]
-        else:
-            values = x
-            cols = self.modules.keys()
+            cols = cols + ["y"]
+        
         return DataFrame(values, columns=cols)
 
     def get_module_processing_time(self):
