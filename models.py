@@ -4,6 +4,7 @@ import pickle
 import logging
 import shutil
 import numpy as np
+from pandas import DataFrame
 from sklearn.metrics import f1_score
 
 import torch
@@ -350,10 +351,8 @@ class CompositeClassifier(object):
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150
                 ):
-        # TODO: 
-        # right now it is really does not accept config w/o preloading early fusion models
-        # should allow retraining from scratch
-        # use load_state() to load modules separately, not during __init__
+        # TODO: right now it is really does not accept config w/o preloading models
+        # should allow retraining from scratch (all modules, including MalConv/Ember)
 
         self.root = root
         self.modules = {}
@@ -436,10 +435,26 @@ class CompositeClassifier(object):
         
         x_crop = np.delete(x, module_indexes, axis=1)
         return x_crop
-
-    def get_processing_time(self):
-        return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
     
+    def get_module_scores(self, x=None, y=None):
+        if x is None:
+            if self.x is not None:
+                x = self.x
+            else:
+                raise Exception("Please define input 'x'")
+        if y is None:
+            y = self.y
+        if y is not None:
+            values = np.hstack([x,y.reshape(-1,1)])
+            cols = list(self.modules.keys())+["y"]
+        else:
+            values = x
+            cols = self.modules.keys()
+        return DataFrame(values, columns=cols)
+
+    def get_module_processing_time(self):
+        return dict(zip(self.modules.keys(), np.vstack(self.module_timers).mean(axis=0)))
+
     # array actions        
     def fit(self, x, y):
         self.x = x
@@ -508,14 +523,16 @@ class CompositeClassifier(object):
         return np.array(vector).reshape(1,-1)
     
     def preprocess_pelist(self, pelist, pathlist=None, dump_xy=False):
-        # TODO: 
-        # process pathlist as alternative way to define paths, 
-        # _early_fusion_pass() takes filepath= as argument
         x = []
+        path = None
+        if pathlist and len(pelist) != len(pathlist):
+            raise Exception(f"Length of provided pathlist doesn't match length of provided PE file list.")
+        
         for i,pe in enumerate(pelist):
+            if pathlist:
+                path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
-            x.append(self._early_fusion_pass(pe))
-        self.x = np.vstack(x)
+            x.append(self._early_fusion_pass(pe, path))
 
         if dump_xy:
             timestamp = int(time.time())
@@ -524,14 +541,19 @@ class CompositeClassifier(object):
             if self.y:
                 np.save(f"./y-{timestamp}.npy", self.y)
                 logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
-        return self.x
+        
+        return np.vstack(x)
 
-    def fit_pelist(self, pelist, y, dump_xy=False):
-        self.x = self.preprocess_pelist(pelist, dump_xy=dump_xy)
+    def fit_pelist(self, pelist, y, pathlist=None, dump_xy=False):
+        self.x = self.preprocess_pelist(pelist, pathlist=pathlist, dump_xy=dump_xy)
         self.y = y
         self.model.fit(self.x, self.y)
     
-    def predict_proba_pelist(self, pelist, dump_xy=False):
-        self.x = self.preprocess_pelist(pelist, dump_xy=dump_xy)
-        probs = self.model.predict_proba(self.x)
-        return probs
+    def predict_proba_pelist(self, pelist, pathlist=None, dump_xy=False, return_module_scores=False):
+        x = self.preprocess_pelist(pelist, pathlist=pathlist, dump_xy=dump_xy)
+        probs = self.model.predict_proba(x)
+        if return_module_scores:
+            return probs, DataFrame(x, columns=self.modules.keys())
+        else:
+            return probs
+    

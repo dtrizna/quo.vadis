@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 
     # === LOADING MODEL ===
-    composite = CompositeClassifier(modules=args.how, late_fusion_model=args.model, root=repo_root)
+    classifier = CompositeClassifier(modules=args.how, late_fusion_model=args.model, root=repo_root)
     
     # === PARSING PE TO VECTORS ===
     if args.train and not args.pe_hashlist:
@@ -55,14 +55,32 @@ if __name__ == "__main__":
     y = np.load(args.y)[0:len(hashlist)]
 
     if args.train:
-        composite.fit_pelist(hashlist, y, dump_xy=args.save_xy)
+        classifier.fit_pelist(hashlist, y, dump_xy=args.save_xy)
         print()
-        _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
+        _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in classifier.get_module_processing_time().items()]
         print("done")
 
     if args.test:
-        composite.fit_pelist(hashlist, y, dump_xy=args.save_xy)
+        x = classifier.preprocess_pelist(hashlist, dump_xy=args.save_xy)
         print()
-        _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in composite.get_processing_time().items()]
+        _ = [print(f"\t[Mean Sample Time] {k:>10}: {v:.4f}s") for k,v in classifier.get_module_processing_time().items()]
         print("done")
     
+        scores = classifier.get_module_scores(x, y)
+        scores["path"] = [classifier.modules["filepaths"].filepath_db[x] for x in hashlist]
+        scores["pefile"] = [classifier.rawpe_db[x] for x in hashlist]
+        scores.to_csv("test_scores.csv", index=False)
+        print(scores)
+        
+        example_path = r"C:\windows\temp\kernel32.exe"
+        example_hash = "0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
+        example_pe = "/data/quo.vadis/data/pe.dataset/PeX86Exe/backdoor/0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
+
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True)
+        print(f"Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        print(scores, "\n")
+
+        example_path = r"C:\windows\system32\kernel32.dll"
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True)
+        print(f"Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        print(scores)
