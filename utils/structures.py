@@ -7,6 +7,8 @@ def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe"
     bd4efcbd4fd664f4ddb9be03f42b2ca98d5f28cfbe24024a93a4798f5a0b15a0,C:\\Users\\Andy\\AppData\\Roaming\\Windows Update.exe
     """
     hashpath_DB = pd.DataFrame()
+    if not FILEPATH_CSV_LOCATION:
+        return {}
     for root, dirs, _ in os.walk(FILEPATH_CSV_LOCATION):
         for name in dirs:
             fullpath = os.path.join(root, name)
@@ -18,6 +20,8 @@ def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe"
 
 def report_db(REPORT_PATH="/data/quo.vadis/data/emulation.dataset"):
     db = {}
+    if not REPORT_PATH:
+        return db
     for root, dirs, _ in os.walk(REPORT_PATH):
         dirs = [x for x in dirs if "report_" in x]
         for name in dirs+[root]:
@@ -35,6 +39,8 @@ def report_db(REPORT_PATH="/data/quo.vadis/data/emulation.dataset"):
 
 def rawpe_db(PE_DB_PATH="/data/quo.vadis/data/pe.dataset/PeX86Exe"):
     db = {}
+    if not PE_DB_PATH:
+        return db
     for root, dirs, _ in os.walk(PE_DB_PATH):
         for name in dirs+[root]:
             if name != root:

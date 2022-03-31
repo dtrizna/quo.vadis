@@ -9,12 +9,16 @@ from ember import predict_sample
 from malconv import MalConv
 
 class MalConvModel(object):
-    def __init__(self, model_path, thresh=0.5, name='malconv'): 
+    def __init__(self, thresh=0.5, name='malconv'): 
         self.model = MalConv(channels=256, window_size=512, embd_size=8).train()
-        weights = torch.load(model_path,map_location='cpu')
-        self.model.load_state_dict( weights['model_state_dict'])
+        
         self.thresh = thresh
         self.__name__ = name
+
+    def load_state(self, model_path):
+        # model from MLSEC 2019 trained on EMBER 2018
+        weights = torch.load(model_path, map_location='cpu')
+        self.model.load_state_dict( weights['model_state_dict'])
 
     def get_score(self, file_path):
         try:
@@ -34,12 +38,12 @@ class MalConvModel(object):
         return score < self.thresh
 
 
-class EmberModel_2019(object):       # model in MLSEC 2019
+class EmberGBDT(object):
     def __init__(self, model_path, thresh=0.8336, name='ember'):
-        # load lightgbm model
+        # load lightgbm model from MLSEC 2019 trained on EMBER 2018
         self.model = lgb.Booster(model_file=model_path)
         self.thresh = thresh
-        self.__name__ = 'ember'
+        self.__name__ = name
 
     def get_score(self,file_path):
         with open(file_path, 'rb') as fp:
@@ -62,4 +66,4 @@ class ClamAV(object):
             return True
         else:
             print('clamav error')
-            exit()
+            sys.exit()

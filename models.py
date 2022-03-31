@@ -16,14 +16,14 @@ from preprocessing.emulation import emulate
 from preprocessing.reports import report_to_apiseq
 from utils.structures import report_db, rawpe_db, filepath_db
 from utils.functions import sigmoid
-from modules.sota.models import MalConvModel, EmberModel_2019
+from modules.sota.models import MalConvModel, EmberGBDT
 
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
 from sklearn.neural_network import MLPClassifier
 
 
-class Modular(nn.Module):
+class Core1DConvNet(nn.Module):
     def __init__(self, 
                 # embedding params
                 vocab_size = 152,
@@ -100,7 +100,7 @@ class Modular(nn.Module):
         return out
 
 
-class localModule(object):
+class Core1DConvNetAPI(object):
     def __init__(self, device,
                     embedding_dim,
                     vocab_size,
@@ -108,7 +108,7 @@ class localModule(object):
                     padding_length=150):
         self.device = device
         self.padding_length = padding_length
-        self.model = Modular(
+        self.model = Core1DConvNet(
             vocab_size = vocab_size,
             embedding_dim = embedding_dim,
             # conv params
@@ -126,6 +126,9 @@ class localModule(object):
         
         if state_dict:
             self.model.load_state_dict(torch.load(state_dict))
+
+    def load_state(self, state_dict):
+        self.model.load_state_dict(torch.load(state_dict))
 
     @staticmethod
     def dump_results(model, train_losses, train_metrics, duration):
@@ -228,10 +231,19 @@ class localModule(object):
         return val_loss, np.array(val_metrics).mean(axis=0).reshape(-1,2)
 
 
-class Filepath(localModule):
-    def __init__(self, bytes, device, embedding_dim=64, state_dict=None):
-        super().__init__(device, embedding_dim, len(bytes)+1, state_dict)
+class Filepath(Core1DConvNetAPI):
+    def __init__(self, 
+                    bytes, 
+                    device, 
+                    embedding_dim=64, 
+                    state_dict=None,
+                    filepath_csv_location=None):
+        super().__init__(device, 
+                            embedding_dim, 
+                            len(bytes)+1, 
+                            state_dict)
         self.bytes = bytes
+        self.filepath_db = filepath_db(FILEPATH_CSV_LOCATION=filepath_csv_location)
 
     def predict_path(self, path):
         x = normalize_path(path).encode("utf-8", "ignore")
@@ -252,12 +264,16 @@ class Filepath(localModule):
     def predict(self, path):
         return self.predict_path(path)
 
-class Emulation(localModule):
+
+class Emulation(Core1DConvNetAPI):
     def __init__(self, apimap, device, 
                         embedding_dim=96, 
                         state_dict=None, 
-                        emulation_report_path="data/emulation.dataset"):
-        super().__init__(device, embedding_dim, len(apimap)+2, state_dict)
+                        emulation_report_path=None):
+        super().__init__(device, 
+                            embedding_dim, 
+                            len(apimap)+2, 
+                            state_dict)
         self.apimap = apimap
         self.report_db = report_db(REPORT_PATH=emulation_report_path)
 
@@ -311,80 +327,104 @@ class Emulation(localModule):
 
 class CompositeClassifier(object):
     def __init__(self, modules=["malconv", "ember", "filepaths", "emulation"],
+                    root = "./", # repository root
+                    
+                    # pretrained early fusion components
                     malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
                     ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
-
-                    filepath_model_path = 'modules/filepath/pretrained/torch.model',
-                    filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
-
+                    # metadata used for module pre-training
+                    # TODO: consider configuration of instantiating model without this
                     emulation_model_path = 'modules/emulation/pretrained/torch.model',
                     emulation_apicalls = 'modules/emulation/pretrained/pickle.apicalls',
-                    
-                    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
-                    padding_length = 150,
-
-                    late_fusion_model = "MultiLayerPerceptron",
-                    
+                    filepath_model_path = 'modules/filepath/pretrained/torch.model',
+                    filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
+                    # metadata needed for struct instantiation
                     emulation_report_path = "data/emulation.dataset",
                     rawpe_db_path = "data/pe.dataset/PeX86Exe",
                     fielpath_csvs = "data/pe.dataset/PeX86Exe",
-                    repo_root = "./"
+                    
+                    # later fusion model
+                    late_fusion_model = "MultiLayerPerceptron",
+                    
+                    # auxiliary settings
+                    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+                    padding_length = 150
                 ):
-        
+        # TODO: 
+        # right now it is really does not accept config w/o preloading early fusion models
+        # should allow retraining from scratch
+        # use load_state() to load modules separately, not during __init__
+
+        self.root = root
+        self.modules = {}
+
         self.device = device
         self.padding_length = padding_length
 
-        self.malconv_model_path = repo_root + malconv_model_path
-        self.ember_2019_model_path = repo_root + ember_2019_model_path
-
-        self.filepath_model_path = repo_root + filepath_model_path
-        self.emulation_model_path = repo_root + emulation_model_path
-
-        self.apis = repo_root + emulation_apicalls
-        self.bytes = repo_root + filepath_bytes
-
-        self.modules = {}
+        self.malconv_model_path = self.root + malconv_model_path
+        self.ember_2019_model_path = self.root + ember_2019_model_path
         
         if "malconv" in modules:
-            self.modules["malconv"] = MalConvModel(self.malconv_model_path)
+            self.modules["malconv"] = MalConvModel()
+            self.modules["malconv"].load_state(self.malconv_model_path)
             
         if "ember" in modules:
-            self.modules["ember"] = EmberModel_2019(self.ember_2019_model_path)
+            self.modules["ember"] = EmberGBDT(self.ember_2019_model_path)
         
         if "filepaths" in modules:
+            self.bytes = self.root + filepath_bytes
             with open(self.bytes, "rb") as f:
                 bytes = pickle.load(f)
-            self.modules["filepaths"] = Filepath(bytes, self.device, state_dict=self.filepath_model_path)
+            self.modules["filepaths"] = Filepath(bytes, self.device, filepath_csv_location=self.root+fielpath_csvs)
+            self.load_filepath_module(self.root + filepath_model_path)
 
         if "emulation" in modules:
+            self.apis = self.root + emulation_apicalls
             with open(self.apis, "rb") as f:
                 api_calls_preserved = pickle.load(f)
             # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
             self.apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
-            self.modules["emulation"] = Emulation(self.apimap, self.device, 
-                                            state_dict=self.emulation_model_path, 
-                                            emulation_report_path=repo_root+emulation_report_path)
+            self.modules["emulation"] = Emulation(self.apimap, self.device, emulation_report_path=self.root+emulation_report_path)
+            self.load_emulation_module(self.root + emulation_model_path)
         
-        self.rawpe_db = rawpe_db(PE_DB_PATH=repo_root+rawpe_db_path)
-        self.filepath_db = filepath_db(FILEPATH_CSV_LOCATION=repo_root+fielpath_csvs)
+        self.rawpe_db = rawpe_db(self.root+rawpe_db_path)
         
         self.late_fusion_model = late_fusion_model
         if late_fusion_model == "LogisticRegression":
             self.model = LogisticRegression()
+            self.late_fusion_path = self.root + "modules/late_fustion_model/LogisticRegression.model"
         elif late_fusion_model == "XGBClassifier":
             self.model = XGBClassifier(n_estimators=100, 
                                         objective='binary:logistic',
                                         eval_metric="logloss",
                                         use_label_encoder=False)
+            self.late_fusion_path = self.root + "modules/late_fustion_model/XGBClassifier.model"
         elif late_fusion_model == "MultiLayerPerceptron":
-            self.model = MLPClassifier(hidden_layer_sizes=(50,))
+            self.model = MLPClassifier(hidden_layer_sizes=(100,)) # default config
+            self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron.model"
         else:
             raise NotImplementedError
         
+        self.load_late_fusion_model(state_path=self.late_fusion_path)
         self.module_timers = []
         self.x = None
         self.y = None
     
+    # late fusion model state actions
+    def save_late_fusion_model(self, filename=""):
+        filename = filename+f"_{int(time.time())}_"+self.late_fusion_model+".model"
+        pickle.dump(self.model, open(filename, 'wb'))
+        return filename
+        
+    def load_late_fusion_model(self, state_path=""):
+        self.model = pickle.load(open(state_path, 'rb'))
+
+    def load_emulation_module(self, state_dict):
+        self.modules["emulation"].load_state(state_dict)
+
+    def load_filepath_module(self, state_dict):
+        self.modules["filepaths"].load_state(state_dict)
+
     # auxiliary
     def get_modular_x(self, modules, x=None):
         modules_all = ["malconv", "ember", "filepaths", "emulation"]
@@ -418,7 +458,7 @@ class CompositeClassifier(object):
             if "/" in pe:
                 pe = pe.split("/")[-1]    
             # get path from identifier
-            filepath = self.filepath_db[pe]
+            filepath = self.modules["filepaths"].filepath_db[pe]
             if not filepath:
                 raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually using \
                                 'filepath' argument or remove 'filepaths' from modules.")
@@ -495,12 +535,3 @@ class CompositeClassifier(object):
         self.x = self.preprocess_pelist(pelist, dump_xy=dump_xy)
         probs = self.model.predict_proba(self.x)
         return probs
-
-    # late fusion model state actions
-    def save_late_fusion_model(self, filename=""):
-        filename = filename+f"_{int(time.time())}_"+self.late_fusion_model+".model"
-        pickle.dump(self.model, open(filename, 'wb'))
-        return filename
-    
-    def load_late_fusion_model(self, filename=""):
-        self.model = pickle.load(open(filename, 'rb'))

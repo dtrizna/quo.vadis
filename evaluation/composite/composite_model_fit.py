@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 
     # === LOADING MODEL ===
-    composite = CompositeClassifier(modules=args.how, late_fusion_model=args.model, repo_root=repo_root)
+    composite = CompositeClassifier(modules=args.how, late_fusion_model=args.model, root=repo_root)
     
     # === PARSING PE TO VECTORS ===
     if args.train and not args.pe_hashlist:
