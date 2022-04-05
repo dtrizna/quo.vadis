@@ -28,6 +28,7 @@ ROC curves:
 ## ToDo list
 
 - try experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
+  - NOTE: this however, does not really matter, since our goal is **not** to compare our modules with MalConv / Ember directly, but to improve them. For this reason it is even better to have original parameters. Main takeaway - adding multiple modules together allows to boost results drastically, while each of them separately are noticeably weaker (even API call module, which is trained on same distribution).
 - try run GAMMA against composite solution (not just ember/malconv modules) - looks like attacks are highly targeted, interesting if it will be able to generate evasive samples against complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
 - work on `CompositeClassifier()` API interface:
   - make easy to take a PE sample(s) & document additional options (providing PE directory, predefined emuluation report directory, etc.)
