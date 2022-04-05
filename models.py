@@ -346,6 +346,8 @@ class CompositeClassifier(object):
                     
                     # later fusion model
                     late_fusion_model = "MultiLayerPerceptron",
+                    load_late_fusion_model = False,
+                    mlp_hidden_layer_sizes=(50,),
                     
                     # auxiliary settings
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
@@ -399,12 +401,14 @@ class CompositeClassifier(object):
                                         use_label_encoder=False)
             self.late_fusion_path = self.root + "modules/late_fustion_model/XGBClassifier.model"
         elif late_fusion_model == "MultiLayerPerceptron":
-            self.model = MLPClassifier(hidden_layer_sizes=(100,)) # default config
+            self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
             self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron.model"
         else:
             raise NotImplementedError
         
-        self.load_late_fusion_model(state_path=self.late_fusion_path)
+        if load_late_fusion_model:
+            self.load_late_fusion_model(state_path=self.late_fusion_path)
+
         self.module_timers = []
         self.x = None
         self.y = None
@@ -560,3 +564,18 @@ class CompositeClassifier(object):
         else:
             return probs
     
+    def update(self, oversampling_rate=100):
+        # UPDATE model weights with new data
+
+        # 1. preprocess provided samples
+
+        # 2. oversample
+
+        # 3. form a new dataset out of old samples + new oversamples samples, shuffle
+        
+        # 4. retrain each module  
+
+        # 5. retrain late fusion model
+
+        # 6. dump new model parameters / new dataset 
+        raise NotImplementedError
