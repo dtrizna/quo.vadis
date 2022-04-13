@@ -7,6 +7,7 @@ data/path.dataset/*smbmap.txt
 data/path.dataset/dataset_labio*
 data/path.dataset/*ti.txt
 data/pe.dataset/PeX86Exe
+data/pe.dataset/testset
 data/adversarial.emulation.dataset/reports_*
 data/emulation.dataset/report_*
 *raw
