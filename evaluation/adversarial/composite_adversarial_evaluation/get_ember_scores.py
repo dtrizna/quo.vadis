@@ -15,7 +15,7 @@ adversarial_testset_files = os.listdir(adversarial_testset_path)
 adversarial_reports = [x.rstrip(".json") for x in adversarial_testset_files if x.endswith(".json")]
 
 db_orig = get_rawpe_db()
-db_adv_malconv = get_rawpe_db(PE_DB_PATH="/data/quo.vadis/adversarial/samples_adversarial_testset_gamma_ember")
+db_adv_malconv = get_rawpe_db(PE_DB_PATH=repo_root+"evaluation/adversarial/samples_adversarial_testset_gamma_ember_howmany_15_population_10")
 
 net = CClassifierEmber(tree_path="../../modules/sota/ember/parameters/ember_model.txt")
 net = CEmberWrapperPhi(net)

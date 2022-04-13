@@ -9,7 +9,7 @@ import numpy as np
 
 import sys
 import time
-repo_root = "../../"
+repo_root = "/data/quo.vadis/"
 sys.path.append(repo_root)
 from models import CompositeClassifier
 
@@ -23,14 +23,16 @@ print("Total adversarial samples: ", len(adversarial_errors) + len(adversarial_r
 print(f"Emulation success rate: {len(adversarial_reports)/(len(adversarial_reports)+len(adversarial_errors))*100:.2f}%")
 
 
+# ADVERSARIAL SAMPLES
 classifier = CompositeClassifier(late_fusion_model="LogisticRegression", repo_root=repo_root,
                                 emulation_report_path="data/adversarial.emulation.dataset/reports_ember",
-                                rawpe_db_path="adversarial/samples_adversarial_testset_gamma_ember")
-# preprocess adversarial samples using correct report path
+                                rawpe_db_path="evaluation/adversarial/samples_adversarial_testset_gamma_ember_howmany_15_population_10")
+# preprocess samples using correct report path
 x_adv_ember = classifier.preprocess_hashlist(adversarial_reports, dump_xy=True) # takes ~30m
 np.save(repo_root+"adversarial/composite_adversarial_evaluation/X-gamma-vs-ember-early-fusion-pass.arr", x_adv_ember)
 
+# ORIGINAL SAMPLES - TO HAVE THE SAME HASHES (CANNOT BE ACQUIRES FROM EXISTING ARRAYS)
 classifier = CompositeClassifier(late_fusion_model="LogisticRegression", repo_root=repo_root)
-# preprocess adversarial samples using correct report path
+# preprocess samples using correct report path
 x_orig_ember = classifier.preprocess_hashlist(adversarial_reports, dump_xy=True) # takes ~30m
 np.save(repo_root+"adversarial/composite_adversarial_evaluation/X-gamma-vs-ember-early-fusion-pass-orig.arr", x_orig_ember)
