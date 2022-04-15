@@ -472,7 +472,7 @@ class CompositeClassifier(object):
         return self.model.predict_proba(x)
 
     # PE processing actions
-    def _early_fusion_pass(self, pe, filepath=None):
+    def _early_fusion_pass(self, pe, filepath=None, defaultpath=None):
         vector = []
         checkpoint = []
 
@@ -480,10 +480,16 @@ class CompositeClassifier(object):
             if "/" in pe:
                 pe = pe.split("/")[-1]    
             # get path from identifier
-            filepath = self.modules["filepaths"].filepath_db[pe]
+            try:
+                filepath = self.modules["filepaths"].filepath_db[pe]
+            except KeyError: # not in database
+                if defaultpath:
+                    import pdb; pdb.set_trace()
+                    logging.warning(f"Using defaultpath for: {pe}")
+                    filepath = defaultpath
             if not filepath:
                 raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually using \
-                                'filepath' argument or remove 'filepaths' from modules.")
+'defaultpath' argument or remove 'filepaths' from modules.")
 
         if pe in self.rawpe_db:
             pe = self.rawpe_db[pe]
@@ -529,7 +535,7 @@ class CompositeClassifier(object):
         
         return np.array(vector).reshape(1,-1)
     
-    def preprocess_pelist(self, pelist, pathlist=None, dump_xy=False):
+    def preprocess_pelist(self, pelist, pathlist=None, dump_xy=False, defaultpath=None):
         x = []
         path = None
         if pathlist and len(pelist) != len(pathlist):
@@ -539,7 +545,7 @@ class CompositeClassifier(object):
             if pathlist:
                 path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
-            x.append(self._early_fusion_pass(pe, path))
+            x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath))
 
         if dump_xy:
             timestamp = int(time.time())
