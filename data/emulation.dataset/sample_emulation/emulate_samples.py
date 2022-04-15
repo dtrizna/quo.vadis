@@ -6,7 +6,7 @@ import sys
 import time
 import threading
 
-sys.path.append("../../..") # repo root
+sys.path.append("/data/quo.vadis/") # repo root
 from preprocessing.emulation import emulate
 
 if __name__ == "__main__":
