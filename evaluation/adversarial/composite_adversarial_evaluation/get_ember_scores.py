@@ -3,19 +3,22 @@ import numpy as np
 import sys, os
 repo_root = "/data/quo.vadis/"
 sys.path.append(repo_root)
-from utils.hashpath import get_rawpe_db
+from utils.structures import rawpe_db
 
-from secml_malware.models.malconv import MalConv
+#from secml_malware.models.malconv import MalConv
 from secml.array import CArray
 from secml_malware.models.c_classifier_ember import CClassifierEmber
 from secml_malware.attack.blackbox.c_wrapper_phi import CEmberWrapperPhi
 
-adversarial_testset_path = repo_root + "data/adversarial.emulation.dataset/reports_ember"
-adversarial_testset_files = os.listdir(adversarial_testset_path)
-adversarial_reports = [x.rstrip(".json") for x in adversarial_testset_files if x.endswith(".json")]
+ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_10sections_10population/"
+ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_sections/10/"
+ARRAY_FOLDER  = repo_root + "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_10sections_10population/"
 
-db_orig = get_rawpe_db()
-db_adv_malconv = get_rawpe_db(PE_DB_PATH=repo_root+"evaluation/adversarial/samples_adversarial_testset_gamma_ember_howmany_15_population_10")
+adversarial_emulated_files = os.listdir(repo_root + ADVERSARIAL_EMULATED_SET_FOLDER)
+adversarial_reports = [x.rstrip(".json") for x in adversarial_emulated_files if x.endswith(".json")]
+
+db_orig = rawpe_db()
+db_ember = rawpe_db(PE_DB_PATH=repo_root + ADVERSARIAL_RAW_SET_FOLDER)
 
 net = CClassifierEmber(tree_path="../../modules/sota/ember/parameters/ember_model.txt")
 net = CEmberWrapperPhi(net)
@@ -38,8 +41,8 @@ for i,h in enumerate(adversarial_reports):
     path = db_orig[h]
     y_malconv_orig.append(get_y(net, path))
     # adv
-    path = db_adv_malconv[h]
+    path = db_ember[h]
     y_malconv_adv.append(get_y(net, path))
 
-np.save("y-gamma-vs-ember-scores-orig.npy", np.stack(y_malconv_orig))
-np.save("y-gamma-vs-ember-scores.npy", np.stack(y_malconv_adv))
+np.save(ARRAY_FOLDER + "y-gamma-vs-ember-scores-orig.npy", np.stack(y_malconv_orig))
+np.save(ARRAY_FOLDER + "y-gamma-vs-ember-scores.npy", np.stack(y_malconv_adv))

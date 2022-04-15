@@ -20,12 +20,10 @@ ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_10sec
 ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_sections/10/"
 
 #ARRAY_FOLDER  = "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_15sections_10population/"
-ARRAY_FOLDER  = "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_10sections_10population/"
-
-adversarial_emulated_fullpath = repo_root + ADVERSARIAL_EMULATED_SET_FOLDER
-adversarial_emulated_files = os.listdir(adversarial_emulated_fullpath)
+ARRAY_FOLDER  = repo_root + "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_10sections_10population/"
 
 # STATISTICS
+adversarial_emulated_files = os.listdir(repo_root + ADVERSARIAL_EMULATED_SET_FOLDER)
 adversarial_reports = [x.rstrip(".json") for x in adversarial_emulated_files if x.endswith(".json")]
 print("Successfull adversarial emulation reports: ", len(adversarial_reports))
 
@@ -37,15 +35,15 @@ print(f"Emulation success rate: {len(adversarial_reports)/(len(adversarial_repor
 
 # EARLY FUSION PASSES
 # 1. ADVERSARIAL SAMPLES
-classifier = CompositeClassifier(late_fusion_model="LogisticRegression", repo_root=repo_root,
+classifier = CompositeClassifier(late_fusion_model="LogisticRegression", root=repo_root,
                                 emulation_report_path=ADVERSARIAL_EMULATED_SET_FOLDER,
                                 rawpe_db_path=ADVERSARIAL_RAW_SET_FOLDER)
 # preprocess samples using correct report path
 x_adv_ember = classifier.preprocess_hashlist(adversarial_reports, dump_xy=True) # takes ~30m
-np.save(repo_root+ ARRAY_FOLDER + "X-gamma-vs-ember-early-fusion-pass.arr", x_adv_ember)
+np.save(ARRAY_FOLDER + "X-gamma-vs-ember-early-fusion-pass.arr", x_adv_ember)
 
 # 2. ORIGINAL SAMPLES - TO HAVE THE SAME HASHES (CANNOT BE ACQUIRES FROM EXISTING ARRAYS)
-classifier = CompositeClassifier(late_fusion_model="LogisticRegression", repo_root=repo_root)
+classifier = CompositeClassifier(late_fusion_model="LogisticRegression", root=repo_root)
 # preprocess samples using correct report path
 x_orig_ember = classifier.preprocess_hashlist(adversarial_reports, dump_xy=True) # takes ~30m
-np.save(repo_root+ ARRAY_FOLDER + "X-gamma-vs-ember-early-fusion-pass-orig.arr", x_orig_ember)
+np.save(ARRAY_FOLDER + "X-gamma-vs-ember-early-fusion-pass-orig.arr", x_orig_ember)
