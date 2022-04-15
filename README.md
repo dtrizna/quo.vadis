@@ -29,7 +29,7 @@ Detection rate with fixed False Positive rate:
   - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
   - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
 
-## ToDo list
+## Considerations:
 
 - try experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
   - NOTE: this however, does not really matter, since our goal is **not** to compare our modules with MalConv / Ember directly, but to improve them. For this reason it is even better to have original parameters. Main takeaway - adding multiple modules together allows to boost results drastically, while each of them separately are noticeably weaker (even API call module, which is trained on same distribution).
