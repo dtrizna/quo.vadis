@@ -12,11 +12,15 @@ More detailed information about modules and individual tests:
 
 Performance of this model on proprietary dataset - 90k PE samples with filepaths from real-world systems:
 
-<center><img src="evaluation/composite/composite_validation_confusionmatrix.png" width=350></center><br>
+<center><img src="img/composite_validation_confusionmatrix.png" width=350></center><br>
 
-ROC curves:
+DET and ROC curves:
 
-<center><img src="evaluation/composite/composite_roc_curves.png" width=800></center><br>
+<center><img src="img/det_roc_curves.png" width=800></center><br>
+
+Detection rate with fixed False Positive rate:
+
+<center><img src="img/detection_rate_heatmap.png" width=800></center><br>
 
 ## `data/` - datasets and data related code
 
