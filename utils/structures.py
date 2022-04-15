@@ -1,7 +1,8 @@
-import os
+import os, sys
 import pandas as pd
+import logging
 
-def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe"):
+def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe", skip=False):
     """ 
     Reads CSV files in specified path. First column: PE identifier (e.g. hash), second column: PE path on target system, e.g. 
     bd4efcbd4fd664f4ddb9be03f42b2ca98d5f28cfbe24024a93a4798f5a0b15a0,C:\\Users\\Andy\\AppData\\Roaming\\Windows Update.exe
@@ -13,7 +14,14 @@ def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe"
         for name in dirs:
             fullpath = os.path.join(root, name)
             csvdb = os.path.join(fullpath, [x for x in os.listdir(fullpath) if x.endswith(".csv")][0])
-            df = pd.read_csv(csvdb, header=None)
+            try:
+                df = pd.read_csv(csvdb, header=None)
+            except pd.errors.ParserError as ex:
+                logging.error(f"[-] Cannot parse: {csvdb}.. Error: {ex}. To ignore, use: skip=True")
+                if not skip:
+                    sys.exit(1)
+                else:
+                    continue
             hashpath_DB = pd.concat([hashpath_DB,df])
     return dict(hashpath_DB.to_dict("split")["data"])
 
@@ -33,7 +41,7 @@ def report_db(REPORT_PATH="/data/quo.vadis/data/emulation.dataset"):
                 files = set(os.listdir(root)) - set(dirs)
             reportlist = [x for x in files if x.endswith(".json")]
             for h in reportlist:
-                db[h.rstrip(".json")] = os.path.join(fullpath, h)
+                db[h.replace(".json","")] = os.path.join(fullpath, h)
     return db
 
 
@@ -50,5 +58,6 @@ def rawpe_db(PE_DB_PATH="/data/quo.vadis/data/pe.dataset/PeX86Exe"):
                 fullpath = root
                 files = set(os.listdir(root)) - set(dirs)
             for pehash in files:
-                db[pehash] = os.path.join(fullpath, pehash)
+                # striping ".dat" since it is a naming convention if bulk download used
+                db[pehash.replace(".dat","")] = os.path.join(fullpath, pehash)
     return db
