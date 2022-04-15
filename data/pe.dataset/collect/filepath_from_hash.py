@@ -7,12 +7,13 @@ import sys, os
 
 TOKENFILE = ".theHive.keycloak.secret.api"
 LABIO_API_ROOT = ""
+KEYCLOAK_URL = ""
 
 def get_oauth_token(keyfile):
     with open(keyfile) as f:
         keycloak_key = f.read().strip()    
     config = {
-        "token_url": "",
+        "token_url": KEYCLOAK_URL,
         "client_id": "thehive", 
         "client_secret": keycloak_key
     }
@@ -53,8 +54,12 @@ def get_filename_from_hash(hhash):
         }
 
     r = labio_api(f"samples/search", TOKENFILE, body=json.dumps(query))
-    items = json.loads(r.content.decode())['items']
-    filename = None
+    filename = "C:\\Users\\user\\Downloads\\exploit.exe"
+    try:
+        items = json.loads(r.content.decode())['items']
+    except KeyError:
+        print(f"[-] Weird response for {hhash}. Setting filename to: {filename}")
+        return filename
     try:
         filename = [x for x in items[0]["sources"]["props"]["file_name"] if "\\" in x][0]
     except IndexError:
@@ -82,7 +87,7 @@ if __name__ == "__main__":
         filename = get_filename_from_hash(hhash)
         if not filename:
             print(f"[-] {hhash} doesn't have a filename...")
-        dbhandle.write(f"{hhash},{filename}\n")
+        dbhandle.write(f'{hhash},"{filename}"\n')
 
     dbhandle.close()
         
