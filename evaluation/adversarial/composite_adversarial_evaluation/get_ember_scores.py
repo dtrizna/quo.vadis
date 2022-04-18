@@ -10,9 +10,18 @@ from secml.array import CArray
 from secml_malware.models.c_classifier_ember import CClassifierEmber
 from secml_malware.attack.blackbox.c_wrapper_phi import CEmberWrapperPhi
 
-ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_10sections_10population/"
-ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_sections/10/"
-ARRAY_FOLDER  = repo_root + "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_10sections_10population/"
+# ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_15sections_10population/"
+#ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_10sections_10population/"
+ADVERSARIAL_EMULATED_SET_FOLDER = "data/adversarial.emulated/reports_ember_5sections_10population/"
+
+#ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_15sections_10population/"
+#ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_sections/10/"
+ADVERSARIAL_RAW_SET_FOLDER = "data/adversarial.samples/samples_adversarial_testset_gamma_ember_sections/5/"
+
+#ARRAY_FOLDER  = "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_15sections_10population/"
+#ARRAY_FOLDER  = repo_root + "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_10sections_10population/"
+ARRAY_FOLDER  = repo_root + "evaluation/adversarial/composite_adversarial_evaluation/arrays_ember_5sections_10population/"
+
 
 adversarial_emulated_files = os.listdir(repo_root + ADVERSARIAL_EMULATED_SET_FOLDER)
 adversarial_reports = [x.rstrip(".json") for x in adversarial_emulated_files if x.endswith(".json")]
@@ -20,7 +29,7 @@ adversarial_reports = [x.rstrip(".json") for x in adversarial_emulated_files if 
 db_orig = rawpe_db()
 db_ember = rawpe_db(PE_DB_PATH=repo_root + ADVERSARIAL_RAW_SET_FOLDER)
 
-net = CClassifierEmber(tree_path="../../modules/sota/ember/parameters/ember_model.txt")
+net = CClassifierEmber(tree_path=repo_root+"modules/sota/ember/parameters/ember_model.txt")
 net = CEmberWrapperPhi(net)
 
 def get_y(net, path):
