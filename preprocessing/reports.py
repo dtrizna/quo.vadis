@@ -20,11 +20,9 @@ def report_to_apiseq(reportfile_fullpath):
     try:
         report = json.load(open(reportfile_fullpath))
     except json.decoder.JSONDecodeError as ex:
-        print(reportfile_fullpath)
-        print(ex)
-        import pdb;pdb.set_trace()
+        print(f"[-] {reportfile_fullpath} JSONDecode exception: {ex}")
+        return None
     report_fulldf = json_normalize(report)
-
 
     # for now only hash and API sequence
     apiseq = list(flatten(report_fulldf["apis"].apply(lambda x: [y["api_name"].lower() for y in x]).values))
