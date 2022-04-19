@@ -402,7 +402,7 @@ class CompositeClassifier(object):
             self.late_fusion_path = self.root + "modules/late_fustion_model/XGBClassifier.model"
         elif late_fusion_model == "MultiLayerPerceptron":
             self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
-            if self.mlp_hidden_layer_sizes == (15,):
+            if mlp_hidden_layer_sizes == (15,):
                 self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron15.model"
             else:
                 self.late_fusion_path = None
@@ -435,6 +435,15 @@ class CompositeClassifier(object):
         self.modules["filepaths"].load_state(state_dict)
 
     # auxiliary
+    def dump_xy(self):
+        timestamp = int(time.time())
+        np.save(f"./X-{timestamp}.npy", self.x)
+        logging.warning(f" [!] Dumped early fusion pass to './X-{timestamp}.npy'")
+        if self.y:
+            np.save(f"./y-{timestamp}.npy", self.y)
+            logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
+        
+
     def get_modular_x(self, modules, x=None):
         modules_all = ["malconv", "ember", "filepaths", "emulation"]
         missing = set(modules_all) - set(modules)
@@ -475,34 +484,34 @@ class CompositeClassifier(object):
         self.model.fit(self.x, self.y)
     
     def predict_proba(self, x):
-        return self.model.predict_proba(x)
+        self.x = x
+        return self.model.predict_proba(self.x)
 
     # PE processing actions
     def _early_fusion_pass(self, pe, filepath=None, defaultpath=None):
         vector = []
         checkpoint = []
-
+        
+        # acquire filepath if not provided
         if not filepath and "filepaths" in self.modules:
-            if "/" in pe:
-                pe = pe.split("/")[-1]    
+            if "/" in pe: # if fullpaths are given instead filenames
+                pe = pe.split("/")[-1]
             # get path from identifier
             try:
                 filepath = self.modules["filepaths"].filepath_db[pe]
             except KeyError: # not in database
                 if defaultpath:
-                    import pdb; pdb.set_trace()
                     logging.warning(f"Using defaultpath for: {pe}")
                     filepath = defaultpath
             if not filepath:
-                raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually using \
-'defaultpath' argument or remove 'filepaths' from modules.")
+                raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually or using \
+'defaultpath' argument, or remove 'filepaths' from modules.")
 
+        # acquire fullpath of pe if not provided
         if pe in self.rawpe_db:
             pe = self.rawpe_db[pe]
-
         elif not os.path.exists(pe):
             raise FileNotFoundError(f"Cannot find {pe}, please provide valid path or known hash")
-        
 
         for model in self.modules:
             # PE modules
@@ -541,7 +550,7 @@ class CompositeClassifier(object):
         
         return np.array(vector).reshape(1,-1)
     
-    def preprocess_pelist(self, pelist, pathlist=None, dump_xy=False, defaultpath=None):
+    def preprocess_pelist(self, pelist, pathlist=None, defaultpath=None, dump_xy=True):
         x = []
         path = None
         if pathlist and len(pelist) != len(pathlist):
@@ -552,27 +561,30 @@ class CompositeClassifier(object):
                 path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
             x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath))
-
-        if dump_xy:
-            timestamp = int(time.time())
-            np.save(f"./X-{timestamp}.npy", self.x)
-            logging.warning(f" [!] Dumped early fusion pass to './X-{timestamp}.npy'")
-            if self.y:
-                np.save(f"./y-{timestamp}.npy", self.y)
-                logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
         
-        return np.vstack(x)
+        self.x = np.vstack(x)
+        if dump_xy:
+            self.dump_xy()
+
+        return self.x
 
     def fit_pelist(self, pelist, y, pathlist=None, dump_xy=False):
-        self.x = self.preprocess_pelist(pelist, pathlist=pathlist, dump_xy=dump_xy)
+        self.x = self.preprocess_pelist(pelist, pathlist=pathlist)
         self.y = y
         self.model.fit(self.x, self.y)
+
+        if dump_xy:
+            self.dump_xy()
     
     def predict_proba_pelist(self, pelist, pathlist=None, dump_xy=False, return_module_scores=False):
-        x = self.preprocess_pelist(pelist, pathlist=pathlist, dump_xy=dump_xy)
-        probs = self.model.predict_proba(x)
+        self.x = self.preprocess_pelist(pelist, pathlist=pathlist)
+        probs = self.model.predict_proba(self.x)
+        
+        if dump_xy:
+            self.dump_xy()
+        
         if return_module_scores:
-            return probs, DataFrame(x, columns=self.modules.keys())
+            return probs, DataFrame(self.x, columns=self.modules.keys())
         else:
             return probs
     
