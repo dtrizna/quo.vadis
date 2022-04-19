@@ -346,8 +346,8 @@ class CompositeClassifier(object):
                     
                     # later fusion model
                     late_fusion_model = "MultiLayerPerceptron",
-                    load_late_fusion_model = False,
-                    mlp_hidden_layer_sizes=(50,),
+                    load_late_fusion_model = True,
+                    mlp_hidden_layer_sizes=(15,),
                     
                     # auxiliary settings
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
@@ -402,12 +402,18 @@ class CompositeClassifier(object):
             self.late_fusion_path = self.root + "modules/late_fustion_model/XGBClassifier.model"
         elif late_fusion_model == "MultiLayerPerceptron":
             self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
-            self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron.model"
+            if self.mlp_hidden_layer_sizes == (15,):
+                self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron15.model"
+            else:
+                self.late_fusion_path = None
         else:
             raise NotImplementedError
         
         if load_late_fusion_model:
-            self.load_late_fusion_model(state_path=self.late_fusion_path)
+            if self.late_fusion_path:
+                self.load_late_fusion_model(state_path=self.late_fusion_path)
+            else:
+                logging.error("[!] No pre-trained late fusion model for this configuration. You need to .fit() it!")
 
         self.module_timers = []
         self.x = None
