@@ -1,0 +1,69 @@
+Successfull adversarial emulation reports:  5438
+Errored adversarial emulation reports:  3557
+Total adversarial samples:  8995
+Emulation success rate: 60.46%
+================
+====== ember (secml) ======
+Non-Adversarial Set accuracy: 0.981059212945936
+Adversarial Set accuracy:     0.7774917248988599
+
+ ====== malconv ======
+Non-Adversarial Set accuracy: 0.9852887090842222
+Adversarial Set accuracy:     0.9803236484001471
+
+ ====== filepaths ======
+Non-Adversarial Set accuracy: 0.9766458256712026
+Adversarial Set accuracy:     0.9766458256712026
+
+ ====== emulation ======
+Non-Adversarial Set accuracy: 0.964509010665686
+Adversarial Set accuracy:     0.7892607576314822
+
+ ====== ember ======
+Non-Adversarial Set accuracy: 1.0
+Adversarial Set accuracy:     0.8832291283560132
+
+ ====== ember_emulation ======
+Non-Adversarial Set accuracy: 1.0
+Adversarial Set accuracy:     0.9554983449797719
+
+ ====== ember_filepaths_emulation ======
+Non-Adversarial Set accuracy: 0.9874954027215889
+Adversarial Set accuracy:     0.9832659065833027
+
+ ====== all ======
+Non-Adversarial Set accuracy: 0.9874954027215889
+Adversarial Set accuracy:     0.9832659065833027
+================
+ 103: ember (secml) classifies as benign in orig malware set
+ 1210: ember (secml) classifies as benign in adversarial malware set
+ 1107, 20.36%: evasive samples and ratio against ember
+
+ 80: malconv classifies as benign in orig malware set
+ 107: malconv classifies as benign in adversarial malware set
+ 27, 0.50%: evasive samples and ratio against malconv 
+
+ 127: filepaths classifies as benign in orig malware set
+ 127: filepaths classifies as benign in adversarial malware set
+ 0, 0.00%: evasive samples and ratio against filepaths 
+
+ 193: emulation classifies as benign in orig malware set
+ 1146: emulation classifies as benign in adversarial malware set
+ 953, 17.52%: evasive samples and ratio against emulation 
+
+ 0: ember classifies as benign in orig malware set
+ 635: ember classifies as benign in adversarial malware set
+ 635, 11.68%: evasive samples and ratio against ember 
+
+ 0: ember_emulation classifies as benign in orig malware set
+ 242: ember_emulation classifies as benign in adversarial malware set
+ 242, 4.45%: evasive samples and ratio against ember_emulation 
+
+ 68: ember_filepaths_emulation classifies as benign in orig malware set
+ 91: ember_filepaths_emulation classifies as benign in adversarial malware set
+ 23, 0.42%: evasive samples and ratio against ember_filepaths_emulation 
+
+ 68: all classifies as benign in orig malware set
+ 91: all classifies as benign in adversarial malware set
+ 23, 0.42%: evasive samples and ratio against all 
+
