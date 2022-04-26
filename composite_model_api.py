@@ -4,7 +4,7 @@ import argparse
 import pickle
 import numpy as np
 
-repo_root = "/data/quo.vadis/"
+repo_root = "./"
 sys.path.append(repo_root)
 from models import CompositeClassifier
 
@@ -23,6 +23,7 @@ if __name__ == "__main__":
     group2.add_argument("--train", action="store_true", help="Whether to train fusion network")
     group2.add_argument("--val", action="store_true", help="Whether to evaluate fusion network")
     group2.add_argument("--test", action="store_true", help="Whether to evaluate fusion network")
+    group2.add_argument("--example", action="store_true", help="Just provides and example of single pass over model")
 
     parser.add_argument("--limit", default=None, type=int, help="whether to limit parsing to some index (for testing)")
 
@@ -41,7 +42,6 @@ if __name__ == "__main__":
     elif args.val and not args.pe_hashlist:
         args.pe_hashlist = "/data/quo.vadis/data/train_val_test_sets/X_val.pickle.set"
         args.y = "/data/quo.vadis/data/train_val_test_sets/y_val.arr"
-        
     elif args.test and not args.pe_hashlist:
         args.pe_hashlist = "/data/quo.vadis/data/train_val_test_sets/X_test.pickle.set"
         args.y = "/data/quo.vadis/data/train_val_test_sets/y_test.arr"
@@ -52,11 +52,11 @@ if __name__ == "__main__":
 
     # === LOADING MODEL ===
     classifier = CompositeClassifier(modules=args.how, root=repo_root, 
-                                                        late_fusion_model=args.model, 
+                                                        late_fusion_model=args.model,
                                                         emulation_report_path = emulation_report_path,
                                                         rawpe_db_path = rawpe_db_path,
                                                         load_late_fusion_model = True,
-                                                        fielpath_csvs=fielpath_csvs)
+                                                        fielpath_csvs=filepath_csvs)
 
     if args.pe_sample:
         h = args.pe_sample.split("/")[-1]
@@ -65,13 +65,13 @@ if __name__ == "__main__":
         with open(args.pe_hashlist, "rb") as f:
             hashlist = pickle.load(f)
     
-    if not hashlist:
+    if not hashlist and (args.train or args.test or args.val):
         print("Didn't load any data...")
         sys.exit()
     
     if args.limit:
         hashlist = hashlist[0:args.limit]
-    y = np.load(args.y)[0:len(hashlist)]
+        y = np.load(args.y)[0:len(hashlist)]
 
     if args.train:
         classifier.fit_pelist(hashlist, y, dump_xy=args.save_xy)
@@ -91,7 +91,8 @@ if __name__ == "__main__":
         scores["pefile"] = [classifier.rawpe_db[x] for x in hashlist]
         scores.to_csv("test_scores.csv", index=False)
         print(scores)
-        
+    
+    if args.example:
         # EXAMPLE API with single sample
         example_path = r"C:\windows\temp\kernel32.exe"
         example_pe = "/data/quo.vadis/data/pe.dataset/PeX86Exe/backdoor/0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
