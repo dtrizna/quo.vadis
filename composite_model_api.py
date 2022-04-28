@@ -94,14 +94,15 @@ if __name__ == "__main__":
     
     if args.example:
         # EXAMPLE API with single sample
-        example_path = r"C:\windows\temp\kernel32.exe"
         example_pe = "/data/quo.vadis/data/pe.dataset/PeX86Exe/backdoor/0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
-
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True)
-        print(f"Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        
+        example_path = r"C:\windows\temp\kernel32.exe"
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+        print(f"\nGiven path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
         print(scores, "\n")
 
-        example_path = r"C:\windows\system32\kernel32.dll"
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True)
-        print(f"Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        #example_path = r"C:\windows\system32\kernel32.dll"
+        example_path = r"C:\users\dtrizna\appdata\kernel32.exe"
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+        print(f"\nGiven path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
         print(scores)
