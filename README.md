@@ -1,5 +1,7 @@
 # Quo Vadis
 
+:warning: The model is a research prototype in an early alpha state.
+
 Composite, modular structure for **malware classification**. Main API interface under: `./models.py`. Current architecture:
 
 <p align="center"><img src="img/composite_scheme.png" width=800><br>
@@ -10,7 +12,7 @@ More detailed information about modules and individual tests:
 - `./modules/filepaths/` - 1D convolution pipeline for file path classification
 - `./modules/sota/` - static PE classification utilizing state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember). Parameters for `sota` models can be downloaded from [here](https://github.com/endgameinc/malware_evasion_competition/tree/master/models).
 
-Performance of this model on proprietary dataset - 90k PE samples with filepaths from real-world systems:
+Performance of this model on the proprietary dataset - 90k PE samples with filepaths from real-world systems:
 
 <center><img src="img/composite_validation_confusionmatrix.png" width=350></center><br>
 
@@ -32,13 +34,13 @@ Detection rate with fixed False Positive rate:
 ## Considerations:
 
 - try experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
-  - NOTE: this however, does not really matter, since our goal is **not** to compare our modules with MalConv / Ember directly, but to improve them. For this reason it is even better to have original parameters. Main takeaway - adding multiple modules together allows to boost results drastically, while each of them separately are noticeably weaker (even API call module, which is trained on same distribution).
-- try run GAMMA against composite solution (not just ember/malconv modules) - looks like attacks are highly targeted, interesting if it will be able to generate evasive samples against complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
+  - NOTE: this, however, does not matter since our goal is **not** to compare our modules with MalConv / Ember directly but to improve them. For this reason, it is even better to have original parameters. The main takeaway - adding multiple modules together allows boosting results drastically. At the same time, each of them is noticeably weaker (even the API call module, which is trained on the same distribution).
+- try to run GAMMA against composite solution (not just ember/malconv modules) - it looks like attacks are highly targeted. Interesting if it will be able to generate evasive samples against a complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
 - work on `CompositeClassifier()` API interface:
-  - make easy to take a PE sample(s) & document additional options (providing PE directory, predefined emuluation report directory, etc.)
+  - make it easy to take a PE sample(s) & additional document options (providing PE directory, predefined emulation report directory, etc.)
   - `.update()` to overtrain network with own examples that were previously flagged incorrectly
   - work without submitted `filepath` (only PE mode) - provide paths as separate argument to `.fit()`?
 - Additional modules:
-  - (a) Autoruns checks (see Sysinternals book for full list of registries analyzed)
+  - (a) Autoruns checks (see Sysinternals book for a full list of registries analyzed)
   - (b) network connection information
   - etc.
