@@ -6,7 +6,7 @@ import subprocess
 import sys
 sys.path.append("/data/quo.vadis/modules/sota")
 from ember import predict_sample
-from .malconv import MalConv
+from malconv import MalConv
 
 class MalConvModel(object):
     def __init__(self, thresh=0.5, name='malconv'): 
