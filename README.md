@@ -1,10 +1,76 @@
 # Quo Vadis
 
-:warning: The model is a research prototype in an early alpha state.
+:warning: The model is a research prototype, provided as-is, 
 
-Composite, modular structure for **malware classification**. Main API interface under: `./models.py`. Current architecture:
+## Architecture
+
+Hybrid, modular structure for **malware classification**. Supported modules:
+
+- 1D convolution neural network analysis of filepath at the moment of execution
+- 1D convolution neural network analysis of *API call sequence* obtained from [Speakeasy emulator](https://github.com/mandiant/speakeasy/)
+- '*Ember*' Gradient Boosted Decision Tree (GBDT) model  (https://arxiv.org/abs/1804.04637)
+- '*MalConv*' byte-level convolutional neural network (https://arxiv.org/abs/1710.09435)
+
+Scheme:
 
 <p align="center"><img src="img/composite_scheme.png" width=800><br>
+
+## Dataset and related code
+
+- PE emulation  dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z)
+- Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
+  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
+  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
+
+
+## Usage
+Main API interface under: `./models.py`. 
+Example usage can be found under `model_api_example.py`:
+```
+# python model_api_example.py --example
+
+[*] Loading model...
+WARNING:root:[!] Loading pretrained weights for ember model from: ./modules/sota/ember/parameters/ember_model.txt
+WARNING:root:[!] Loading pretrained weights for filepath model from: ./modules/filepath/pretrained/torch.model
+WARNING:root:[!] Using speakeasy emulator config from: ./data/emulation.dataset/sample_emulation/speakeasy_config.json
+WARNING:root:[!] Loading pretrained weights for emulation model from: ./modules/emulation/pretrained/torch.model
+WARNING:root:[!] Loading pretrained weights for late fusion MultiLayerPerceptron model from: ./modules/late_fustion_model/MultiLayerPerceptron15_ember_emulation_filepaths.model
+
+[*] Legitimate 'calc.exe' analysis...
+WARNING:root:[!] Taking current filepath for: evaluation/adversarial/samples_goodware/calc.exe
+WARNING:root: [+] 0/0 Finished emulation evaluation/adversarial/samples_goodware/calc.exe, took: 0.19s, API calls acquired: 6
+[!] Given path evaluation/adversarial/samples_goodware/calc.exe, probability (malware): 0.000005
+[!] Individual module scores:
+
+       ember  filepaths  emulation
+0  0.000015    0.00319   0.062108 
+
+WARNING:root: [+] 0/0 Finished emulation evaluation/adversarial/samples_goodware/calc.exe, took: 0.11s, API calls acquired: 6
+[!] Given path C:\users\myuser\AppData\Local\Temp\exploit.exe, probability (malware): 0.549334
+[!] Individual module scores:
+
+       ember  filepaths  emulation
+0  0.000015   0.999984   0.062108 
+
+[*] BoratRAT analysis...
+WARNING:root: [+] 0/0 Finished emulation ./b47c77d237243747a51dd02d836444ba067cf6cc4b8b3344e5cf791f5f41d20e, took: 0.25s, API calls acquired: 194
+
+[!] Given path %USERPROFILE%\Downloads\BoratRat.exe, probability (malware): 0.9997
+[!] Individual module scores:
+
+       ember  filepaths  emulation
+0  0.035511   0.999602    0.96526 
+
+WARNING:root: [+] 0/0 Finished emulation ./b47c77d237243747a51dd02d836444ba067cf6cc4b8b3344e5cf791f5f41d20e, took: 0.25s, API calls acquired: 194
+
+[!] Given path C:\windows\system32\calc.exe, probability (malware): 0.0392
+[!] Individual module scores:
+
+       ember  filepaths  emulation
+0  0.035511   0.086567    0.96526 
+```
+
+## Evaluation
 
 More detailed information about modules and individual tests:
 
@@ -24,16 +90,9 @@ Detection rate with fixed False Positive rate:
 
 <center><img src="img/detection_rate_heatmap.png" width=800></center><br>
 
-## `data/` - datasets and data related code
+## Future work
 
-- [PE emulation dataset](data/emulation.dataset/emulation.dataset.7z)
-- Filepath dataset (from open sources only because of Privacy Policy):
-  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
-  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
-
-## Considerations:
-
-- try experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
+- experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
   - NOTE: this, however, does not matter since our goal is **not** to compare our modules with MalConv / Ember directly but to improve them. For this reason, it is even better to have original parameters. The main takeaway - adding multiple modules together allows boosting results drastically. At the same time, each of them is noticeably weaker (even the API call module, which is trained on the same distribution).
 - try to run GAMMA against composite solution (not just ember/malconv modules) - it looks like attacks are highly targeted. Interesting if it will be able to generate evasive samples against a complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
 - work on `CompositeClassifier()` API interface:
