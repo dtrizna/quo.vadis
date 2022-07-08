@@ -16,8 +16,8 @@ def write_error(errfile):
 
 
 def emulate(file, report_folder, i=0, l=0,
-            speakeasy_config = "/data/quo.vadis/data/emulation.dataset/sample_emulation/speakeasy_config.json"):
-    samplename = file.split("/")[-1]
+            speakeasy_config = ""):
+    samplename = os.path.basename(file)
     reportfile = f"{report_folder}/{samplename}.json"
     errfile = f"{report_folder}/{samplename}.err"
 
@@ -28,7 +28,8 @@ def emulate(file, report_folder, i=0, l=0,
         logging.warning(f" [!] {i}/{l} Exists, skipping analysis: {errfile}\n")
     else:
         try:
-            se = speakeasy.Speakeasy(config=json.load(open(speakeasy_config)))
+            config = json.load(open(speakeasy_config)) if speakeasy_config else None
+            se = speakeasy.Speakeasy(config=config)
             module = se.load_module(file)
             se.run_module(module)
             report = se.get_report()

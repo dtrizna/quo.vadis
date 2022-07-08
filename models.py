@@ -270,12 +270,16 @@ class Emulation(Core1DConvNetAPI):
     def __init__(self, apimap, device, 
                         embedding_dim=96, 
                         state_dict=None, 
-                        emulation_report_path=None):
+                        emulation_report_path=None,
+                        speakeasy_config = None):
         super().__init__(device, 
                             embedding_dim, 
                             len(apimap)+2, 
                             state_dict)
         self.apimap = apimap
+        self.speakeasy_config = speakeasy_config
+        if self.speakeasy_config:
+            logging.warning(f"[!] Using speakeasy config: {self.speakeasy_config}")
         self.report_db = report_db(REPORT_PATH=emulation_report_path)
 
     def forwardpass_apiseq(self, apiseq):
@@ -292,12 +296,12 @@ class Emulation(Core1DConvNetAPI):
         temp_report_folder = f"temp_reports"
         os.makedirs(temp_report_folder, exist_ok=True)
         
-        success = emulate(path, temp_report_folder)
+        success = emulate(path, temp_report_folder, speakeasy_config=self.speakeasy_config)
         if not success:
             logging.error(f" [-] Failed emulation of {path}")
             logits = None
         else:
-            samplename = path.split("/")[-1]
+            samplename = os.path.basename(path)
             reportfile = f"{temp_report_folder}/{samplename}.json"
             apiseq = report_to_apiseq(reportfile)["api.seq"]
             logits, _ = self.forwardpass_apiseq(apiseq)
@@ -334,9 +338,9 @@ class CompositeClassifier(object):
                     malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
                     ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
                     # metadata used for module pre-training
-                    # TODO: consider configuration of instantiating model without this
                     emulation_model_path = 'modules/emulation/pretrained/torch.model',
                     emulation_apicalls = 'modules/emulation/pretrained/pickle.apicalls',
+                    speakeasy_config = "data/emulation.dataset/sample_emulation/speakeasy_config.json",
                     filepath_model_path = 'modules/filepath/pretrained/torch.model',
                     filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
                     # metadata needed for struct instantiation
@@ -345,6 +349,7 @@ class CompositeClassifier(object):
                     fielpath_csvs = "data/pe.dataset/PeX86Exe",
                     
                     # later fusion model
+                    # options: MultiLayerPerceptron, XGBClassifier, LogisticRegression
                     late_fusion_model = "MultiLayerPerceptron",
                     load_late_fusion_model = True,
                     mlp_hidden_layer_sizes=(15,),
@@ -356,11 +361,16 @@ class CompositeClassifier(object):
         # TODO: right now it is really does not accept config w/o preloading models
         # should allow retraining from scratch (all modules, including MalConv/Ember)
 
-        self.root = root
-        self.modules = {}
+        self.module_timers = []
+        self.x = None
+        self.y = None
 
         self.device = device
         self.padding_length = padding_length
+
+        # early fusion module actions
+        self.root = root
+        self.modules = {}
 
         self.malconv_model_path = self.root + malconv_model_path
         self.ember_2019_model_path = self.root + ember_2019_model_path
@@ -385,39 +395,51 @@ class CompositeClassifier(object):
                 api_calls_preserved = pickle.load(f)
             # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
             self.apimap = dict(zip(api_calls_preserved, range(2, len(api_calls_preserved)+2)))
-            self.modules["emulation"] = Emulation(self.apimap, self.device, emulation_report_path=self.root+emulation_report_path)
+            self.modules["emulation"] = Emulation(self.apimap, self.device, 
+                                                emulation_report_path=self.root+emulation_report_path,
+                                                speakeasy_config=os.path.join(self.root, speakeasy_config))
             self.load_emulation_module(self.root + emulation_model_path)
         
         self.rawpe_db = rawpe_db(self.root+rawpe_db_path)
         
+        # late fusion model configuration
         self.late_fusion_model = late_fusion_model
+        module_str = '_'.join(sorted(self.modules.keys()))
         if late_fusion_model == "LogisticRegression":
             self.model = LogisticRegression()
-            self.late_fusion_path = self.root + "modules/late_fustion_model/LogisticRegression.model"
+            self.late_fusion_path = self.root + \
+                                    f"modules/late_fustion_model/LogisticRegression_{module_str}.model"
+
         elif late_fusion_model == "XGBClassifier":
             self.model = XGBClassifier(n_estimators=100, 
                                         objective='binary:logistic',
                                         eval_metric="logloss",
                                         use_label_encoder=False)
-            self.late_fusion_path = self.root + "modules/late_fustion_model/XGBClassifier.model"
+            self.late_fusion_path = self.root + \
+                                    f"modules/late_fustion_model/XGBClassifier_{module_str}.model"
+
         elif late_fusion_model == "MultiLayerPerceptron":
             self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
             if mlp_hidden_layer_sizes == (15,):
-                self.late_fusion_path = self.root + "modules/late_fustion_model/MultiLayerPerceptron15.model"
+                self.late_fusion_path = self.root + \
+                                        f"modules/late_fustion_model/MultiLayerPerceptron15_{module_str}.model"
             else:
                 self.late_fusion_path = None
         else:
             raise NotImplementedError
         
         if load_late_fusion_model:
-            if self.late_fusion_path:
+            if self.late_fusion_path and os.path.exists(self.late_fusion_path):
                 self.load_late_fusion_model(state_path=self.late_fusion_path)
             else:
-                logging.error("[!] No pre-trained late fusion model for this configuration. You need to .fit() it!")
-
-        self.module_timers = []
-        self.x = None
-        self.y = None
+                errmsg = f"[-] No pre-trained late fusion model for this configuration: {self.late_fusion_path}. You need to .fit() it!"
+                logging.error(errmsg)
+                optionlist = [x for x in os.listdir(os.path.dirname(self.late_fusion_path)) if x.endswith('.model')]
+                modulelist = [x.replace('.model','').split('_')[1:] for x in optionlist]
+                modellist = [x.replace('.model','').split('_')[0].replace('15','') for x in optionlist]
+                infolist = '\n\t\t'.join(['late_fusion_model=\'{0}\', modules={1}'.format(x,y) for x,y in zip(modellist, modulelist)])
+                options = f"[!] Available pre-trained options:\n\t\t{infolist}"
+                logging.warning(options)
     
     # late fusion model state actions
     def save_late_fusion_model(self, filename=""):
@@ -426,24 +448,30 @@ class CompositeClassifier(object):
         return filename
         
     def load_late_fusion_model(self, state_path=""):
+        msg = f"[!] Loading pretrained weights for late fusion {self.late_fusion_model} model from: {self.late_fusion_path}"
+        logging.warning(msg)
         self.model = pickle.load(open(state_path, 'rb'))
 
+    # other module actions
     def load_emulation_module(self, state_dict):
+        msg = f"[!] Loading pretrained weights for emulation model from: {state_dict}"
+        logging.warning(msg)
         self.modules["emulation"].load_state(state_dict)
 
     def load_filepath_module(self, state_dict):
+        msg = f"[!] Loading pretrained weights for filepath model from: {state_dict}"
+        logging.warning(msg)
         self.modules["filepaths"].load_state(state_dict)
 
     # auxiliary
     def dump_xy(self):
         timestamp = int(time.time())
         np.save(f"./X-{timestamp}.npy", self.x)
-        logging.warning(f" [!] Dumped early fusion pass to './X-{timestamp}.npy'")
+        logging.warning(f" [!] Dumped module scores to './X-{timestamp}.npy'")
         if self.y:
             np.save(f"./y-{timestamp}.npy", self.y)
-            logging.warning(f" [!] Dumped early fusion pass labels to './y-{timestamp}.npy'")
+            logging.warning(f" [!] Dumped module labels to './y-{timestamp}.npy'")
         
-
     def get_modular_x(self, modules, x=None):
         modules_all = ["malconv", "ember", "filepaths", "emulation"]
         missing = set(modules_all) - set(modules)
@@ -488,7 +516,7 @@ class CompositeClassifier(object):
         return self.model.predict_proba(self.x)
 
     # PE processing actions
-    def _early_fusion_pass(self, pe, filepath=None, defaultpath=None):
+    def _early_fusion_pass(self, pe, filepath=None, defaultpath=None, takepath=False):
         vector = []
         checkpoint = []
         
@@ -501,11 +529,16 @@ class CompositeClassifier(object):
                 filepath = self.modules["filepaths"].filepath_db[pe]
             except KeyError: # not in database
                 if defaultpath:
-                    logging.warning(f"Using defaultpath for: {pe}")
+                    logging.warning(f"[!] Using defaultpath for: {pe}")
                     filepath = defaultpath
+                elif takepath:
+                    logging.warning(f"[!] Taking current filepath for: {pe}")
+                    filepath = pe
             if not filepath:
-                raise ValueError(f"Cannot identify filepath of {pe}. Please provide manually or using \
-'defaultpath' argument, or remove 'filepaths' from modules.")
+                missing_filepath_error = f"In-the-wild filepath for {pe} is not specified.\n\tAddress using one of the following options in preprocess_pelist():\
+\n\t\t a) 'pathlist=' defining in-the-wild filepath for every provided PE file,\n\t\t b) 'defaultpath=' to use the same path for every PE,\
+\n\t\t c) 'takepath=True' to use current path on the system,\n\t\t d) remove 'filepaths' from 'modules='."
+                raise ValueError(missing_filepath_error)
 
         # acquire fullpath of pe if not provided
         if pe in self.rawpe_db:
@@ -550,7 +583,7 @@ class CompositeClassifier(object):
         
         return np.array(vector).reshape(1,-1)
     
-    def preprocess_pelist(self, pelist, pathlist=None, defaultpath=None, dump_xy=True):
+    def preprocess_pelist(self, pelist, pathlist=None, defaultpath=None, takepath=False, dump_xy=True):
         x = []
         path = None
         if pathlist and len(pelist) != len(pathlist):
@@ -560,7 +593,7 @@ class CompositeClassifier(object):
             if pathlist:
                 path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
-            x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath))
+            x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath, takepath=takepath))
         
         self.x = np.vstack(x)
         if dump_xy:

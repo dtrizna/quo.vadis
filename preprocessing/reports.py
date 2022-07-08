@@ -1,5 +1,6 @@
 from pandas import json_normalize
 import json
+import os
 
 import sys
 sys.path.append("..")
@@ -16,7 +17,7 @@ def report_to_apiseq(reportfile_fullpath):
         dict: Dictionary containing sha256, api sequence, and api sequence length
     """
 
-    filehash = reportfile_fullpath.strip(".json").split("/")[-1]
+    filehash = os.path.basename(reportfile_fullpath).strip(".json")
     try:
         report = json.load(open(reportfile_fullpath))
     except json.decoder.JSONDecodeError as ex:

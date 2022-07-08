@@ -5,7 +5,7 @@ import numpy as np
 import subprocess
 import sys
 sys.path.append("/data/quo.vadis/modules/sota")
-from ember import predict_sample
+from ember import predict_sample, PEFeatureExtractor
 from .malconv import MalConv
 
 class MalConvModel(object):
@@ -44,11 +44,16 @@ class EmberGBDT(object):
         self.model = lgb.Booster(model_file=model_path)
         self.thresh = thresh
         self.__name__ = name
+    
+    def predict_sample(self, lgbm_model, file_data, feature_version=2):
+        extractor = PEFeatureExtractor(feature_version=feature_version, print_feature_warning=False)
+        features = np.array(extractor.feature_vector(file_data), dtype=np.float32)
+        return lgbm_model.predict([features])[0]
 
-    def get_score(self,file_path):
+    def get_score(self, file_path):
         with open(file_path, 'rb') as fp:
             bytez = fp.read()
-            score = predict_sample(self.model, bytez)
+            score = self.predict_sample(self.model, bytez)
             return score
     
     def is_evasive(self, file_path):
