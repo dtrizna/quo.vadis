@@ -1,8 +1,10 @@
 import os
+import sys
 import time
 import pickle
 import logging
 import shutil
+import py7zr
 import numpy as np
 from pandas import DataFrame
 from sklearn.metrics import f1_score
@@ -279,7 +281,7 @@ class Emulation(Core1DConvNetAPI):
         self.apimap = apimap
         self.speakeasy_config = speakeasy_config
         if self.speakeasy_config:
-            logging.warning(f"[!] Using speakeasy config: {self.speakeasy_config}")
+            logging.warning(f"[!] Using speakeasy emulator config from: {self.speakeasy_config}")
         self.report_db = report_db(REPORT_PATH=emulation_report_path)
 
     def forwardpass_apiseq(self, apiseq):
@@ -377,11 +379,31 @@ class CompositeClassifier(object):
         
         if "malconv" in modules:
             self.modules["malconv"] = MalConvModel()
-            self.modules["malconv"].load_state(self.malconv_model_path)
+            if os.path.exists(self.malconv_model_path):
+                logging.warning(f"[!] Loading pretrained weights for malconv model from: {self.malconv_model_path}")
+                self.modules["malconv"].load_state(self.malconv_model_path)
+            else:
+                malconv_url = "https://github.com/endgameinc/malware_evasion_competition/raw/master/models/malconv/malconv.checkpoint"
+                errmsg = f"[-] MalConv pre-trained parameters are missing: {self.malconv_model_path}\nYou can download it from: {malconv_url}"
+                logging.error(errmsg)
+
             
         if "ember" in modules:
+            if os.path.exists(self.ember_2019_model_path):
+                pass
+            else:
+                logging.error(f"[-] Ember pre-trained parameters are missing: {self.ember_2019_model_path}")
+                if os.path.exists(self.ember_2019_model_path + ".7z"):
+                    logging.warning(f"[+] Found archived parameters: {self.ember_2019_model_path + '.7z'}")
+                    with py7zr.SevenZipFile(self.ember_2019_model_path + '.7z') as archive:
+                        archive.extractall(path=os.path.dirname(self.ember_2019_model_path))
+                else:
+                    ember_url = "https://github.com/endgameinc/malware_evasion_competition/raw/master/models/ember/ember_model.txt.zip"
+                    logging.warning(f"[-] Exclude 'ember' from module list or download parameters from: {ember_url}")
+                    sys.exit(1)
+            logging.warning(f"[!] Loading pretrained weights for ember model from: {self.ember_2019_model_path}")
             self.modules["ember"] = EmberGBDT(self.ember_2019_model_path)
-        
+
         if "filepaths" in modules:
             self.bytes = self.root + filepath_bytes
             with open(self.bytes, "rb") as f:
