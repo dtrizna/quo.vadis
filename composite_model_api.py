@@ -4,14 +4,35 @@ import argparse
 import pickle
 import numpy as np
 
+import os
+import requests
+import py7zr
+import logging
+
 repo_root = "./"
 sys.path.append(repo_root)
 from models import CompositeClassifier
 
+def download_vxpe(link):
+    localarchive = link.split("/")[-1]
+    hhash = localarchive.replace(".7z", "")
+    archive = requests.get(vx_link).content
+    with open(localarchive, "wb") as f:
+        f.write(archive)
+    with py7zr.SevenZipFile(localarchive, "r", password='infected') as archive:
+        bytez = archive.read(targets=hhash)[hhash].read()
+    with open(hhash, "wb") as f:
+        f.write(bytez)
+    os.remove(localarchive)
+    return "./"+hhash
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training filepath NeuralNetwork.")
+    parser.add_argument("--example", action="store_true", help="Just show an EXAMPLE -- download BoratRAT from vx-underground, analyze it, and exit\n")
+
     parser.add_argument("--how", type=str, nargs="+", default=["malconv", "filepaths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
     parser.add_argument("--model", type=str, default="MultiLayerPerceptron", help="Options: LogisticRegression, XGBClassifier, MultiLayerPerceptron")
+
 
     group1 = parser.add_mutually_exclusive_group()
     group1.add_argument("--pe-sample", type=str, help="Path to the PE sample")
@@ -23,7 +44,6 @@ if __name__ == "__main__":
     group2.add_argument("--train", action="store_true", help="Whether to train fusion network")
     group2.add_argument("--val", action="store_true", help="Whether to evaluate fusion network")
     group2.add_argument("--test", action="store_true", help="Whether to evaluate fusion network")
-    group2.add_argument("--example", action="store_true", help="Just provides and example of single pass over model")
 
     parser.add_argument("--limit", default=None, type=int, help="whether to limit parsing to some index (for testing)")
 
@@ -51,12 +71,45 @@ if __name__ == "__main__":
         rawpe_db_path = "data/pe.dataset/testset"
 
     # === LOADING MODEL ===
+    print("\n[*] Loading model...")
     classifier = CompositeClassifier(modules=args.how, root=repo_root, 
                                                         late_fusion_model=args.model,
                                                         emulation_report_path = emulation_report_path,
                                                         rawpe_db_path = rawpe_db_path,
                                                         load_late_fusion_model = True,
                                                         fielpath_csvs=filepath_csvs)
+
+    if args.example:
+        # BENIGN SAMPLES PRESENT IN REPOSITORY
+        base_dir = os.path.join(os.path.dirname(__file__), "evaluation", "adversarial", "samples_goodware")
+        files = [os.path.join(base_dir, f) for f in os.listdir(base_dir) if not f.startswith('.')][0:1]
+        paths = [r"C:\windows\system32\calc.exe"]#, r"C:\windows\system32\cmd.exe"]
+        
+        print("\n[*] calc.exe analysis...")
+        x = classifier.preprocess_pelist(files, takepath=True)
+        probs = classifier.predict_proba(x)
+        p_malware = [x[0] for x in probs]
+        print(f"[!] Given path {paths[0]}, probability (malware): {probs[:,1][0]:.4f}\n")
+
+        
+        # MALICIOUS SAMPLE - EXAMPLE WITH SINGLE SAMPLE
+        # BoratRAT from VX-UNDERGROUND
+        print("[*] BoratRAT analysis...")
+        vx_link = "https://samples.vx-underground.org/samples/Families/BoratRAT/Samples/b47c77d237243747a51dd02d836444ba067cf6cc4b8b3344e5cf791f5f41d20e.7z"
+        example_pe = download_vxpe(vx_link)
+
+        example_path = r"%USERPROFILE%\Downloads\BoratRat.exe" # from VirusTotal
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
+        print(scores, "\n")
+
+        example_path = r"C:\windows\system32\calc.exe"
+        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
+        print(scores)
+        
+        sys.exit(0)
+
 
     if args.pe_sample:
         h = args.pe_sample.split("/")[-1]
@@ -90,19 +143,4 @@ if __name__ == "__main__":
         scores["path"] = [classifier.modules["filepaths"].filepath_db[x] for x in hashlist]
         scores["pefile"] = [classifier.rawpe_db[x] for x in hashlist]
         scores.to_csv("test_scores.csv", index=False)
-        print(scores)
-    
-    if args.example:
-        # EXAMPLE API with single sample
-        example_pe = "/data/quo.vadis/data/pe.dataset/PeX86Exe/backdoor/0a0ab5a01bfed5818d5667b68c87f7308b9beeb2d74610dccf738a932419affd"
-        
-        example_path = r"C:\windows\temp\kernel32.exe"
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\nGiven path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
-        print(scores, "\n")
-
-        #example_path = r"C:\windows\system32\kernel32.dll"
-        example_path = r"C:\users\dtrizna\appdata\kernel32.exe"
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\nGiven path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
         print(scores)
