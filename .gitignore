@@ -10,6 +10,7 @@ data/pe.dataset/PeX86Exe
 data/pe.dataset/testset
 data/emulation.dataset/report_*
 data/emulation.dataset/testset_emulation
+data/emulation.dataset/trainvalset_emulation
 data/adversarial.samples/samples_adversarial_testset*
 data/adversarial.emulated/reports_*
 evaluation/adversarial/samples_testset
