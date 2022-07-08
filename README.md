@@ -1,6 +1,6 @@
 # Quo Vadis
 
-:warning: The model is a research prototype, provided as-is, 
+:warning: The model is a research prototype, provided as-is, without warranty of any kind, in pre-alpha state.
 
 ## Architecture
 
