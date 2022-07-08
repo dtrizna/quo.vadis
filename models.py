@@ -521,6 +521,8 @@ class CompositeClassifier(object):
         if y is not None:
             values = np.hstack([x,y.reshape(-1,1)])
             cols = cols + ["y"]
+        else:
+            values = x
         
         return DataFrame(values, columns=cols)
 
@@ -544,23 +546,22 @@ class CompositeClassifier(object):
         
         # acquire filepath if not provided
         if not filepath and "filepaths" in self.modules:
-            if "/" in pe: # if fullpaths are given instead filenames
-                pe = pe.split("/")[-1]
-            # get path from identifier
-            try:
-                filepath = self.modules["filepaths"].filepath_db[pe]
-            except KeyError: # not in database
-                if defaultpath:
-                    logging.warning(f"[!] Using defaultpath for: {pe}")
-                    filepath = defaultpath
-                elif takepath:
-                    logging.warning(f"[!] Taking current filepath for: {pe}")
-                    filepath = pe
-            if not filepath:
-                missing_filepath_error = f"In-the-wild filepath for {pe} is not specified.\n\tAddress using one of the following options in preprocess_pelist():\
+            if takepath:
+                logging.warning(f"[!] Taking current filepath for: {pe}")
+                filepath = pe
+            elif defaultpath:
+                logging.warning(f"[!] Using defaultpath for: {pe}")
+                filepath = defaultpath
+            else: # get path from filepath db
+                if "/" in pe or "\\" in pe: # if fullpaths are given instead filenames
+                    pe = os.path.basename(pe)
+                if pe in self.modules["filepaths"].filepath_db:
+                    filepath = self.modules["filepaths"].filepath_db[pe]
+                else: # not in database
+                    missing_filepath_error = f"In-the-wild filepath for {pe} is not specified.\n\tAddress using one of the following options in preprocess_pelist():\
 \n\t\t a) 'pathlist=' defining in-the-wild filepath for every provided PE file,\n\t\t b) 'defaultpath=' to use the same path for every PE,\
 \n\t\t c) 'takepath=True' to use current path on the system,\n\t\t d) remove 'filepaths' from 'modules='."
-                raise ValueError(missing_filepath_error)
+                    raise ValueError(missing_filepath_error)
 
         # acquire fullpath of pe if not provided
         if pe in self.rawpe_db:
@@ -632,11 +633,8 @@ class CompositeClassifier(object):
             self.dump_xy()
     
     def predict_proba_pelist(self, pelist, pathlist=None, dump_xy=False, return_module_scores=False):
-        self.x = self.preprocess_pelist(pelist, pathlist=pathlist)
+        self.x = self.preprocess_pelist(pelist, pathlist=pathlist, dump_xy=dump_xy)
         probs = self.model.predict_proba(self.x)
-        
-        if dump_xy:
-            self.dump_xy()
         
         if return_module_scores:
             return probs, DataFrame(self.x, columns=self.modules.keys())
