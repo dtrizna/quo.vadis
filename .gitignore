@@ -1,4 +1,5 @@
 __pycache__
+*PythonEnv/
 .ipynb_checkpoints
 parameters
 data/path.dataset/*csv
