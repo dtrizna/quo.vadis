@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training filepath NeuralNetwork.")
     parser.add_argument("--example", action="store_true", help="Just show an EXAMPLE -- download BoratRAT from vx-underground, analyze it, and exit\n")
 
-    parser.add_argument("--how", type=str, nargs="+", default=["malconv", "filepaths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
+    parser.add_argument("--how", type=str, nargs="+", default=["filepaths", "emulation", "ember"], help="Specify space separated modules to use, e.g.: --how ember paths emulation")
     parser.add_argument("--model", type=str, default="MultiLayerPerceptron", help="Options: LogisticRegression, XGBClassifier, MultiLayerPerceptron")
 
 
@@ -83,14 +83,21 @@ if __name__ == "__main__":
         # BENIGN SAMPLES PRESENT IN REPOSITORY
         base_dir = os.path.join(os.path.dirname(__file__), "evaluation", "adversarial", "samples_goodware")
         files = [os.path.join(base_dir, f) for f in os.listdir(base_dir) if not f.startswith('.')][0:1]
-        paths = [r"C:\windows\system32\calc.exe"]#, r"C:\windows\system32\cmd.exe"]
+        paths = [r"C:\users\myuser\AppData\Local\Temp\exploit.exe"]
         
-        print("\n[*] calc.exe analysis...")
-        x = classifier.preprocess_pelist(files, takepath=True)
+        print("\n[*] Legitimate 'calc.exe' analysis...")
+        x = classifier.preprocess_pelist(files, takepath=True, dump_xy=False)
         probs = classifier.predict_proba(x)
-        p_malware = [x[0] for x in probs]
-        print(f"[!] Given path {paths[0]}, probability (malware): {probs[:,1][0]:.4f}\n")
+        scores = classifier.get_module_scores(x)
+        print(f"[!] Given path {files[0]}, probability (malware): {probs[:,1][0]:.6f}")
+        print("[!] Individual module scores:\n\n", scores[classifier.modules.keys()],"\n")
 
+        x = classifier.preprocess_pelist(files, pathlist=paths, dump_xy=False)
+        probs = classifier.predict_proba(x)
+        scores = classifier.get_module_scores(x)
+        print(f"[!] Given path {paths[0]}, probability (malware): {probs[:,1][0]:.6f}")
+        print("[!] Individual module scores:\n\n", scores[classifier.modules.keys()],"\n")
+        
         
         # MALICIOUS SAMPLE - EXAMPLE WITH SINGLE SAMPLE
         # BoratRAT from VX-UNDERGROUND
@@ -100,13 +107,13 @@ if __name__ == "__main__":
 
         example_path = r"%USERPROFILE%\Downloads\BoratRat.exe" # from VirusTotal
         pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
-        print(scores, "\n")
+        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        print("[!] Individual module scores:\n\n", scores, "\n")
 
         example_path = r"C:\windows\system32\calc.exe"
         pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}\n")
-        print(scores)
+        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+        print("[!] Individual module scores:\n\n", scores, "\n")
         
         sys.exit(0)
 
