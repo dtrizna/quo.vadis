@@ -1,5 +1,9 @@
 # Quo Vadis
 
+![License](https://img.shields.io/github/license/dtrizna/quo.vadis)
+![GitHub last commit](https://img.shields.io/github/last-commit/dtrizna/quo.vadis)
+<a href="https://twitter.com/intent/follow?screen_name=ditrizna"><img src="https://img.shields.io/twitter/follow/ditrizna?style=social&logo=twitter" alt="follow on Twitter"></a>
+
 :warning: The model is a research prototype, provided as-is, without warranty of any kind, in a pre-alpha state.
 
 ## Architecture
@@ -32,26 +36,26 @@ API interface is available under `models.py.`
 ```python
 from models import CompositeClassifier
 
-classifier = CompositeClassifier(meta_model="MultiLayerPerceptron", 
-                                   modules=["ember", "emulation"],
-                                   root="/downloads/quo.vadis/",
+classifier = CompositeClassifier(meta_model = "MultiLayerPerceptron", 
+                                   modules = ["ember", "emulation"],
+                                   root = "/home/user/quo.vadis/",
                                    load_meta_model = True)
 ```
 
 Available pretrained configurations:
 
 ```python
-meta_model='LogisticRegression', modules=['ember', 'emulation', 'filepaths', 'malconv']
-meta_model='MultiLayerPerceptron', modules=['ember', 'emulation']
-meta_model='MultiLayerPerceptron', modules=['ember', 'emulation', 'filepaths']
-meta_model='MultiLayerPerceptron', modules=['ember', 'emulation', 'filepaths', 'malconv']
-meta_model='MultiLayerPerceptron', modules=['emulation']
-meta_model='MultiLayerPerceptron', modules=['filepaths']
-meta_model='XGBClassifier', modules=['ember', 'emulation']
-meta_model='XGBClassifier', modules=['ember', 'emulation', 'filepaths']
-meta_model='XGBClassifier', modules=['ember', 'emulation', 'filepaths', 'malconv']
-meta_model='XGBClassifier', modules=['emulation']
-meta_model='XGBClassifier', modules=['filepaths']
+meta_model = 'LogisticRegression', modules = ['ember', 'emulation', 'filepaths', 'malconv']
+meta_model = 'MultiLayerPerceptron', modules = ['ember', 'emulation']
+meta_model = 'MultiLayerPerceptron', modules = ['ember', 'emulation', 'filepaths']
+meta_model = 'MultiLayerPerceptron', modules = ['ember', 'emulation', 'filepaths', 'malconv']
+meta_model = 'MultiLayerPerceptron', modules = ['emulation']
+meta_model = 'MultiLayerPerceptron', modules = ['filepaths']
+meta_model = 'XGBClassifier', modules = ['ember', 'emulation']
+meta_model = 'XGBClassifier', modules = ['ember', 'emulation', 'filepaths']
+meta_model = 'XGBClassifier', modules = ['ember', 'emulation', 'filepaths', 'malconv']
+meta_model = 'XGBClassifier', modules = ['emulation']
+meta_model = 'XGBClassifier', modules = ['filepaths']
 ```
 
 ### Evaluation on PE list
