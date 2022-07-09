@@ -1,33 +1,97 @@
 # Quo Vadis
 
-:warning: The model is a research prototype, provided as-is, without warranty of any kind, in pre-alpha state.
+:warning: The model is a research prototype, provided as-is, without warranty of any kind, in a pre-alpha state.
 
 ## Architecture
 
 Hybrid, modular structure for **malware classification**. Supported modules:
 
-- 1D convolution neural network analysis of filepath at the moment of execution
 - 1D convolution neural network analysis of *API call sequence* obtained from [Speakeasy emulator](https://github.com/mandiant/speakeasy/)
-- '*Ember*' Gradient Boosted Decision Tree (GBDT) model  (https://arxiv.org/abs/1804.04637)
-- '*MalConv*' byte-level convolutional neural network (https://arxiv.org/abs/1710.09435)
+- 1D convolution neural network analysis of filepath at the moment of execution (Kyadige and Rudd et al., <https://arxiv.org/abs/1905.06987>)
+- '*Ember*' Gradient Boosted Decision Tree (GBDT) model  (Anderson and Roth, <https://arxiv.org/abs/1804.04637>)
+- '*MalConv*' byte-level convolutional neural network (Raff et al., <https://arxiv.org/abs/1710.09435>)
 
-Scheme:
+<p align="center"><img src="img/ACM_Composite_Scheme-1.png" width=800><br>
 
-<p align="center"><img src="img/composite_scheme.png" width=800><br>
+## Environment Setup
 
-## Dataset and related code
+Tested on Python `3.8.x` - `3.9.x`. Because of a large number of dependencies with specific versions (because of pre-trained machine learning models), we suggest using a virtual environment or `conda`:
 
-- PE emulation  dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z)
-- Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
-  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
-  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
-
+```bash
+% python3 -m venv QuoVadisEnv
+% source QuoVadisEnv/bin/activate
+(QuoVadisEnv)% python -m pip install -r requirements.txt
+```
 
 ## Usage
-Main API interface under: `./models.py`. 
-Example usage can be found under `model_api_example.py`:
+
+API interface is available under `models.py.`
+
+### Definition of classifier
+
+```python
+from models import CompositeClassifier
+
+classifier = CompositeClassifier(meta_model="MultiLayerPerceptron", 
+                                   modules=["ember", "emulation"],
+                                   root="/downloads/quo.vadis/",
+                                   load_meta_model = True)
 ```
-# python model_api_example.py --example
+
+Available pretrained configurations:
+
+```python
+meta_model='LogisticRegression', modules=['ember', 'emulation', 'filepaths', 'malconv']
+meta_model='MultiLayerPerceptron', modules=['ember', 'emulation']
+meta_model='MultiLayerPerceptron', modules=['ember', 'emulation', 'filepaths']
+meta_model='MultiLayerPerceptron', modules=['ember', 'emulation', 'filepaths', 'malconv']
+meta_model='MultiLayerPerceptron', modules=['emulation']
+meta_model='MultiLayerPerceptron', modules=['filepaths']
+meta_model='XGBClassifier', modules=['ember', 'emulation']
+meta_model='XGBClassifier', modules=['ember', 'emulation', 'filepaths']
+meta_model='XGBClassifier', modules=['ember', 'emulation', 'filepaths', 'malconv']
+meta_model='XGBClassifier', modules=['emulation']
+meta_model='XGBClassifier', modules=['filepaths']
+```
+
+### Evaluation on PE list
+
+```python
+pefiles = os.listdir("/path/to/PE/samples")
+x = classifier.preprocess_pelist(pefiles)
+probs = classifier.predict_proba(x)
+```
+
+You can use `predict_proba_pelist()` instead of `predict_proba()` to get probabilities out of the PE list right away instead of a preprocessed array:
+
+```python
+probs = classifier.predict_proba_pelist(pefiles)
+```
+
+Given that `filepaths` is specified in `modules=`, you have to specify the filepaths of the PE sample at the moment of execution using the `pathlist=` argument:
+
+```python
+filepaths = pd.read_csv(filepaths.csv, header=None)
+probs = classifier.predict_proba_pelist(pefiles, pathlist=filepaths.values.tolist())
+```
+
+*Note!* `len(pefiles) == len(filepaths)`
+
+### Training
+
+Using the `fit_pelist()` method and providing ground true labels for PE files -- malware (1) or benign (0):
+
+```python
+labels = load_labels()
+classifier.fit_pelist(pefiles, labels, pathlist=filepaths.values.tolist())
+```
+
+### Example
+
+An example usage can be found under `model_api_example.py`:
+
+```text
+# python model_api_example.py --example --how ember emulation filepaths
 
 [*] Loading model...
 WARNING:root:[!] Loading pretrained weights for ember model from: ./modules/sota/ember/parameters/ember_model.txt
@@ -70,15 +134,31 @@ WARNING:root: [+] 0/0 Finished emulation ./b47c77d237243747a51dd02d836444ba067cf
 0  0.035511   0.086567    0.96526 
 ```
 
+## Dataset
+
+Dataset structure used for model pre-training is as follows:
+
+<p align="center"><img src="img/dataset_table.png" width=400><br>
+
+Raw PE samles and in-the-wild filepaths are not disclosed due to Privacy Policy. However,
+
+- PE emulation  dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z)
+- Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
+  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
+  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
+
+
 ## Evaluation
 
 More detailed information about modules and individual tests:
 
-- `./modules/emulation/` - 1D convolutonal pipeline based on API call sequences collected with Windows kernel emulator (we use [Mandiant's Speakeasy](https://github.com/mandiant/speakeasy))
-- `./modules/filepaths/` - 1D convolution pipeline for file path classification
-- `./modules/sota/` - static PE classification utilizing state-of-the-art ML-models: [MalConv](modules/sota/malconv) or [Ember](modules/sota/ember). Parameters for `sota` models can be downloaded from [here](https://github.com/endgameinc/malware_evasion_competition/tree/master/models).
+- `./modules/emulation/`
+- `./modules/filepaths/`
+- `./modules/sota/`
 
-Performance of this model on the proprietary dataset - 90k PE samples with filepaths from real-world systems:
+Note! Parameters for the `sota` models can be downloaded from [here](https://github.com/endgameinc/malware_evasion_competition/tree/master/models).
+
+Performance of this model on the proprietary dataset: ~90k PE samples with filepaths from real-world systems:
 
 <center><img src="img/composite_validation_confusionmatrix.png" width=350></center><br>
 
@@ -92,10 +172,10 @@ Detection rate with fixed False Positive rate:
 
 ## Future work
 
-- experiments with **retrained** MalConv / Ember weights on your dataset - it makes sense to evaluate them on the same distribution
-  - NOTE: this, however, does not matter since our goal is **not** to compare our modules with MalConv / Ember directly but to improve them. For this reason, it is even better to have original parameters. The main takeaway - adding multiple modules together allows boosting results drastically. At the same time, each of them is noticeably weaker (even the API call module, which is trained on the same distribution).
-- try to run GAMMA against composite solution (not just ember/malconv modules) - it looks like attacks are highly targeted. Interesting if it will be able to generate evasive samples against a complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
-- work on `CompositeClassifier()` API interface:
+- Experiments with **retrained** MalConv / Ember weights -- it makes sense to evaluate them on the same distribution
+  - *Note*: this, however, does not matter since our goal is **not** to compare our modules with MalConv / Ember directly but to improve them. For this reason, it is even better to have original parameters. The main takeaway -- adding multiple modules together allows boosting results drastically. At the same time, each is noticeably weaker (even the API call module, which is trained on the same distribution).
+- Run GAMMA against composite solution (not just ember/malconv modules) - it looks like attacks are highly targeted. Interesting if it will be able to generate evasive samples against a complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
+- Work on `CompositeClassifier()` API interface:
   - make it easy to take a PE sample(s) & additional document options (providing PE directory, predefined emulation report directory, etc.)
   - `.update()` to overtrain network with own examples that were previously flagged incorrectly
   - work without submitted `filepath` (only PE mode) - provide paths as separate argument to `.fit()`?
