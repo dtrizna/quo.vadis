@@ -29,7 +29,7 @@ Tested on Python `3.8.x` - `3.9.x`. Because of a large number of dependencies wi
 
 ## Usage
 
-API interface is available under `models.py.`
+API interface is available under `models.py`.
 
 ### Definition of classifier
 
@@ -72,7 +72,7 @@ You can use `predict_proba_pelist()` instead of `predict_proba()` to get probabi
 probs = classifier.predict_proba_pelist(pefiles)
 ```
 
-Given that `filepaths` is specified in `modules=`, you have to specify the filepaths of the PE sample at the moment of execution using the `pathlist=` argument:
+Given that `filepaths` is specified in `modules = `, you have to specify the filepaths of the PE sample at the moment of execution using the `pathlist=` argument:
 
 ```python
 filepaths = pd.read_csv(filepaths.csv, header=None)
@@ -81,7 +81,7 @@ probs = classifier.predict_proba_pelist(pefiles, pathlist=filepaths.values.tolis
 
 *Note!* `len(pefiles) == len(filepaths)`
 
-### Training
+### Re-Training
 
 Using the `fit_pelist()` method and providing ground true labels for PE files -- malware (1) or benign (0):
 
@@ -92,7 +92,7 @@ classifier.fit_pelist(pefiles, labels, pathlist=filepaths.values.tolist())
 
 ### Example
 
-An example usage can be found under `model_api_example.py`:
+An example usage can be found under `example.py`:
 
 ```text
 # python example.py --example --how ember emulation filepaths
