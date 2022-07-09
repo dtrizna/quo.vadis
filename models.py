@@ -337,24 +337,25 @@ class CompositeClassifier(object):
                     root = "./", # repository root
                     
                     # pretrained early fusion components
-                    malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
-                    ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
-                    # metadata used for module pre-training
                     emulation_model_path = 'modules/emulation/pretrained/torch.model',
+                    filepath_model_path = 'modules/filepath/pretrained/torch.model',
+                    ember_2019_model_path = 'modules/sota/ember/parameters/ember_model.txt',
+                    malconv_model_path = 'modules/sota/malconv/parameters/malconv.checkpoint',
+
+                    # metadata objects used for pre-training model functionality (mandatory)
                     emulation_apicalls = 'modules/emulation/pretrained/pickle.apicalls',
                     speakeasy_config = "data/emulation.dataset/sample_emulation/speakeasy_config.json",
-                    filepath_model_path = 'modules/filepath/pretrained/torch.model',
                     filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
-                    # metadata needed for struct instantiation
+
+                    # metadata needed for struct instantiation (optional)
                     emulation_report_path = "data/emulation.dataset",
                     rawpe_db_path = "data/pe.dataset/PeX86Exe",
                     fielpath_csvs = "data/pe.dataset/PeX86Exe",
                     
-                    # later fusion model
-                    # options: MultiLayerPerceptron, XGBClassifier, LogisticRegression
+                    # meta model -- options: MultiLayerPerceptron, XGBClassifier, LogisticRegression
                     meta_model = "MultiLayerPerceptron",
                     load_meta_model = True,
-                    mlp_hidden_layer_sizes=(15,),
+                    mlp_hidden_layer_sizes=(15,), # only needed if meta_model="MultiLayerPerceptron"
                     
                     # auxiliary settings
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
@@ -386,7 +387,6 @@ class CompositeClassifier(object):
                 malconv_url = "https://github.com/endgameinc/malware_evasion_competition/raw/master/models/malconv/malconv.checkpoint"
                 errmsg = f"[-] MalConv pre-trained parameters are missing: {self.malconv_model_path}\nYou can download it from: {malconv_url}"
                 logging.error(errmsg)
-
             
         if "ember" in modules:
             if os.path.exists(self.ember_2019_model_path):
@@ -431,7 +431,6 @@ class CompositeClassifier(object):
             self.model = LogisticRegression()
             self.meta_model_path = self.root + \
                                     f"modules/meta_model/LogisticRegression_{module_str}.model"
-
         elif meta_model == "XGBClassifier":
             self.model = XGBClassifier(n_estimators=100, 
                                         objective='binary:logistic',
@@ -439,7 +438,6 @@ class CompositeClassifier(object):
                                         use_label_encoder=False)
             self.meta_model_path = self.root + \
                                     f"modules/meta_model/XGBClassifier_{module_str}.model"
-
         elif meta_model == "MultiLayerPerceptron":
             self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
             if mlp_hidden_layer_sizes == (15,):

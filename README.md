@@ -91,7 +91,7 @@ classifier.fit_pelist(pefiles, labels, pathlist=filepaths.values.tolist())
 An example usage can be found under `model_api_example.py`:
 
 ```text
-# python model_api_example.py --example --how ember emulation filepaths
+# python example.py --example --how ember emulation filepaths
 
 [*] Loading model...
 WARNING:root:[!] Loading pretrained weights for ember model from: ./modules/sota/ember/parameters/ember_model.txt
