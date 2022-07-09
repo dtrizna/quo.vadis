@@ -19,7 +19,7 @@ Hybrid, modular structure for **malware classification**. Supported modules:
 
 ## Environment Setup
 
-Tested on Python `3.8.x` - `3.9.x`. Because of a large number of dependencies with specific versions (because of pre-trained machine learning models), we suggest using a virtual environment or `conda`:
+Tested on Python `3.8.x` - `3.9.x`. Because of a large number of dependencies with specific versions (due to pre-trained machine learning models), we suggest using a virtual environment or `conda`:
 
 ```bash
 % python3 -m venv QuoVadisEnv
