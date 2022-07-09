@@ -352,8 +352,8 @@ class CompositeClassifier(object):
                     
                     # later fusion model
                     # options: MultiLayerPerceptron, XGBClassifier, LogisticRegression
-                    late_fusion_model = "MultiLayerPerceptron",
-                    load_late_fusion_model = True,
+                    meta_model = "MultiLayerPerceptron",
+                    load_meta_model = True,
                     mlp_hidden_layer_sizes=(15,),
                     
                     # auxiliary settings
@@ -425,52 +425,52 @@ class CompositeClassifier(object):
         self.rawpe_db = rawpe_db(self.root+rawpe_db_path)
         
         # late fusion model configuration
-        self.late_fusion_model = late_fusion_model
+        self.meta_model = meta_model
         module_str = '_'.join(sorted(self.modules.keys()))
-        if late_fusion_model == "LogisticRegression":
+        if meta_model == "LogisticRegression":
             self.model = LogisticRegression()
-            self.late_fusion_path = self.root + \
-                                    f"modules/late_fustion_model/LogisticRegression_{module_str}.model"
+            self.meta_model_path = self.root + \
+                                    f"modules/meta_model/LogisticRegression_{module_str}.model"
 
-        elif late_fusion_model == "XGBClassifier":
+        elif meta_model == "XGBClassifier":
             self.model = XGBClassifier(n_estimators=100, 
                                         objective='binary:logistic',
                                         eval_metric="logloss",
                                         use_label_encoder=False)
-            self.late_fusion_path = self.root + \
-                                    f"modules/late_fustion_model/XGBClassifier_{module_str}.model"
+            self.meta_model_path = self.root + \
+                                    f"modules/meta_model/XGBClassifier_{module_str}.model"
 
-        elif late_fusion_model == "MultiLayerPerceptron":
+        elif meta_model == "MultiLayerPerceptron":
             self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
             if mlp_hidden_layer_sizes == (15,):
-                self.late_fusion_path = self.root + \
-                                        f"modules/late_fustion_model/MultiLayerPerceptron15_{module_str}.model"
+                self.meta_model_path = self.root + \
+                                        f"modules/meta_model/MultiLayerPerceptron15_{module_str}.model"
             else:
-                self.late_fusion_path = None
+                self.meta_model_path = None
         else:
             raise NotImplementedError
         
-        if load_late_fusion_model:
-            if self.late_fusion_path and os.path.exists(self.late_fusion_path):
-                self.load_late_fusion_model(state_path=self.late_fusion_path)
+        if load_meta_model:
+            if self.meta_model_path and os.path.exists(self.meta_model_path):
+                self.load_meta_model(state_path=self.meta_model_path)
             else:
-                errmsg = f"[-] No pre-trained late fusion model for this configuration: {self.late_fusion_path}. You need to .fit() it!"
+                errmsg = f"[-] No pre-trained late fusion model for this configuration: {self.meta_model_path}. You need to .fit() it!"
                 logging.error(errmsg)
-                optionlist = [x for x in os.listdir(os.path.dirname(self.late_fusion_path)) if x.endswith('.model')]
+                optionlist = [x for x in os.listdir(os.path.dirname(self.meta_model_path)) if x.endswith('.model')]
                 modulelist = [x.replace('.model','').split('_')[1:] for x in optionlist]
                 modellist = [x.replace('.model','').split('_')[0].replace('15','') for x in optionlist]
-                infolist = '\n\t\t'.join(['late_fusion_model=\'{0}\', modules={1}'.format(x,y) for x,y in zip(modellist, modulelist)])
+                infolist = '\n\t\t'.join(['meta_model=\'{0}\', modules={1}'.format(x,y) for x,y in zip(modellist, modulelist)])
                 options = f"[!] Available pre-trained options:\n\t\t{infolist}"
                 logging.warning(options)
     
     # late fusion model state actions
-    def save_late_fusion_model(self, filename=""):
-        filename = filename+f"_{int(time.time())}_"+self.late_fusion_model+".model"
+    def save_meta_model(self, filename=""):
+        filename = filename+f"_{int(time.time())}_"+self.meta_model+".model"
         pickle.dump(self.model, open(filename, 'wb'))
         return filename
         
-    def load_late_fusion_model(self, state_path=""):
-        msg = f"[!] Loading pretrained weights for late fusion {self.late_fusion_model} model from: {self.late_fusion_path}"
+    def load_meta_model(self, state_path=""):
+        msg = f"[!] Loading pretrained weights for late fusion {self.meta_model} model from: {self.meta_model_path}"
         logging.warning(msg)
         self.model = pickle.load(open(state_path, 'rb'))
 

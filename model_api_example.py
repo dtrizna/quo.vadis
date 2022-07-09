@@ -73,11 +73,11 @@ if __name__ == "__main__":
     # === LOADING MODEL ===
     print("\n[*] Loading model...")
     classifier = CompositeClassifier(modules=args.how, root=repo_root, 
-                                                        late_fusion_model=args.model,
-                                                        emulation_report_path = emulation_report_path,
-                                                        rawpe_db_path = rawpe_db_path,
-                                                        load_late_fusion_model = True,
-                                                        fielpath_csvs=filepath_csvs)
+                                        meta_model=args.model,
+                                        emulation_report_path = emulation_report_path,
+                                        rawpe_db_path = rawpe_db_path,
+                                        load_meta_model = True,
+                                        fielpath_csvs=filepath_csvs)
 
     if args.example:
         # BENIGN SAMPLES PRESENT IN REPOSITORY
@@ -104,17 +104,21 @@ if __name__ == "__main__":
         print("[*] BoratRAT analysis...")
         vx_link = "https://samples.vx-underground.org/samples/Families/BoratRAT/Samples/b47c77d237243747a51dd02d836444ba067cf6cc4b8b3344e5cf791f5f41d20e.7z"
         example_pe = download_vxpe(vx_link)
-
-        example_path = r"%USERPROFILE%\Downloads\BoratRat.exe" # from VirusTotal
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
-        print("[!] Individual module scores:\n\n", scores, "\n")
-
-        example_path = r"C:\windows\system32\calc.exe"
-        pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
-        print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
-        print("[!] Individual module scores:\n\n", scores, "\n")
         
+        try:
+            example_path = r"%USERPROFILE%\Downloads\BoratRat.exe" # from VirusTotal
+            pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+            print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+            print("[!] Individual module scores:\n\n", scores, "\n")
+
+            example_path = r"C:\windows\system32\calc.exe"
+            pred, scores = classifier.predict_proba_pelist([example_pe], pathlist=[example_path], return_module_scores=True, dump_xy=False)
+            print(f"\n[!] Given path {example_path}, probability (malware): {pred[:,1][0]:.4f}")
+            print("[!] Individual module scores:\n\n", scores, "\n")
+        except FileNotFoundError:
+            logging.warning(f"[-] Cannot access downloaded sample: {example_pe}.\n\t\tIsn't AV blocking / removed it? Be sure to add exclusion folder or disable AV. Exiting ... ")
+        
+        os.remove(example_pe)
         sys.exit(0)
 
 
@@ -124,14 +128,19 @@ if __name__ == "__main__":
     elif args.pe_hashlist:
         with open(args.pe_hashlist, "rb") as f:
             hashlist = pickle.load(f)
-    
+    if args.y:
+        y = np.load(args.y)
+    else:
+        y = None
+
     if not hashlist and (args.train or args.test or args.val):
-        print("Didn't load any data...")
-        sys.exit()
+        logging.error("[-] Please define a data to load using --pe-sample or --pe-hashlist")
+        sys.exit(1)
     
     if args.limit:
         hashlist = hashlist[0:args.limit]
-        y = np.load(args.y)[0:len(hashlist)]
+        if y:
+            y = y[0:len(hashlist)]
 
     if args.train:
         classifier.fit_pelist(hashlist, y, dump_xy=args.save_xy)
