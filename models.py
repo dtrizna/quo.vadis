@@ -454,7 +454,7 @@ class CompositeClassifier(object):
             else:
                 errmsg = f"[-] No pre-trained late fusion model for this configuration: {self.meta_model_path}. You need to .fit() it!"
                 logging.error(errmsg)
-                optionlist = [x for x in os.listdir(os.path.dirname(self.meta_model_path)) if x.endswith('.model')]
+                optionlist = [x for x in os.listdir(self.root + f"modules/meta_model/") if x.endswith('.model')]
                 modulelist = [x.replace('.model','').split('_')[1:] for x in optionlist]
                 modellist = [x.replace('.model','').split('_')[0].replace('15','') for x in optionlist]
                 infolist = '\n\t\t'.join(['meta_model=\'{0}\', modules={1}'.format(x,y) for x,y in zip(modellist, modulelist)])
