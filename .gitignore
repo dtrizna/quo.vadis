@@ -2,6 +2,7 @@ __pycache__
 *PythonEnv/
 .ipynb_checkpoints
 ember_model.txt
+data/archives
 data/path.dataset/*csv
 data/path.dataset/*labio.txt
 data/path.dataset/*smbmap.txt
