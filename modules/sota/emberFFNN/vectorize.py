@@ -24,7 +24,7 @@ except IndexError:
 except ValueError:
     LIMIT = None
 
-run_folder = f"output_{int(time.time())}"
+run_folder = f"vectorize_output_{int(time.time())}"
 os.mkdir(run_folder)
 print(f"Output will be dumped to: .\{run_folder}")
 

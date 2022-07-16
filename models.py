@@ -102,6 +102,12 @@ class Core1DConvNet(nn.Module):
         
         return out
 
+    def get_representations(self, inputs):
+        embedded = self.embedding(inputs).permute(0, 2, 1)
+        x_conv = [self.conv_and_max_pool(embedded, conv1d) for conv1d in self.conv1d_module]
+        x_fc = self.ffnn(torch.cat(x_conv, dim=1))
+        return x_fc
+
 
 class Core1DConvNetAPI(object):
     def __init__(self, device,
