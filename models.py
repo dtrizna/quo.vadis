@@ -106,8 +106,10 @@ class Core1DConvNet(nn.Module):
         embedded = self.embedding(inputs).permute(0, 2, 1)
         x_conv = [self.conv_and_max_pool(embedded, conv1d) for conv1d in self.conv1d_module]
         x_fc = self.ffnn(torch.cat(x_conv, dim=1))
-        return x_fc
+        return x_fc.reshape(-1,1)
 
+    def classify_representations(self, representations):
+        return self.fc_output(representations)
 
 class Core1DConvNetAPI(object):
     def __init__(self, device,
@@ -180,7 +182,7 @@ class Core1DConvNetAPI(object):
             loss.backward() # derivatives
             optimizer.step() # parameter update  
 
-            preds = torch.argmax(logits, dim=1).flatten()     
+            preds = torch.argmax(logits, dim=1).flatten()
             
             accuracy = (preds == target).cpu().numpy().mean() * 100
             f1 = f1_score(target, preds)
@@ -245,6 +247,7 @@ class Filepath(Core1DConvNetAPI):
                     bytes, 
                     device, 
                     embedding_dim=64, 
+                    get_representations=False,
                     state_dict=None,
                     filepath_csv_location=None):
         super().__init__(device, 
@@ -252,6 +255,7 @@ class Filepath(Core1DConvNetAPI):
                             len(bytes)+1, 
                             state_dict)
         self.bytes = bytes
+        self.get_representations = get_representations
         self.filepath_db = filepath_db(FILEPATH_CSV_LOCATION=filepath_csv_location)
 
     def predict_path(self, path):
@@ -264,11 +268,16 @@ class Filepath(Core1DConvNetAPI):
         x = torch.LongTensor(remap(x, mapping)).reshape(1,-1)
 
         self.model.eval()
-        with torch.no_grad():
-            logits = self.model(x)
-        prediction = torch.argmax(logits, dim=1).flatten()
-        
-        return logits, prediction
+        if self.get_representations:
+            with torch.no_grad():
+                r = self.model.get_representations(x)
+                return r, None
+        else:
+            with torch.no_grad():
+                logits = self.model(x)
+            
+            prediction = torch.argmax(logits, dim=1).flatten()            
+            return logits, prediction
 
     def predict(self, path):
         return self.predict_path(path)
@@ -277,7 +286,8 @@ class Filepath(Core1DConvNetAPI):
 class Emulation(Core1DConvNetAPI):
     def __init__(self, apimap, device, 
                         embedding_dim=96, 
-                        state_dict=None, 
+                        state_dict=None,
+                        get_representations=False,
                         emulation_report_path=None,
                         speakeasy_config = None):
         super().__init__(device, 
@@ -285,6 +295,7 @@ class Emulation(Core1DConvNetAPI):
                             len(apimap)+2, 
                             state_dict)
         self.apimap = apimap
+        self.get_representations = get_representations
         self.speakeasy_config = speakeasy_config
         if self.speakeasy_config:
             logging.warning(f"[!] Using speakeasy emulator config from: {self.speakeasy_config}")
@@ -295,10 +306,14 @@ class Emulation(Core1DConvNetAPI):
         x = torch.LongTensor(x.reshape(1,-1)).to(self.device)
 
         self.model.eval()
-        logits = self.model(x)
-        prediction = torch.argmax(logits, dim=1).flatten()
-
-        return logits, prediction
+        if self.get_representations:
+            with torch.no_grad():
+                representations = self.model.get_representations(x)
+            return representations
+        else:
+            with torch.no_grad():
+                logits = self.model(x)
+            return logits
 
     def predict_rawpe(self, path, i=0, l=0):
         temp_report_folder = f"temp_reports"
@@ -312,7 +327,7 @@ class Emulation(Core1DConvNetAPI):
             samplename = os.path.basename(path)
             reportfile = f"{temp_report_folder}/{samplename}.json"
             apiseq = report_to_apiseq(reportfile)["api.seq"]
-            logits, _ = self.forwardpass_apiseq(apiseq)
+            logits = self.forwardpass_apiseq(apiseq)
         
         # cleanup
         shutil.rmtree(temp_report_folder)
@@ -321,8 +336,9 @@ class Emulation(Core1DConvNetAPI):
     def predict_report(self, h):
         report_fullpath = self.report_db[h]
         apiseq = report_to_apiseq(report_fullpath)["api.seq"]
-        logits, preds = self.forwardpass_apiseq(apiseq)
-        return logits, preds
+        logits = self.forwardpass_apiseq(apiseq)
+        emulation_success = True
+        return logits, emulation_success
     
     def predict(self, h):
         if "/" in h:
@@ -412,6 +428,7 @@ class CompositeClassifier(object):
 
         if "filepaths" in modules:
             self.bytes = self.root + filepath_bytes
+            self.fielpath_csvs = self.root + fielpath_csvs
             with open(self.bytes, "rb") as f:
                 bytes = pickle.load(f)
             self.modules["filepaths"] = Filepath(bytes, self.device, filepath_csv_location=self.root+fielpath_csvs)
@@ -419,6 +436,8 @@ class CompositeClassifier(object):
 
         if "emulation" in modules:
             self.apis = self.root + emulation_apicalls
+            self.emulation_report_path = self.root + emulation_report_path
+            self.speakeasy_config = os.path.join(self.root, speakeasy_config)
             with open(self.apis, "rb") as f:
                 api_calls_preserved = pickle.load(f)
             # added labels: 0 - padding; 1 - rare API: therefore range(2, +2)
@@ -494,7 +513,7 @@ class CompositeClassifier(object):
         timestamp = int(time.time())
         np.save(f"./X-{timestamp}.npy", self.x)
         logging.warning(f" [!] Dumped module scores to './X-{timestamp}.npy'")
-        if self.y:
+        if self.y is not None:
             np.save(f"./y-{timestamp}.npy", self.y)
             logging.warning(f" [!] Dumped module labels to './y-{timestamp}.npy'")
         
@@ -527,7 +546,7 @@ class CompositeClassifier(object):
             cols = cols + ["y"]
         else:
             values = x
-        
+                
         return DataFrame(values, columns=cols)
 
     def get_module_processing_time(self):

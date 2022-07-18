@@ -1,0 +1,6 @@
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+WARNING:root:[!] Loading pretrained weights for filepath model from: ../../modules/filepath/pretrained/torch.model
+WARNING:root:[!] Using speakeasy emulator config from: ../../data/emulation.dataset/sample_emulation/speakeasy_config.json
+WARNING:root:[!] Loading pretrained weights for emulation model from: ../../modules/emulation/pretrained/torch.model
+WARNING:root:[*] Preprocessing train set...
+ERROR:root:[-] Cannot find 44a90c81b8a493dc2577fa204af3cf05041f838970c85cf3099082b7477daa26, please provide valid path or known hash. Skipping...
