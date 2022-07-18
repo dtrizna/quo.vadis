@@ -56,10 +56,13 @@ pe_trainvalset_path = root + "data/archives/pe_trainset/PeX86Exe/"
 
 X_ember_trainset = np.empty((0,2381))
 y_ember_trainset = []
+X_ember_trainset_hashes = []
 X_ember_valset = np.empty((0,2381))
 y_ember_valset = []
+X_ember_valset_hashes = []
 X_ember_failedset = np.empty((0,2381))
 y_ember_failedset = []
+X_ember_failedset_hashes = []
 
 total = 0
 malicious_folders = ["backdoor", "coinminer", "dropper", "keylogger", "ransomware", "rat", "trojan"]
@@ -91,7 +94,8 @@ for folder in full_folder_list:
         if hh in train_set:
             print(i, end="|")
             X_ember_trainset = np.vstack([X_ember_trainset, feature_vector])
-            
+            X_ember_trainset_hashes.append(hh)
+
             if folder in malicious_folders:
                 y_ember_trainset.append(1)
             else:
@@ -102,6 +106,7 @@ for folder in full_folder_list:
         elif hh in val_set:
             print(i, end="|")
             X_ember_valset = np.vstack([X_ember_valset, feature_vector])
+            X_ember_valset_hashes.append(hh)
             
             if folder in malicious_folders:
                 y_ember_valset.append(1)
@@ -115,6 +120,7 @@ for folder in full_folder_list:
             # this means emulation failed, so is not represented in train/val sets
             # do I include that?
             X_ember_failedset = np.vstack([X_ember_failedset, feature_vector])
+            X_ember_failedset_hashes.append(hh)
 
             if folder in malicious_folders:
                 y_ember_failedset.append(1)
@@ -157,3 +163,8 @@ np.save(f"{run_folder}/X_ember_failedset", X_ember_failedset)
 np.save(f"{run_folder}/y_ember_failedset", np.array(y_ember_failedset, dtype=int))
 print(f"Length of failed emulation set: {X_ember_failedset.shape[0]}")
 print(f"Length of leftover hashes: {len(val_set)+len(train_set)} | Should match..")
+
+# hashlists that correspond to arrays, just in case need to build a map
+pickle.dump(X_ember_trainset_hashes, open(f"{run_folder}/X_ember_trainset_hashes.pickle", "wb"))
+pickle.dump(X_ember_valset_hashes, open(f"{run_folder}/X_ember_valset_hashes.pickle", "wb"))
+pickle.dump(X_ember_failedset_hashes, open(f"{run_folder}/X_ember_failedset_hashes.pickle", "wb"))
