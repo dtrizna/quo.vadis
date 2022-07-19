@@ -639,7 +639,9 @@ class CompositeClassifier(object):
             if pathlist:
                 path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
-            x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath, takepath=takepath))
+            vector = self._early_fusion_pass(pe, path, defaultpath=defaultpath, takepath=takepath)
+            if vector is not None:
+                x.append(vector)
         
         self.x = np.vstack(x)
         if dump_xy:

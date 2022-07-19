@@ -173,7 +173,7 @@ class CompositeClassifierFromRepresentations(object):
     # auxiliary
     def dump_xy(self):
         timestamp = int(time.time())
-        np.save(f"./X-{timestamp}.npy", self.x.detach().numpy())
+        np.save(f"./X-{timestamp}.npy", self.x)
         logging.warning(f" [!] Dumped module scores to './X-{timestamp}.npy'")
         if self.y:
             np.save(f"./y-{timestamp}.npy", self.y)
@@ -246,7 +246,7 @@ class CompositeClassifierFromRepresentations(object):
         elif not os.path.exists(pe):
             #raise FileNotFoundError(f"Cannot find {pe}, please provide valid path or known hash")
             logging.error(f"[-] Cannot find {pe}, please provide valid path or known hash. Skipping...")
-            return np.nan
+            return None
 
         # actual pass
         for model in self.modules:
@@ -283,7 +283,7 @@ class CompositeClassifierFromRepresentations(object):
         checkpoint.append(time.time())
         self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
         
-        return torch.vstack(vector).reshape(1,-1)
+        return torch.vstack(vector).reshape(1,-1).detach().numpy()
     
     # UNTIL HERE
     
@@ -297,10 +297,11 @@ class CompositeClassifierFromRepresentations(object):
             if pathlist:
                 path = pathlist[i]
             print(f" [*] Scoring: {i+1}/{len(pelist)}", end="\r")
-            x.append(self._early_fusion_pass(pe, path, defaultpath=defaultpath, takepath=takepath))
-        
-        x = x[~np.isnan(x)]
-        self.x = torch.vstack(x)
+            vector = self._early_fusion_pass(pe, path, defaultpath=defaultpath, takepath=takepath)
+            if vector is not None:
+                x.append(vector)
+
+        self.x = np.vstack(x)
         
         if dump_xy:
             self.dump_xy()
@@ -333,7 +334,7 @@ class CompositeClassifierFromRepresentations(object):
 
         # 3. form a new dataset out of old samples + new oversamples samples, shuffle
         
-        # 4. retrain each module  
+        # 4. retrain each module
 
         # 5. retrain late fusion model
 

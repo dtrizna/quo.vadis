@@ -10,7 +10,7 @@ from representation_model import CompositeClassifierFromRepresentations
 def dump_xy(x, y=None, note=""):
     timestamp = int(time.time())
     xfile = f"./X{note}-{timestamp}.npy"
-    np.save(xfile, x.detach().numpy())
+    np.save(xfile, x)
     logging.warning(f" [!] Dumped module scores to '{xfile}'")
     if y is not None:
         yfile = f"./y{note}-{timestamp}.npy"
