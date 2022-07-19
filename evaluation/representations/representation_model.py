@@ -88,7 +88,8 @@ class CompositeClassifierFromRepresentations(object):
                     meta_model = "MultiLayerPerceptron",
                     load_meta_model = True,
                     mlp_hidden_layer_sizes=(128,64,32), # only needed if meta_model="MultiLayerPerceptron"
-                    
+                    meta_fit_max_iter=200, # only needed if meta_model="MultiLayerPerceptron"
+
                     # auxiliary settings
                     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
                     padding_length = 150
@@ -154,7 +155,9 @@ class CompositeClassifierFromRepresentations(object):
                                         eval_metric="logloss",
                                         use_label_encoder=False)
         elif meta_model == "MultiLayerPerceptron":
-            self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes)
+            self.model = MLPClassifier(hidden_layer_sizes=mlp_hidden_layer_sizes,
+                                        max_iter=meta_fit_max_iter,
+                                        random_state=42) # TBD
         else:
             raise NotImplementedError
         
