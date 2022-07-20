@@ -1,0 +1,23 @@
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/clean/sha_path_db.csv.. Error: Error tokenizing data. C error: EOF inside string starting at row 10000. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/coinminer/sha_path_db.csv.. Error: Error tokenizing data. C error: Expected 2 fields in line 7, saw 3
+. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/coinminer/sha_path_db.csv.. Error: Error tokenizing data. C error: EOF inside string starting at row 2500. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/ransomware/sha_path_db.csv.. Error: Error tokenizing data. C error: Expected 2 fields in line 2055, saw 3
+. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/rat/sha_path_db.csv.. Error: Error tokenizing data. C error: Expected 2 fields in line 1676, saw 3
+. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/trojan/sha_path_db.csv.. Error: Error tokenizing data. C error: Expected 2 fields in line 69, saw 3
+. To ignore, use 'skip=True'
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+WARNING:root:[!] Loading pretrained weights for filepath model from: ../../modules/filepath/pretrained/torch.model
+WARNING:root:[!] Using speakeasy emulator config from: ../../data/emulation.dataset/sample_emulation/speakeasy_config.json
+WARNING:root:[!] Loading pretrained weights for emulation model from: ../../modules/emulation/pretrained/torch.model
+WARNING:root:[*] Preprocessing test set
+WARNING:root: [!] Dumped module scores to './Xtest-1658315245.npy'
+WARNING:root: [!] Dumped module labels to './ytest-1658315245.npy'

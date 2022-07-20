@@ -146,7 +146,7 @@ Dataset structure used for model pre-training is as follows:
 
 Raw PE samles and in-the-wild filepaths are not disclosed due to Privacy Policy. However,
 
-- PE emulation  dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z)
+- PE emulation dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z) and [emulation.dataset.testset.7z](data/emulation.dataset/emulation.dataset.testset.7z)
 - Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
   - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
   - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
@@ -176,8 +176,9 @@ Detection rate with fixed False Positive rate:
 
 ## Future work
 
-- Experiments with **retrained** MalConv / Ember weights -- it makes sense to evaluate them on the same distribution
-  - *Note*: this, however, does not matter since our goal is **not** to compare our modules with MalConv / Ember directly but to improve them. For this reason, it is even better to have original parameters. The main takeaway -- adding multiple modules together allows boosting results drastically. At the same time, each is noticeably weaker (even the API call module, which is trained on the same distribution).
+- Done. ~~Experiments with retrained MalConv / Ember weights -- it makes sense to evaluate them on the same distribution.~~
+- Updating architecture of Filepath & Emulation networks, retraining with different loss: `CrossEntropyLoss` -> `BCELoss`.
+- Preprocessing stage takes byte object (as alternative to PE path on the system). Needs to leverage `data=` argument of `load_module()` in [Speakeasy API](https://github.com/mandiant/speakeasy/blob/master/speakeasy/speakeasy.py#L190).
 - Run GAMMA against composite solution (not just ember/malconv modules) - it looks like attacks are highly targeted. Interesting if it will be able to generate evasive samples against a complete pipeline .. (however, defining that in `secml_malware` might be painful ...)
 - Work on `CompositeClassifier()` API interface:
   - make it easy to take a PE sample(s) & additional document options (providing PE directory, predefined emulation report directory, etc.)

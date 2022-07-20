@@ -1,0 +1,3 @@
+WARNING:root:[!] Loading pretrained weights for ember model from: ../../modules/sota/emberMLP/model_myPENetwork_190_epochs_acc_90/ep5-optim_adamw-lr0.001-l2reg0-dr0.5-model.torch
+ERROR:root:[-] Cannot parse: ../../data/archives/testset/clean/sha_path_db.csv.. Error: Error tokenizing data. C error: Expected 2 fields in line 352, saw 3
+. To ignore, use 'skip=True'

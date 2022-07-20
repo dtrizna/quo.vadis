@@ -80,7 +80,7 @@ class CompositeClassifierFromRepresentations(object):
                     filepath_bytes = 'modules/filepath/pretrained/pickle.bytes',
 
                     # metadata needed for struct instantiation (optional)
-                    emulation_report_path = "data/emulation.dataset",
+                    emulation_report_path = "data/emulation.dataset/tainvalset_emulaiton",
                     rawpe_db_path = "data/archives/pe_trainset/PeX86Exe",
                     fielpath_csvs = "data/archives/pe_trainset/PeX86Exe",
                     
@@ -106,7 +106,7 @@ class CompositeClassifierFromRepresentations(object):
         self.modules = {}
 
         self.ember_mlp_model_path = self.root + ember_mlp_model_path
-                    
+
         if "ember" in modules:
             self.modules["ember"] = PENetwork()
             if os.path.exists(self.ember_mlp_model_path):
@@ -114,7 +114,7 @@ class CompositeClassifierFromRepresentations(object):
                 self.modules["ember"].load_state_dict(torch.load(self.ember_mlp_model_path))
             else:
                 logging.error(f"[-] {self.ember_mlp_model_path} doesn't exist...")
-            
+        
         if "filepaths" in modules:
             self.bytes = self.root + filepath_bytes
             self.fielpath_csvs = self.root + fielpath_csvs
@@ -160,7 +160,7 @@ class CompositeClassifierFromRepresentations(object):
                                         random_state=42) # TBD
         else:
             raise NotImplementedError
-        
+    
     
     # other module actions
     def load_emulation_module(self, state_dict):
@@ -287,9 +287,7 @@ class CompositeClassifierFromRepresentations(object):
         self.module_timers.append([checkpoint[i]-checkpoint[i-1] for i in range(1,len(checkpoint))])
         
         return torch.vstack(vector).reshape(1,-1).detach().numpy()
-    
-    # UNTIL HERE
-    
+        
     def preprocess_pelist(self, pelist, pathlist=None, defaultpath=None, takepath=False, dump_xy=True):
         x = []
         path = None
@@ -334,12 +332,12 @@ class CompositeClassifierFromRepresentations(object):
         # 1. preprocess provided samples
 
         # 2. oversample
-
+        
         # 3. form a new dataset out of old samples + new oversamples samples, shuffle
         
         # 4. retrain each module
 
         # 5. retrain late fusion model
-
+        
         # 6. dump new model parameters / new dataset 
         raise NotImplementedError

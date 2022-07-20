@@ -13,11 +13,20 @@ def filepath_db(FILEPATH_CSV_LOCATION="/data/quo.vadis/data/pe.dataset/PeX86Exe"
     for root, dirs, _ in os.walk(FILEPATH_CSV_LOCATION):
         for name in dirs:
             fullpath = os.path.join(root, name)
-            csvdb = os.path.join(fullpath, [x for x in os.listdir(fullpath) if x.endswith(".csv")][0])
+            csvfile = [x for x in os.listdir(fullpath) if x.endswith(".csv")]
+            if len(csvfile) != 1: # should be exactly one CSV file containing 'hash,filepath' mapping
+                logging.error(f"[-] Cannot find any CSV files in: {fullpath}. To ignore this CSV file, use 'skip=True'")
+                if not skip:
+                    sys.exit(1)
+                else:
+                    continue
+            else:
+                csvdb = os.path.join(fullpath, csvfile[0])
+            
             try:
                 df = pd.read_csv(csvdb, header=None)
             except pd.errors.ParserError as ex:
-                logging.error(f"[-] Cannot parse: {csvdb}.. Error: {ex}. To ignore, use: skip=True")
+                logging.error(f"[-] Cannot parse: {csvdb}.. Error: {ex}. Potential cause: comma (,) symbol in filepath. Wrap paths with double quotes (\")! To ignore this CSV file, use 'skip=True'")
                 if not skip:
                     sys.exit(1)
                 else:

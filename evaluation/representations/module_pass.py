@@ -47,33 +47,49 @@ if __name__ == "__main__":
     X_val_hashes = pickle.load(open(f"{train_valset_folder}/X_val.pickle.set","rb"))
     y_val = np.load(open(f"{train_valset_folder}/y_val.arr","rb"))
 
-    model = CompositeClassifierFromRepresentations(root=ROOT)
-    
+    X_test_hashes = pickle.load(open(f"{train_valset_folder}/X_test.pickle.set","rb"))
+    y_test = np.load(open(f"{train_valset_folder}/y_test.arr","rb"))
+
     LIMIT = args.limit if args.limit else None
     
-    logging.warning("[*] Preprocessing train set...")
-    x_train = model.preprocess_pelist(X_train_hashes[0:LIMIT], dump_xy=False)
+    #model = CompositeClassifierFromRepresentations(root=ROOT)
+    
+    #logging.warning("[*] Preprocessing train set...")
+    #x_train = model.preprocess_pelist(X_train_hashes[0:LIMIT], dump_xy=False)
+
+    #if args.save_xy:
+    #    dump_xy(x_train, y_train[:LIMIT], note="train")
+
+    # logging.warning("[*] Preprocessing validation set")
+    # x_val = model.preprocess_pelist(X_val_hashes[0:LIMIT], dump_xy=False)
+
+    # if args.save_xy:
+    #     dump_xy(x_val, y_val[:LIMIT], note="val")
+    
+    model = CompositeClassifierFromRepresentations(root=ROOT,
+                                        rawpe_db_path = "data/archives/testset",
+                                        fielpath_csvs = "data/archives/testset",
+                                        emulation_report_path = "data/emulation.dataset/testset_emulation")
+
+    logging.warning("[*] Preprocessing test set")
+    x_test = model.preprocess_pelist(X_test_hashes[0:LIMIT], dump_xy=False)
 
     if args.save_xy:
-        dump_xy(x_train, y_train[:LIMIT], note="train")
-
-    logging.warning("[*] Preprocessing validation set")
-    x_val = model.preprocess_pelist(X_val_hashes[0:LIMIT], dump_xy=False)
-
-    if args.save_xy:
-        dump_xy(x_val, y_val[:LIMIT], note="val")
+        dump_xy(x_test, y_test[:LIMIT], note="test")
     
     if args.debug and args.limit:
 
-        model.model.fit(x_train.detach().numpy(), y_train[0:LIMIT])
+        # model.model.fit(x_train.detach().numpy(), y_train[0:LIMIT])
         
-        probs_train = model.predict_proba(x_train.detach().numpy())
-        preds_train = np.argmax(probs_train, axis=1)
+        # probs_train = model.predict_proba(x_train.detach().numpy())
+        # preds_train = np.argmax(probs_train, axis=1)
         
-        probs_val = model.predict_proba(x_val.detach().numpy())
-        preds_val = np.argmax(probs_val, axis=1)
+        # probs_val = model.predict_proba(x_val.detach().numpy())
+        # preds_val = np.argmax(probs_val, axis=1)
         
-        print("\ntrain\n", preds_train, "\n", y_train[0:LIMIT].astype(int))
-        print("\nval\n", preds_val, "\n", y_val[0:LIMIT].astype(int))
+        # print("\ntrain\n", preds_train, "\n", y_train[0:LIMIT].astype(int))
+        # print("\nval\n", preds_val, "\n", y_val[0:LIMIT].astype(int))
+
+        pass
 
     import pdb;pdb.set_trace()
