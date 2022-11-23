@@ -82,7 +82,7 @@ if __name__ == "__main__":
     if args.example:
         # BENIGN SAMPLES PRESENT IN REPOSITORY
         base_dir = os.path.join(os.path.dirname(__file__), "evaluation", "adversarial", "samples_goodware")
-        files = [os.path.join(base_dir, f) for f in os.listdir(base_dir) if not f.startswith('.')][0:1]
+        files = [r"C:\Windows\system32\calc.exe"]
         paths = [r"C:\users\myuser\AppData\Local\Temp\exploit.exe"]
         
         print("\n[*] Legitimate 'calc.exe' analysis...")
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         except FileNotFoundError:
             logging.warning(f"[-] Cannot access downloaded sample: {example_pe}.\n\t\tIsn't AV blocking / removed it? Be sure to add exclusion folder or disable AV. Exiting ... ")
         
-        os.remove(example_pe)
+        #os.remove(example_pe)
         sys.exit(0)
 
 
