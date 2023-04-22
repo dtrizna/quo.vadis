@@ -6,6 +6,45 @@
 
 :warning: The model is a research prototype, provided as-is, without warranty of any kind, in a pre-alpha state.
 
+
+## Dataset
+
+Dataset structure used for model pre-training is as follows:
+
+<p align="center"><img src="img/dataset_table.png" width=400><br>
+
+Raw PE samles and in-the-wild filepaths are not disclosed due to Privacy Policy. However,
+
+- PE emulation dataset available in [emulation.dataset](data/emulation.dataset/)
+- Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
+  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
+  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
+
+## Citation
+
+This repository is part of the following publication: <https://dl.acm.org/doi/10.1145/3560830.3563726>
+
+If you are inspired by the work or use data, please cite us:
+
+```bibtex
+@inproceedings{10.1145/3560830.3563726,
+author = {Trizna, Dmitrijs},
+title = {Quo Vadis: Hybrid Machine Learning Meta-Model Based on Contextual and Behavioral Malware Representations},
+year = {2022},
+isbn = {9781450398800},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3560830.3563726},
+doi = {10.1145/3560830.3563726},
+booktitle = {Proceedings of the 15th ACM Workshop on Artificial Intelligence and Security},
+pages = {127–136},
+numpages = {10},
+keywords = {reverse engineering, neural networks, malware, emulation, convolutions},
+location = {Los Angeles, CA, USA},
+series = {AISec'22}
+}
+```
+
 ## Architecture
 
 Hybrid, modular structure for **malware classification**. Supported modules:
@@ -137,20 +176,6 @@ WARNING:root: [+] 0/0 Finished emulation ./b47c77d237243747a51dd02d836444ba067cf
        ember  filepaths  emulation
 0  0.035511   0.086567    0.96526 
 ```
-
-## Dataset
-
-Dataset structure used for model pre-training is as follows:
-
-<p align="center"><img src="img/dataset_table.png" width=400><br>
-
-Raw PE samles and in-the-wild filepaths are not disclosed due to Privacy Policy. However,
-
-- PE emulation  dataset available in [emulation.dataset.7z](data/emulation.dataset/emulation.dataset.7z)
-- Filepath dataset (open sources only, in-the-wild paths used for pre-training are excluded):
-  - augmented [samples](data/path.dataset/dataset_malicious_augumented.txt) and [logic](data/path.dataset/augment/augmentation.ipynb)
-  - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
-
 
 ## Evaluation
 
