@@ -4,6 +4,10 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/dtrizna/quo.vadis)
 <a href="https://twitter.com/intent/follow?screen_name=ditrizna"><img src="https://img.shields.io/twitter/follow/ditrizna?style=social&logo=twitter" alt="follow on Twitter"></a>
 
+This repository is part of the following publication: <https://dl.acm.org/doi/10.1145/3560830.3563726>
+
+**Quo Vadis: Hybrid Machine Learning Meta-Model Based on Contextual and Behavioral Malware Representations**
+
 :warning: The model is a research prototype, provided as-is, without warranty of any kind, in a pre-alpha state.
 
 
@@ -21,8 +25,6 @@ Raw PE samles and in-the-wild filepaths are not disclosed due to Privacy Policy.
   - [paths](data/path.dataset/dataset_benign_win10.txt) from clean Windows 10 host
 
 ## Citation
-
-This repository is part of the following publication: <https://dl.acm.org/doi/10.1145/3560830.3563726>
 
 If you are inspired by the work or use data, please cite us:
 
